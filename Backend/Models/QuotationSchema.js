@@ -1,37 +1,40 @@
 const mongoose = require("mongoose");
 
-const OrderSchema = new mongoose.Schema({
+const QuotationSchema = new mongoose.Schema({
     firmid: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "Firm", 
         required: [true, "Firm ID is required"] 
     },
-    quotationid: { 
+    sourceid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Quotation", 
-        required: [true, "Quotation ID is required"] 
+        ref: "Source", 
+        required: [true, "Source ID is required"] 
     },
     customerid: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "Customer", 
         required: [true, "Customer ID is required"] 
     },
-    orderno: { 
+    quotationno: { 
         type: String, 
-        required: [true, "Order number is required"], 
-        unique: true 
+        required: [true, "Quotation Number is required"], 
+        unique: true,
+        trim: true 
     },
-    orderdate: { 
+    quotationdate: { 
         type: Date, 
-        required: [true, "Order date is required"] 
+        required: [true, "Quotation Date is required"] 
     },
     baddress: { 
         type: String, 
-        required: [true, "Billing address is required"] 
+        required: [true, "Billing Address is required"], 
+        trim: true 
     },
     saddress: { 
         type: String, 
-        required: [true, "Shipping address is required"] 
+        required: [true, "Shipping Address is required"], 
+        trim: true 
     },
     createdon: { 
         type: Date, 
@@ -45,7 +48,7 @@ const OrderSchema = new mongoose.Schema({
     totalweight: { 
         type: Number, 
         required: [true, "Total weight is required"], 
-        min: [0, "Total weight cannot be negative"] 
+        min: [0, "Weight cannot be negative"] 
     },
     subtotal: { 
         type: Number, 
@@ -55,13 +58,18 @@ const OrderSchema = new mongoose.Schema({
     gstamount: { 
         type: Number, 
         required: [true, "GST amount is required"], 
-        min: [0, "GST amount cannot be negative"] 
+        min: [0, "GST cannot be negative"] 
     },
     total: { 
         type: Number, 
         required: [true, "Total amount is required"], 
-        min: [0, "Total amount cannot be negative"] 
+        min: [0, "Total cannot be negative"] 
+    },
+    quotationtype: { 
+        type: String, 
+        enum: ["retail", "wholesale"], 
+        required: [true, "Quotation Type is required"] 
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model("order", OrderSchema);
+module.exports = mongoose.model("quotation", QuotationSchema);
