@@ -49,4 +49,4 @@ const StateSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-module.exports = mongoose.model("State", AdminSchema);
+module.exports = mongoose.model("State",StateSchema );
