@@ -1,14 +1,12 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-let AdminSchema=new mongoose.Schema({
-    id: { type: String }, // ID Field
-    name: { type: String },
-    username: { type: String },
-    password: { type: String },
-    mobileno: { type: Number },
-    role: { type: String },
-    status: { type: String },
-});
+const AdminSchema = new mongoose.Schema({
+    name: { type: String, required: true, trim: true },
+    username: { type: String, required: true, unique: true, trim: true },
+    password: { type: String, required: true }, // Store hashed passwords in production
+    mobileno: { type: String, required: true, unique: true, trim: true },
+    role: { type: String, required: true, enum: ["admin", "superadmin", "user"] },
+    status: { type: String, required: true, enum: ["active", "inactive"] }
+}, { timestamps: true });
 
-let Agency = mongoose.model("agencies", schema);
-module.exports = Agency;
+module.exports = mongoose.model("Admin", AdminSchema);
