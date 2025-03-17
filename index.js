@@ -2,7 +2,7 @@ let express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-mongoose.connect("mongodb://localhost:27017/adpro").then((res)=>{
+mongoose.connect("mongodb://localhost:27017/main-project").then((res)=>{
     console.log("Database Connected...");
 });
 
@@ -11,10 +11,10 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/",(req, res)=>{
-    res.send("Welcome to AdPro API");
+    res.send("Welcome to API");
 });
 
-app.use("/agencies",require("./routes/agenciesRoute"));
+app.use("/admin",require("./routes/adminsRoute"));
 
 app.listen(8080,()=>{
     console.log("server is running on port http://localhost:8080");
