@@ -14,8 +14,9 @@ app.get("/",(req, res)=>{
     res.send("Welcome to API");
 });
 
-app.use("/admin",require("./routes/adminsRoute"));
+app.use("/admin",require("../Routes/adminsRoute"));
+app.use("/state",require("../Routes/statesRoute"));
 
-app.listen(8080,()=>{
-    console.log("server is running on port http://localhost:8080");
+app.listen(8081,()=>{
+    console.log("server is running on port http://localhost:8081");
 });
