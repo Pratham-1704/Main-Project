@@ -1,22 +1,22 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-let BrandSchema = new mongoose.Schema({
-    id: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        unique: true
-    },
-    name: {
-        type: String,
-        required: true
-    },
-    srno: {
-        type: Number,
-        required: true,
-        unique: true
-    }
-});
+const BrandSchema = new mongoose.Schema(
+    {
+        name: { 
+            type: String, 
+            required: [true, "Brand name is required"], 
+            trim: true,
+            minlength: [2, "Brand name must be at least 2 characters long"],
+            maxlength: [50, "Brand name cannot exceed 50 characters"]
+        },
+        srno: { 
+            type: Number, 
+            required: [true, "Serial number is required"],
+            unique: true,
+            min: [1, "Serial number must be at least 1"]
+        }
+    }, 
+    { timestamps: true }
+);
 
-let Brand = mongoose.model("Brand",BrandSchema);
-
-module.exports = Brand;
+module.exports = mongoose.model("Brand", BrandSchema);
