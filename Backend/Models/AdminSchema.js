@@ -1,36 +1,14 @@
-const mongoose=require('mongoose');
+const mongoose = require('mongoose');
 
 let AdminSchema=new mongoose.Schema({
-    id: {
-        type: String,
-        required: true
-    },
-    name: {
-        type: String,
-        required: true
-    },
-    username: {
-        type: String,
-        required: true
-    },
-    password: {
-        type: String,
-        required: true
-    },
-    mobileno: {
-        type: Number,
-        required: true
-    },
-    role: {
-        type: String,
-        required: true
-    },
-    status: {
-        type: String,
-        required: true
-    }
+    id: { type: String }, // ID Field
+    name: { type: String },
+    username: { type: String },
+    password: { type: String },
+    mobileno: { type: Number },
+    role: { type: String },
+    status: { type: String },
 });
 
-let Admin=mongoose.model("admin",AdminSchema);
-
-module.exports=Admin;
+let Agency = mongoose.model("agencies", schema);
+module.exports = Agency;
