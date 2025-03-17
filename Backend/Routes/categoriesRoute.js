@@ -1,70 +1,71 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Category = require('../models/Category');
+const Category = require("../Modules/categorySchema");
 
-// Create Category
-router.post('/categories', async (req, res) => {
-  try {
-    const { id, name, type, billiningin, srno } = req.body;
-    
-    // Validate required fields
-    if (!id || !name || !type || !srno) {
-      return res.status(400).json({ message: 'All fields except billiningin are required' });
+// ➤ Get all categories
+router.get("/", async (req, res) => {
+    try {
+        let records = await Category.find({});
+        res.json({ status: "success", alldata: records });
+    } catch (err) {
+        res.status(500).json({ status: "error", message: "Something Went Wrong!" });
     }
-
-    const category = new Category({ id, name, type, billiningin, srno });
-    await category.save();
-    
-    res.status(201).json(category);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
 });
 
-// Get All Categories
-router.get('/categories', async (req, res) => {
-  try {
-    const categories = await Category.find();
-    res.status(200).json(categories);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// ➤ Get a single category by ID
+router.get("/:id", async (req, res) => {
+    try {
+        let record = await Category.findOne({ id: req.params.id });
+        if (!record) return res.status(404).json({ status: "error", message: "Category Not Found" });
+
+        res.json({ status: "success", singledata: record });
+    } catch (err) {
+        res.status(500).json({ status: "error", message: "Something Went Wrong!" });
+    }
 });
 
-// Get Category by ID
-router.get('/categories/:id', async (req, res) => {
-  try {
-    const category = await Category.findOne({ id: req.params.id });
-    if (!category) return res.status(404).json({ message: 'Category not found' });
-    
-    res.status(200).json(category);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// ➤ Add a new category
+router.post("/", async (req, res) => {
+    try {
+        const { id, name, type, billiningin, srno } = req.body;
+
+        if (!id || !name || !type || billiningin === undefined || !srno) {
+            return res.status(400).json({ status: "error", message: "Missing Required Fields" });
+        }
+
+        let newCategory = new Category({ id, name, type, billiningin, srno });
+        let savedCategory = await newCategory.save();
+
+        res.status(201).json({ status: "success", singledata: savedCategory });
+    } catch (err) {
+        res.status(500).json({ status: "error", message: err.message });
+    }
 });
 
-// Update Category
-router.put('/categories/:id', async (req, res) => {
-  try {
-    const category = await Category.findOneAndUpdate({ id: req.params.id }, req.body, { new: true });
-    if (!category) return res.status(404).json({ message: 'Category not found' });
+// ➤ Update a category by ID
+router.put("/:id", async (req, res) => {
+    try {
+        let updatedRecord = await Category.findOneAndUpdate({ id: req.params.id }, req.body, { new: true });
 
-    res.status(200).json(category);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+        if (!updatedRecord) return res.status(404).json({ status: "error", message: "Category Not Found" });
+
+        res.json({ status: "success", singledata: updatedRecord });
+    } catch (err) {
+        res.status(500).json({ status: "error", message: "Something Went Wrong!" });
+    }
 });
 
-// Delete Category
-router.delete('/categories/:id', async (req, res) => {
-  try {
-    const category = await Category.findOneAndDelete({ id: req.params.id });
-    if (!category) return res.status(404).json({ message: 'Category not found' });
+// ➤ Delete a category by ID
+router.delete("/:id", async (req, res) => {
+    try {
+        let deletedRecord = await Category.findOneAndDelete({ id: req.params.id });
 
-    res.status(200).json({ message: 'Category deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+        if (!deletedRecord) return res.status(404).json({ status: "error", message: "Category Not Found" });
+
+        res.json({ status: "success", singledata: deletedRecord });
+    } catch (err) {
+        res.status(500).json({ status: "error", message: "Something Went Wrong!" });
+    }
 });
 
 module.exports = router;
