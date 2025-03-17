@@ -16,6 +16,7 @@ app.get("/",(req, res)=>{
 
 app.use("/admin",require("./Routes/adminsRoute"));
 app.use("/state",require("./Routes/statesRoute"));
+app.use("/brand",require("./Routes/brandsRoute"));
 
 app.listen(8081,()=>{
     console.log("server is running on port http://localhost:8081");
