@@ -18,7 +18,6 @@ app.use("/admin",require("./Routes/adminsRoute"));
 app.use("/brand",require("./Routes/brandsRoute"));
 
 
-const port =8081;
-app.listen([port],()=>{
-    console.log("server is running on port http://localhost: "+port );
+app.listen(8081,()=>{
+    console.log("server is running on port http://localhost:8081");
 });
