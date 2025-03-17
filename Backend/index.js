@@ -16,6 +16,6 @@ app.get("/",(req, res)=>{
 
 app.use("/admin",require("./routes/adminsRoute"));
 
-app.listen(8080,()=>{
-    console.log("server is running on port http://localhost:8080");
+app.listen(8081,()=>{
+    console.log("server is running on port http://localhost:8081");
 });
