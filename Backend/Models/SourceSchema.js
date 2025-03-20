@@ -10,4 +10,4 @@ const SourceSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model("Source", SourceSchema);
+module.exports = mongoose.model("source", SourceSchema);

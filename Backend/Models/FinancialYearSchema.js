@@ -25,4 +25,4 @@ const FinancialYearSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model("FinancialYear", FinancialYearSchema);
+module.exports = mongoose.model("financialYear", FinancialYearSchema);

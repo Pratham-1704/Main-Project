@@ -11,4 +11,4 @@ const ProfessionSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model("Profession", ProfessionSchema);
+module.exports = mongoose.model("profession", ProfessionSchema);
