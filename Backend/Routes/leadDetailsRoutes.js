@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
 // ➤ Get all lead details
 router.get("/", async (req, res) => {
     try {
-        const leadDetails = await LeadDetails.find();
+        const leadDetails = await LeadDetails.find().populate("productid");
         res.json({ status: "success", data: leadDetails });
     } catch (err) {
         res.status(500).json({ status: "error", message: err.message });

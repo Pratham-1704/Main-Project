@@ -3,17 +3,17 @@ const mongoose = require("mongoose");
 const LeadDetailsSchema = new mongoose.Schema({
     leadon: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Lead", 
+        ref: "lead", 
         required: true 
     },
     categoryid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Category", 
+        ref: "category", 
         required: true 
     },
     productid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Product", 
+        ref: "product", 
         required: true 
     },
     estimationin: { 
