@@ -4,12 +4,8 @@ import AdminRegister from "./Components/AdminRegister";
 import AdminLogin from "./Components/AdminLogin";
 import Dashboard from "./Components/Dashboard";
 // import '@fortawesome/fontawesome-free/css/all.min.css';
-<<<<<<< HEAD
 
 import "font-awesome/css/font-awesome.min.css";
-=======
-// import "font-awesome/css/font-awesome.min.css";
->>>>>>> 05131ac97adb613cefde700357ca9c872eb442f2
 import Navbar from "./Components/Navbar";
 import Layout from "./Components/Layout";
 
