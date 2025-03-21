@@ -538,7 +538,9 @@ function Dashboard() {
                         Content area...
                     </div>
                 </div>
-            </div>
+
+            </section>
+        </div>
     );
 }
 
