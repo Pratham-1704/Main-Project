@@ -13,16 +13,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-<<<<<<< HEAD
-        {/* <Route path="/admin-register" element={<AdminRegister />} /> */}
-        <Route path="/admin-login" element={<AdminLogin />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-=======
          {/* <Route path="/admin-register" element={<AdminRegister />} /> */}
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/Navbar" element={<Navbar />} />
->>>>>>> e079fafe978a7f2994738e6f03764ae3f17eb220
 
       </Routes>
     </BrowserRouter>
