@@ -12,7 +12,7 @@ const AdminLogin = () => {
   function handleSubmit(event) {
     event.preventDefault();
     if (username.toLowerCase() === "admin" && password.toLowerCase() === "admin") {
-      navigate("/dashboard");
+      navigate("/layout");
     } else {
       alert("Invalid Credentials");
       setUsername("");
