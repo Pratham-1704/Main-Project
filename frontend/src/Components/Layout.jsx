@@ -2,7 +2,7 @@ import React from 'react'
 
 function Layout() {
   return (
-    <div></div>
+    <div><h1>Layout</h1></div>
   )
 }
 
