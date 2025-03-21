@@ -43,8 +43,12 @@ const AdminLogin = () => {
                       aria-label="Password"
                     />
                   </div>
+<<<<<<< HEAD
                   <div className="d-flex justify-content-between align-items-center">
 
+=======
+                  <div className="d-flex justify-content-between align-items-center">                
+>>>>>>> e079fafe978a7f2994738e6f03764ae3f17eb220
                     <a href="#" className="btn-link text-decoration-none">Forgot Password?</a>
                   </div>
                   <div className="d-grid mt-4">
