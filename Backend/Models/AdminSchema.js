@@ -21,7 +21,7 @@ const AdminSchema = new mongoose.Schema(
             type: String, 
             required: [true, "Password is required"],
             minlength: [6, "Password must be at least 6 characters long"]
-        }, // Store hashed passwords in production
+        }, // Store plain text passwords (not recommended for production)
         mobileno: { 
             type: String, 
             required: [true, "Mobile number is required"], 

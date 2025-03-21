@@ -9,8 +9,8 @@ const Navbar = () => {
       {/* Container wrapper */}
       <div className="container-fluid">
         {/* Navbar brand */}
-        <a className="navbar-brand" href="#">Navbar</a>
-
+        <a className="navbar-brand" href=""> <img src="https://th.bing.com/th/id/OIP.nOL8HH_1fafIVupyd9raegAAAA?rs=1&pid=ImgDetMain" alt="" style={{width:'50px'}}/></a>
+     
         {/* Toggle button */}
         <button
           className="navbar-toggler"
@@ -40,18 +40,18 @@ const Navbar = () => {
               <a className="nav-link" href="#!">
                 <div>
                   <FaEnvelope className="mb-1" />
-                  <span className="badge rounded-pill badge-notification bg-danger">11</span>
+                  <span className="badge rounded-pill badge-notification bg-danger"></span>
                 </div>
                 Link
               </a>
             </li>
             <li className="nav-item text-center mx-2 mx-lg-1">
-              <a className="nav-link disabled" aria-disabled="true" href="#!">
+              <a className="nav-link " aria-disabled="true" href="#!">
                 <div>
                   <FaEnvelope className="mb-1" />
-                  <span className="badge rounded-pill badge-notification bg-warning">11</span>
+                  <span className="badge rounded-pill badge-notification bg-warning"></span>
                 </div>
-                Disabled
+                new
               </a>
             </li>
             <li className="nav-item dropdown text-center mx-2 mx-lg-1">
@@ -65,7 +65,7 @@ const Navbar = () => {
               >
                 <div>
                   <FaEnvelope className="mb-1" />
-                  <span className="badge rounded-pill badge-notification bg-primary">11</span>
+                  <span className="badge rounded-pill badge-notification bg-primary"></span>
                 </div>
                 Dropdown
               </a>
@@ -85,7 +85,7 @@ const Navbar = () => {
               <a className="nav-link" href="#!">
                 <div>
                   <FaBell className="mb-1" />
-                  <span className="badge rounded-pill badge-notification bg-info">11</span>
+                  <span className="badge rounded-pill badge-notification bg-info"></span>
                 </div>
                 Messages
               </a>
@@ -94,7 +94,7 @@ const Navbar = () => {
               <a className="nav-link" href="#!">
                 <div>
                   <FaGlobeAmericas className="mb-1" />
-                  <span className="badge rounded-pill badge-notification bg-success">11</span>
+                  <span className="badge rounded-pill badge-notification bg-success"></span>
                 </div>
                 News
               </a>
