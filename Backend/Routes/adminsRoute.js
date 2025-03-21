@@ -67,4 +67,25 @@ router.delete("/:id", async (req, res) => {
     }
 });
 
+// ➤ Admin login
+router.post("/login", async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const admin = await Admin.findOne({ username });
+        if (!admin) {
+            return res.status(401).json({ status: "error", message: "Invalid credentials" });
+        }
+
+        // Compare entered password with stored plain-text password
+        if (password !== admin.password) {
+            return res.status(401).json({ status: "error", message: "Invalid credentials" });
+        }
+
+        res.json({ status: "success", message: "Login successful" });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: "Server error" });
+    }
+});
+
 module.exports = router;

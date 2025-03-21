@@ -1,22 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const AdminLogin = () => {
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  let navigate = useNavigate();
-
-  const [username, setUsername] = React.useState("");
-  const [password, setPassword] = React.useState("");
-
-  function handleSubmit(event) {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    if (username.toLowerCase() === "admin" && password.toLowerCase() === "admin") {
-      navigate("/layout");
-    } else {
-      alert("Invalid Credentials");
-      setUsername("");
-      setPassword("");
+
+    try {
+      const response = await axios.post("http://localhost:8081/admin/login", {
+        username,
+        password,
+      });
+
+      if (response.data?.status === "success") {
+        alert("Login Successful!");
+        navigate("/layout"); // Redirect on successful login
+        
+        setUsername("");
+        setPassword("");
+
+      } else {
+        setErrorMessage(response.data?.message || "Invalid username or password");
+      }
+    } catch (error) {
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        setErrorMessage(error.response.data?.message || "Server error occurred");
+      } else if (error.request) {
+        // Request was made but no response received
+        setErrorMessage("No response from server. Please try again later.");
+      } else {
+        // Something else caused the error
+        setErrorMessage("An unexpected error occurred. Please try again.");
+      }
     }
   };
 
@@ -42,6 +64,9 @@ const AdminLogin = () => {
                   <h1 className="h3 fw-bold">🔐 Sign In</h1>
                   <p className="text-muted">Access your admin account</p>
                 </div>
+                {errorMessage && (
+                  <div className="alert alert-danger text-center">{errorMessage}</div>
+                )}
                 <form className="mt-4" onSubmit={handleSubmit}>
                   <div className="mb-3">
                     <input
@@ -51,6 +76,7 @@ const AdminLogin = () => {
                       aria-label="Username"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
+                      required
                       autoFocus
                     />
                   </div>
@@ -62,13 +88,18 @@ const AdminLogin = () => {
                       aria-label="Password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      required
                     />
                   </div>
                   <div className="d-flex justify-content-between align-items-center">
-                    <a href="#" className="btn-link text-decoration-none">Forgot Password?</a>
+                    <a href="/forgot-password" className="btn-link text-decoration-none">
+                      Forgot Password?
+                    </a>
                   </div>
                   <div className="d-grid mt-4">
-                    <button className="btn btn-primary btn-lg" type="submit">Sign In</button>
+                    <button className="btn btn-primary btn-lg" type="submit">
+                      Sign In
+                    </button>
                   </div>
                 </form>
               </div>
