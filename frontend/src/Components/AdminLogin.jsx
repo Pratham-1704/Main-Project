@@ -42,17 +42,7 @@ const AdminLogin = () => {
                       aria-label="Password"
                     />
                   </div>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div className="form-check">
-                      <input
-                        id="rememberMe"
-                        className="form-check-input"
-                        type="checkbox"
-                      />
-                      <label htmlFor="rememberMe" className="form-check-label text-muted">
-                        Remember Me
-                      </label>
-                    </div>
+                  <div className="d-flex justify-content-between align-items-center">                
                     <a href="#" className="btn-link text-decoration-none">Forgot Password?</a>
                   </div>
                   <div className="d-grid mt-4">
@@ -61,32 +51,7 @@ const AdminLogin = () => {
                     </button>
                   </div>
                 </form>
-                <div className="text-center mt-4">
-                  <p className="text-muted">
-                    Don't have an account?{" "}
-                    <a href="#" className="btn-link text-decoration-none fw-bold">Create a New Account</a>
-                  </p>
-                </div>
-                <div className="d-flex align-items-center justify-content-center border-top pt-3 mt-3">
-                  <h6 className="m-0 text-muted">Or Sign In with</h6>
-                </div>
-                <div className="d-flex justify-content-center gap-2 mt-3">
-                  <a href="#" className="btn btn-outline-primary btn-sm">
-                    <i className="fab fa-facebook-f"></i> Facebook
-                  </a>
-                  <a href="#" className="btn btn-outline-danger btn-sm">
-                    <i className="fab fa-google"></i> Google
-                  </a>
-                  <a href="#" className="btn btn-outline-dark btn-sm">
-                    <i className="fab fa-github"></i> GitHub
-                  </a>
-                </div>
               </div>
-            </div>
-            <div className="text-center mt-3">
-              <button className="btn btn-light" onClick={() => window.history.back()}>
-                ⬅️ Back
-              </button>
             </div>
           </div>
         </div>
