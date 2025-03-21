@@ -52,20 +52,22 @@ const AdminRegister = () => {
                                 <div className="d-flex align-items-center justify-content-between border-top pt-3 mt-3">
                                     <h5 className="m-0">Sign Up with</h5>
                                     <div className="ms-3">
-                                        <a href="#" className="btn btn-sm btn-icon btn-hover btn-primary text-inherit">
-                                            <i className="demo-psi-facebook fs-5"></i>
+                                        <a href="#" className="btn btn-sm btn-icon btn-hover btn-danger text-inherit">
+                                            <i className="fab fa-google" style={{ fontSize: "0.7rem" }}></i>
                                         </a>
                                         <a href="#" className="btn btn-sm btn-icon btn-hover btn-info text-inherit">
-                                            <i className="demo-psi-twitter fs-5"></i>
+                                            <i className="fab fa-twitter" style={{ fontSize: "0.7rem" }}></i>
                                         </a>
-                                        <a href="#" className="btn btn-sm btn-icon btn-hover btn-danger text-inherit">
-                                            <i className="demo-psi-google-plus fs-5"></i>
+                                        <a href="#" className="btn btn-sm btn-icon btn-hover btn-primary text-inherit">
+                                            <i className="fab fa-facebook" style={{ fontSize: "0.7rem" }}></i>
                                         </a>
                                         <a href="#" className="btn btn-sm btn-icon btn-hover btn-warning text-inherit">
-                                            <i className="demo-psi-instagram fs-5"></i>
+                                            <i className="fab fa-instagram" style={{ fontSize: "0.7rem" }}></i>
                                         </a>
                                     </div>
                                 </div>
+
+
                             </div>
                         </div>
                         <div className="d-flex align-items-center justify-content-center gap-3 mt-4">
