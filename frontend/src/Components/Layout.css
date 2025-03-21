@@ -16,8 +16,8 @@
 .navbar-wrapper {
   background-color: #a7b1c0; /* Dark blue */
   color: #D1D1D1; /* Light gray */
-  padding: 15px 170px;
-  position: fixed; /* Fix navbar at the top */
+  padding: 15px 30px;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -25,7 +25,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%; /* Ensure it spans the entire width */
 }
 
 .brand-logo img {
@@ -69,13 +68,14 @@
   color: #D1D1D1; /* Light gray */
   padding-top: 100px;
   position: fixed;
-  top: 60px; /* Adjust sidebar position based on navbar height */
+  top: 80px;
   left: 0;
   bottom: 0;
   z-index: 900;
   padding-left: 20px;
   padding-right: 20px;
-  overflow-y: auto;
+  height: calc(100vh - 80px); /* Ensure the sidebar takes full height but below navbar */
+  overflow-y: auto; /* Allow sidebar content to scroll */
 }
 
 .sidebar-nav {
@@ -104,8 +104,9 @@
   background-color: #424242; /* Dark gray */
   color: #D1D1D1; /* Light gray */
   flex-grow: 1;
-  margin-top: 60px; /* Prevent overlap with navbar */
-  padding-bottom: 30px;
+  margin-top: 80px; /* Adjust to make room for the fixed navbar */
+  margin: 20px 20px 20px 270px; /* Adjust for navbar and sidebar */
+  padding-bottom: 100px; /* Allow space for footer */
 }
 
 h1 {
@@ -131,42 +132,36 @@ p {
 /* Responsive Design for Smaller Screens */
 @media (max-width: 768px) {
   .layout-wrapper {
-      flex-direction: column;
+    flex-direction: column;
   }
 
   .sidebar {
-      width: 100%;
-      height: auto;
-      position: relative;
-      margin-top: 15px;
-      padding-left: 10px;
-      padding-right: 10px;
+    width: 100%;
+    height: auto;
+    position: relative;
+    margin-top: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   .main-content {
-      margin-left: 0;
-      margin-top: 100px; /* Space for fixed navbar */
-      padding-top: 20px;
-      padding-left: 15px;
-      padding-right: 15px;
+    margin-left: 0;
+    margin-top: 250px; /* Adjust for navbar height */
+    padding-top: 20px;
+    padding-left: 15px;
+    padding-right: 15px;
   }
 
   .navbar-wrapper {
-      padding: 10px;
-      flex-direction: column;
-      align-items: center;
+    padding: 10px;
   }
 
   .nav-item {
-      display: block;
-      margin: 5px 0;
+    display: block;
+    margin: 5px 0;
   }
 
   .navbar-wrapper .brand-phone {
-      display: none;
-  }
-
-  .sidebar {
-      top: 60px; /* Adjust to prevent overlap with navbar */
+    display: none;
   }
 }
