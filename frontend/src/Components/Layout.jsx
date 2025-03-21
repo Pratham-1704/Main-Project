@@ -10,7 +10,7 @@ function Layout() {
           <a href="/">
             <img src="https://th.bing.com/th/id/OIP.VGH-_2dPONY9FCieQ-r4ZwHaHa?rs=1&pid=ImgDetMain" alt="Logo" />
           </a>
-        </div>
+        </div><a href=""></a>
         <div className="brand-phone">
           <a href="tel:+9002341234">
             <i className="fa fa-phone me-3"></i> 900 234-1234
