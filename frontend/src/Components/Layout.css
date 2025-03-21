@@ -1,0 +1,165 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* General Layout */
+  .layout-wrapper {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+  
+  /* Navbar Styling */
+  .navbar-wrapper {
+    background-color: #a7b1c0; /* Dark blue */
+    color: #D1D1D1; /* Light gray */
+    padding: 15px 30px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .brand-logo img {
+    height: 50px;
+  }
+  
+  .brand-phone a {
+    color: #D1D1D1; /* Light gray */
+    text-decoration: none;
+  }
+  
+  .top-bar-wrap {
+    background-color: #0D47A1; /* Dark blue */
+  }
+  
+  .top-bar,
+  .main-nav {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .nav-item {
+    display: inline-block;
+    margin-right: 20px;
+  }
+  
+  .nav-link {
+    color: #D1D1D1; /* Light gray */
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .nav-link:hover {
+    color: #00BCD4; /* Bright cyan */
+  }
+  
+  /* Sidebar Styling */
+  .sidebar {
+    width: 250px;
+    background-color: #37474F; /* Steel gray */
+    color: #D1D1D1; /* Light gray */
+    padding-top: 100px;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    bottom: 0;
+    z-index: 900;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  
+  .sidebar-nav {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .sidebar-item {
+    margin: 20px 0;
+  }
+  
+  .sidebar-item a {
+    color: #D1D1D1; /* Light gray */
+    text-decoration: none;
+  }
+  
+  .sidebar-item a:hover {
+    color: #bbd6e4; /* Light blue */
+    text-decoration: underline;
+  }
+  
+  /* Main Content Styling */
+  .main-content {
+    margin-left: 250px;
+    padding: 20px;
+    background-color: #424242; /* Dark gray */
+    color: #D1D1D1; /* Light gray */
+    flex-grow: 1;
+    margin-top: 60px;
+    padding-bottom: 30px;
+  }
+  
+  h1 {
+    margin-bottom: 20px;
+  }
+  
+  p {
+    margin-bottom: 20px;
+  }
+  
+  /* Footer Styling */
+  .footer {
+    background-color: #ccd8eb; /* Dark blue */
+    color: hsl(0, 93%, 49%); /* Light gray */
+    padding: 15px 30px;
+    text-align: center;
+  }
+  
+  .footer-content p {
+    margin: 0;
+  }
+  
+  /* Responsive Design for Smaller Screens */
+  @media (max-width: 768px) {
+    .layout-wrapper {
+      flex-direction: column;
+    }
+  
+    .sidebar {
+      width: 100%;
+      height: auto;
+      position: relative;
+      margin-top: 15px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  
+    .main-content {
+      margin-left: 0;
+      margin-top: 250px;
+      padding-top: 20px;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+  
+    .navbar-wrapper {
+      padding: 10px;
+    }
+  
+    .nav-item {
+      display: block;
+      margin: 5px 0;
+    }
+  
+    .navbar-wrapper .brand-phone {
+      display: none;
+    }
+  }
+  

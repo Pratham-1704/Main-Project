@@ -3,10 +3,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AdminRegister from "./Components/AdminRegister";
 import AdminLogin from "./Components/AdminLogin";
 import Dashboard from "./Components/Dashboard";
-import '@fortawesome/fontawesome-free/css/all.min.css';
+// import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import "font-awesome/css/font-awesome.min.css";
 import Navbar from "./Components/Navbar";
+import Layout from "./Components/Layout";
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/Navbar" element={<Navbar />} />
+        <Route path="/layout" element={<Layout />} />
 
       </Routes>
     </BrowserRouter>

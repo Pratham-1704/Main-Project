@@ -31,11 +31,11 @@
     margin-top: 0px;
   }
   
-  a.nav-link:hover {
+  /* a.nav-link:hover {
     background: rgba(230, 213, 213, 0.2);
     color: #ff7300;
     border-left: 12px solid rgba(0, 0, 0, 0.3);
-  }
+  } */
   
   a.nav-link {
     border-left: 12px solid transparent;
