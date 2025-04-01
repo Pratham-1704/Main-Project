@@ -18,8 +18,11 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/forgot-password" element={<Forgotpassword />} />
+         
           <Route path="dashboard" element={<Landing />}>
+       
             <Route path="" element={<Dashboard />} />
+            
           </Route>
           <Route path="master" element={<Landing />}>
             <Route path="admin" element={<Admin />} />

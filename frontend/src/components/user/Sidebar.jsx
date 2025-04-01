@@ -19,6 +19,7 @@ function Sidebar() {
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </Link>
+        
       </li>
 
       <li class="nav-item">
@@ -47,6 +48,11 @@ function Sidebar() {
             <Link to={"/master/employees"}>
               <i class="bi bi-circle"></i>
               <span>Employees</span>
+            </Link>
+          </li><li>
+            <Link to={"/master/financialyear"}>
+              <i class="bi bi-circle"></i>
+              <span>FinancialYear</span>
             </Link>
           </li>
 
