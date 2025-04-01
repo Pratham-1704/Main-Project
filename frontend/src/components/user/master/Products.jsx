@@ -250,6 +250,11 @@ function Products() {
                   columns={columns}
                   dataSource={products}
                   rowKey="_id"
+                  onRow={(record) => ({
+                    onClick: () => {
+                      setFormData(record);
+                    },
+                  })}
                 />
               </div>
             </div>
