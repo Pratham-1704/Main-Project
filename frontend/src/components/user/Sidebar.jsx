@@ -38,7 +38,7 @@ function Sidebar() {
           data-bs-parent="#sidebar-nav"
         >
           <li>
-            <Link to={"/master/clients"}>
+            <Link to={"/master/Admin"}>
               <i class="bi bi-circle"></i>
               <span>Admin</span>
             </Link>
@@ -49,12 +49,29 @@ function Sidebar() {
               <span>Employees</span>
             </Link>
           </li>
+<<<<<<< HEAD
           <li>
             <Link to={"/master/brands"}>
               <i class="bi bi-circle"></i>
               <span>Brand</span>
             </Link>
           </li>
+=======
+
+          <li>
+            <Link to={"/master/Categories"}>
+              <i class="bi bi-circle"></i>
+              <span>Categories</span>
+            </Link>
+          </li>
+          <li>
+            <Link to={"/master/products"}>
+              <i class="bi bi-circle"></i>
+              <span>Products</span>
+            </Link>
+          </li>
+
+>>>>>>> 2474c53d05f9e574a23d783735d560a7181252cb
         </ul>
       </li>
       <li class="nav-item">
@@ -68,4 +85,4 @@ function Sidebar() {
   )
 }
 
-export default Sidebar
+export default Sidebar;
