@@ -54,6 +54,45 @@ function Brand() {
     }
   };
 
+  // Handle update
+  const handleUpdate = async () => {
+    if (!validateForm()) return;
+    try {
+      await axios.put(`http://localhost:8081/brand/${formData.srno}`, formData);
+      messageApi.success("Brand updated successfully!");
+      setFormData({ name: "", srno: "" });
+      fetchBrands();
+    }
+    catch (error) {
+      messageApi.error("Failed to update brand.");
+      console.error("Error:", error);
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async () => {
+    if (!formData.srno) {
+      messageApi.error("Select a brand to delete.");
+      return; 
+    }
+    try {
+      await axios.delete(`http://localhost:8081/brand/${formData.srno}`);
+      messageApi.success("Brand deleted successfully!");
+      setFormData({ name: "", srno: "" });
+      fetchBrands();
+    }
+    catch (error) {
+      messageApi.error("Failed to delete brand.");
+      console.error("Error:", error);
+    }
+  };
+
+  
+  // Clear form
+  const clearForm = () => {
+    setFormData({ name: "", srno: "" });
+  }
+
   const columns = [
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Sr No", dataIndex: "srno", key: "srno" },
@@ -87,7 +126,36 @@ function Brand() {
                   <Input name="srno" placeholder="Serial Number" value={formData.srno} onChange={handleInputChange} />
                 </div>
                 <div className="col-lg-12 p-1">
-                  <Button type="primary" onClick={handleSubmit}>Save</Button>
+                  <Button
+                    type="primary"
+                    onClick={handleSubmit}
+                    style={{ marginRight: "10px" }}
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    color="green" variant="solid"
+                    onClick={handleUpdate}
+                    style={{ marginRight: "10px" }}
+                  >
+                    Update
+                  </Button>
+
+                  <Button
+                    color="danger" variant="solid"
+                    onClick={handleDelete}
+                    style={{ marginRight: "10px" }}
+                  >
+                    Delete
+                  </Button>
+
+                  <Button
+                    variant="solid"
+                    onClick={clearForm}
+                    style={{ marginRight: "10px" }}
+                  >
+                    Clear
+                  </Button>
                 </div>
               </div>
             </div>

@@ -76,6 +76,60 @@ function Products() {
     }
   };
 
+  // Handle update
+  const handleUpdate = async () => {
+    if (!formData.categoryid || !formData.name || !formData.weight || !formData.srno) {
+      messageApi.open({ type: "error", content: "All fields are required!" });
+      return;
+    }
+    try {
+      await axios.put(`http://localhost:8081/product/${formData.srno}`, formData);
+      messageApi.open({ type: "success", content: "Product updated successfully!" });
+      setFormData({
+        categoryid: "",
+        name: "",
+        weight: "",
+        srno: "",
+      }); // Reset form after successful submission
+      fetchProducts(); // Refresh the product list
+    } catch (error) {
+      messageApi.open({ type: "error", content: "Failed to update product!" });
+      console.error("Error:", error);
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async () => {
+    if (!formData.srno) {
+      messageApi.open({ type: "error", content: "Select a product to delete!" });
+      return;
+    }
+    try {
+      await axios.delete(`http://localhost:8081/product/${formData.srno}`);
+      messageApi.open({ type: "success", content: "Product deleted successfully!" });
+      setFormData({
+        categoryid: "",
+        name: "",
+        weight: "",
+        srno: "",
+      }); // Reset form after successful submission
+      fetchProducts(); // Refresh the product list
+    } catch (error) {
+      messageApi.open({ type: "error", content: "Failed to delete product!" });
+      console.error("Error:", error);
+    }
+  };
+
+  // Clear form
+  const clearForm = () => {
+    setFormData({
+      categoryid: "",
+      name: "",
+      weight: "",
+      srno: "",
+    });
+  };
+
   // Table columns configuration
   const columns = [
     {
@@ -153,11 +207,35 @@ function Products() {
                     />
                   </div>
                   <div className="col-lg-12 p-1">
-                    <Button type="primary" onClick={handleSubmit}>
+                    <Button
+                      type="primary"
+                      onClick={handleSubmit}
+                      style={{ marginRight: "10px" }}
+                    >
                       Save
                     </Button>
-                    <Button variant="solid" className="ms-1" danger>
-                      Cancel
+                    <Button
+                      color="green" variant="solid"
+                      onClick={handleUpdate}
+                      style={{ marginRight: "10px" }}
+                    >
+                      Update
+                    </Button>
+
+                    <Button
+                      color="danger" variant="solid"
+                      onClick={handleDelete}
+                      style={{ marginRight: "10px" }}
+                    >
+                      Delete
+                    </Button>
+
+                    <Button
+                      variant="solid"
+                      onClick={clearForm}
+                      style={{ marginRight: "10px" }}
+                    >
+                      Clear
                     </Button>
                   </div>
                 </div>

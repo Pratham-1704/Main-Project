@@ -67,6 +67,68 @@ function Admin() {
     }
   };
 
+  // Handle update
+  const handleUpdate = async () => {
+    if (Object.values(formData).some((field) => !field.trim())) {
+      messageApi.error("All fields are required!");
+      return;
+    }
+
+    try {
+      await axios.put(`http://localhost:8081/admin/${formData._id}`, formData);
+      messageApi.success("Admin updated successfully!");
+      setFormData({
+        name: "",
+        username: "",
+        password: "",
+        mobileno: "",
+        role: "",
+        status: "",
+      }); // Reset form after successful submission
+      fetchAdmins(); // Refresh the admin list
+    } catch (error) {
+      messageApi.error("Failed to update admin!");
+      console.error("Error:", error);
+    }
+  }
+
+  // Handle delete
+  const handleDelete = async () => {
+    if (!formData._id) {
+      messageApi.error("Select an admin to delete!");
+      return;
+    }
+
+    try {
+      await axios.delete(`http://localhost:8081/admin/${formData._id}`);
+      messageApi.success("Admin deleted successfully!");
+      setFormData({
+        name: "",
+        username: "",
+        password: "",
+        mobileno: "",
+        role: "",
+        status: "",
+      }); // Reset form after successful submission
+      fetchAdmins(); // Refresh the admin list
+    } catch (error) {
+      messageApi.error("Failed to delete admin!");
+      console.error("Error:", error);
+    }
+  }
+  
+
+  // Clear form
+  const clearForm = () => {
+    setFormData({
+      name: "",
+      username: "",
+      password: "",
+      mobileno: "",
+      role: "",
+      status: "",
+    });
+  }
   // Table columns
   const columns = [
     { title: "Name", dataIndex: "name", key: "name" },
@@ -134,11 +196,35 @@ function Admin() {
                     />
                   </div>
                   <div className="col-lg-12 p-1">
-                    <Button type="primary" onClick={handleSubmit}>
+                    <Button
+                      type="primary"
+                      onClick={handleSubmit}
+                      style={{ marginRight: "10px" }}
+                    >
                       Save
                     </Button>
-                    <Button className="ms-2" danger>
-                      Cancel
+                    <Button
+                      color="green" variant="solid"
+                      onClick={handleUpdate}
+                      style={{ marginRight: "10px" }}
+                    >
+                      Update
+                    </Button>
+
+                    <Button
+                      color="danger" variant="solid"
+                      onClick={handleDelete}
+                      style={{ marginRight: "10px" }}
+                    >
+                      Delete
+                    </Button>
+
+                    <Button
+                      variant="solid"
+                      onClick={clearForm}
+                      style={{ marginRight: "10px" }}
+                    >
+                      Clear
                     </Button>
                   </div>
                 </div>
