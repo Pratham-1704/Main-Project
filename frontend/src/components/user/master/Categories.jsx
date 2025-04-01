@@ -43,10 +43,57 @@ function Categories() {
       await axios.post("http://localhost:8081/category", formData);
       messageApi.open({ type: "success", content: "Category saved successfully!" });
       fetchCategories();
+      clearForm();
     } catch (error) {
       messageApi.open({ type: "error", content: "Failed to save category!" });
       console.error("Error:", error);
     }
+  };
+
+  // Handle update
+  const handleUpdate = async () => {
+    if (!formData.name || !formData.type || !formData.billingIn || !formData.srno) {
+      messageApi.open({ type: "error", content: "All fields are required!" });
+      return;
+    }
+
+    try {
+      await axios.put(`http://localhost:8081/category/${formData.srno}`, formData);
+      messageApi.open({ type: "success", content: "Category updated successfully!" });
+      fetchCategories();
+      clearForm();
+    } catch (error) {
+      messageApi.open({ type: "error", content: "Failed to update category!" });
+      console.error("Error:", error);
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async () => {
+    if (!formData.srno) {
+      messageApi.open({ type: "error", content: "Select a category to delete!" });
+      return;
+    }
+
+    try {
+      await axios.delete(`http://localhost:8081/category/${formData.srno}`);
+      messageApi.open({ type: "success", content: "Category deleted successfully!" });
+      fetchCategories();
+      clearForm();
+    } catch (error) {
+      messageApi.open({ type: "error", content: "Failed to delete category!" });
+      console.error("Error:", error);
+    }
+  }
+
+  // Clear form
+  const clearForm = () => {
+    setFormData({
+      name: "",
+      type: "",
+      billingIn: "",
+      srno: "",
+    });
   };
 
   useEffect(() => {
@@ -118,11 +165,35 @@ function Categories() {
                     />
                   </div>
                   <div className="col-lg-12 p-1">
-                    <Button type="primary" onClick={handleSubmit}>
+                    <Button
+                      type="primary"
+                      onClick={handleSubmit}
+                      style={{ marginRight: "10px" }}
+                    >
                       Save
                     </Button>
-                    <Button variant="solid" className="ms-1" danger>
-                      Cancel
+                    <Button
+                      color="green" variant="solid"
+                      onClick={handleUpdate}
+                      style={{ marginRight: "10px" }}
+                    >
+                      Update
+                    </Button>
+
+                    <Button
+                      color="danger" variant="solid"
+                      onClick={handleDelete}
+                      style={{ marginRight: "10px" }}
+                    >
+                      Delete
+                    </Button>
+
+                    <Button
+                      variant="solid"
+                      onClick={clearForm}
+                      style={{ marginRight: "10px" }}
+                    >
+                      Clear
                     </Button>
                   </div>
                 </div>
@@ -133,10 +204,15 @@ function Categories() {
             <div className="col-lg-12">
               <div className="card p-3">
                 <Table
-                  className="custom-table" // Add a custom class for the table
+                  className="custom-table"
                   columns={columns}
                   dataSource={categories}
                   rowKey="_id"
+                  onRow={(record) => ({
+                    onClick: () => {
+                      setFormData(record); // Populate form with selected row data
+                    },
+                  })}
                 />
               </div>
             </div>
