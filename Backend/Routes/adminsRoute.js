@@ -5,7 +5,7 @@ const Admin = require("../Models/AdminSchema");
 // ➤ Get all admins
 router.get("/", async (req, res) => {
     try {
-        let result = await Admin.find({});
+        let result = await Admin.find();
         res.json({ status: "success", data: result });
     } catch (err) {
         res.json({ status: "error", data: err });

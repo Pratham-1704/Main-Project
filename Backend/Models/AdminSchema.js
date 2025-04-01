@@ -22,6 +22,7 @@ const AdminSchema = new mongoose.Schema(
             required: [true, "Password is required"],
             minlength: [6, "Password must be at least 6 characters long"]
         }, // Store plain text passwords (not recommended for production)
+        
         mobileno: { 
             type: String, 
             required: [true, "Mobile number is required"], 
@@ -33,7 +34,7 @@ const AdminSchema = new mongoose.Schema(
             type: String, 
             required: [true, "Role is required"], 
             enum: {
-                values: ["admin", "superadmin", "user"],
+                values: ["admin","user"],
                 message: "Role must be either 'admin', 'superadmin', or 'user'"
             }
         },
