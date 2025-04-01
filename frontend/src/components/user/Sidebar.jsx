@@ -49,6 +49,12 @@ function Sidebar() {
               <span>Employees</span>
             </Link>
           </li>
+          <li>
+            <Link to={"/master/brands"}>
+              <i class="bi bi-circle"></i>
+              <span>Brand</span>
+            </Link>
+          </li>
         </ul>
       </li>
       <li class="nav-item">
