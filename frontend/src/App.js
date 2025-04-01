@@ -10,6 +10,7 @@ import Categories from './components/user/master/Categories';
 import Admin from './components/user/master/Admin';
 import Products from './components/user/master/Products';
 import Brand from './components/user/master/Brand';
+import FinancialYear from './components/user/master/FinancialYear';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="categories" element={<Categories />} />
             <Route path="products" element={<Products />} />
             <Route path="brands" element={<Brand />} />
+            <Route path="financialYear" element={<FinancialYear/>} />
           </Route>
         </Routes>
       </BrowserRouter>

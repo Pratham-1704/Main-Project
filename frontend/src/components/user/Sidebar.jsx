@@ -50,7 +50,7 @@ function Sidebar() {
               <span>Employees</span>
             </Link>
           </li><li>
-            <Link to={"/master/financialyear"}>
+            <Link to={"/master/financialYear"}>
               <i class="bi bi-circle"></i>
               <span>FinancialYear</span>
             </Link>
