@@ -2,66 +2,61 @@ const express = require("express");
 const router = express.Router();
 const Category = require("../Models/CategorySchema");
 
-// ➤ Get all categories
+// Get all categories
 router.get("/", async (req, res) => {
-    try {
-        let result = await Category.find({});
-        res.json({ status: "success", data: result });
-    } catch (err) {
-        res.json({ status: "error", data: err });
-    }
+  try {
+    const categories = await Category.find({});
+    res.json({ status: "success", data: categories });
+  } catch (error) {
+    res.status(500).json({ status: "error", message: "Failed to fetch categories" });
+  }
 });
 
-// ➤ Get a single category by ID
+// Get a single category by ID
 router.get("/:id", async (req, res) => {
-    try {
-        const id = req.params.id;
-        let object = await Category.findById(id);
-        res.json({ status: "success", data: object });
-    } catch (err) {
-        res.json({ status: "error", data: err });
-    }
+  try {
+    const category = await Category.findById(req.params.id);
+    res.json({ status: "success", data: category });
+  } catch (error) {
+    res.status(500).json({ status: "error", message: "Category not found" });
+  }
 });
 
-// ➤ Add a new category
+// Add a new category
 router.post("/", async (req, res) => {
-    try {
-        const data = req.body;
+  const { name, type, billingIn, srno } = req.body;
 
-        // Check if category with same srno exists
-        let existingCategory = await Category.findOne({ srno: data.srno });
-        if (existingCategory) {
-            return res.status(400).json({ status: "error", data: "Category with this serial number already exists." });
-        }
+  if (!name || !type || !billingIn || !srno) {
+    return res.status(400).json({ status: "error", message: "All fields are required" });
+  }
 
-        let object = await Category.create(data);
-        res.json({ status: "success", data: object });
-    } catch (err) {
-        res.json({ status: "error", data: err });
-    }
+  try {
+    const newCategory = new Category({ name, type, billingIn, srno });
+    await newCategory.save();
+    res.json({ status: "success", data: newCategory });
+  } catch (error) {
+    res.status(500).json({ status: "error", message: "Failed to add category" });
+  }
 });
 
-// ➤ Update a category by ID
+// Update a category by ID
 router.put("/:id", async (req, res) => {
-    try {
-        const id = req.params.id;
-        const data = req.body;
-        let object = await Category.findByIdAndUpdate(id, data, { new: true });
-        res.json({ status: "success", data: object });
-    } catch (err) {
-        res.json({ status: "error", data: err });
-    }
+  try {
+    const updatedCategory = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json({ status: "success", data: updatedCategory });
+  } catch (error) {
+    res.status(500).json({ status: "error", message: "Failed to update category" });
+  }
 });
 
-// ➤ Delete a category by ID
+// Delete a category by ID
 router.delete("/:id", async (req, res) => {
-    try {
-        const id = req.params.id;
-        let object = await Category.findByIdAndDelete(id);
-        res.json({ status: "success", data: object });
-    } catch (err) {
-        res.json({ status: "error", data: err });
-    }
+  try {
+    await Category.findByIdAndDelete(req.params.id);
+    res.json({ status: "success", message: "Category deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ status: "error", message: "Failed to delete category" });
+  }
 });
 
 module.exports = router;

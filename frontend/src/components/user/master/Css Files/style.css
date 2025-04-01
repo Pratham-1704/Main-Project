@@ -1,0 +1,14 @@
+.custom-table .ant-table-thead > tr > th {
+    background-color: #aeeda6; /* Teal */
+    color: #040000; /* White Text */
+    font-weight: bold;
+}
+
+.custom-table .ant-table-tbody > tr > td {
+    background-color: #deeaf6; /* Very Light Gray */
+    color: #333333; /* Dark Gray Text */
+}
+
+.custom-table .ant-table-tbody > tr:hover > td {
+    background-color: #142323; /* Brighter Teal */
+}
