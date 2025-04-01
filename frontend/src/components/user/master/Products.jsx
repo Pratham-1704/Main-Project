@@ -252,11 +252,7 @@ function Products() {
                   rowKey="_id"
                   onRow={(record) => ({
                     onClick: () => {
-<<<<<<< HEAD
-                      setFormData(record);
-=======
                       setFormData(record); // Populate form with selected row data
->>>>>>> 19ad248465c125d0be55bcfd4cf7c151f8ff2c48
                     },
                   })}
                 />
