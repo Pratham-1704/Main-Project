@@ -1,0 +1,14 @@
+.custom-table .ant-table-thead > tr > th {
+    background-color: #f3d2a0; /* Light peach header */
+    color: #2f4f4f; /* Dark slate gray text */
+    font-weight: bold;
+}
+  
+.custom-table .ant-table-tbody > tr > td {
+    background-color: #e4f5ee; /* Light gray rows */
+    color: #050505; /* Indigo text */
+}
+  
+.custom-table .ant-table-tbody > tr:hover > td {
+    background-color: #010000; /* Light khaki hover effect */
+}

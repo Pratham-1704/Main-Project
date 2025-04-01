@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { Button, Input, Select, message, Table } from "antd";
 import axios from "axios";
+import "./Css Files/style.css"; // Import your custom styles
 
 function Admin() {
   const [formData, setFormData] = useState({
@@ -13,20 +14,23 @@ function Admin() {
     status: "",
   });
 
-  const [admin, setAdmin] = useState([]); // State to store fetched clients
-  const [messageApi, contextHolder] = message.useMessage(); // Initialize message API
+  const [adminList, setAdminList] = useState([]);
+  const [messageApi, contextHolder] = message.useMessage();
 
-  // Fetch admin from the backend
-  const fetchAdmin = async () => {
+  // Fetch admins from the backend
+  const fetchAdmins = async () => {
     try {
       const response = await axios.get("http://localhost:8081/admin");
-      const data = Array.isArray(response.data) ? response.data : []; // Ensure it's an array
-      setAdmin(data);
+      setAdminList(response.data.status === "success" ? response.data.data : []);
     } catch (error) {
-      console.error("Error fetching Admin:", error);
-      setAdmin([]); // Fallback to empty array to avoid errors
+      console.error("Error fetching admins:", error);
+      setAdminList([]);
     }
   };
+
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
 
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -34,39 +38,39 @@ function Admin() {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Handle select dropdown changes
   const handleSelectChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
   };
 
   // Handle form submission
   const handleSubmit = async () => {
-    // Client-side validation
-    if (!formData.name || !formData.username || !formData.password || !formData.mobileno || !formData.role || !formData.status) {
-      messageApi.open({ type: "error", content: "All fields are required!" });
+    if (Object.values(formData).some((field) => !field.trim())) {
+      messageApi.error("All fields are required!");
       return;
     }
 
     try {
       await axios.post("http://localhost:8081/admin", formData);
-      messageApi.open({ type: "success", content: "Data saved successfully!" });
-      fetchAdmin(); // Refresh table data after adding a client
+      messageApi.success("Admin added successfully!");
+      setFormData({
+        name: "",
+        username: "",
+        password: "",
+        mobileno: "",
+        role: "",
+        status: "",
+      }); // Reset form after successful submission
+      fetchAdmins(); // Refresh the admin list
     } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to save data!" });
-      console.error(error);
+      messageApi.error("Failed to add admin!");
+      console.error("Error:", error);
     }
   };
 
-  // Fetch clients on component mount
-  useEffect(() => {
-    fetchAdmin();
-  }, []);
-
-  // Table columns configuration
+  // Table columns
   const columns = [
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Username", dataIndex: "username", key: "username" },
-    { title: "Password", dataIndex: "password", key: "password" },
     { title: "Mobile No", dataIndex: "mobileno", key: "mobileno" },
     { title: "Role", dataIndex: "role", key: "role" },
     { title: "Status", dataIndex: "status", key: "status" },
@@ -92,49 +96,22 @@ function Admin() {
             <div className="col-lg-12">
               <div className="card p-3">
                 <div className="row">
-                  <div className="col-lg-6 p-1">
-                    Name*
-                    <Input
-                      name="name"
-                      placeholder="Name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Username*
-                    <Input
-                      name="username"
-                      placeholder="Username"
-                      value={formData.username}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Password*
-                    <Input
-                      name="password"
-                      placeholder="Password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Mobile No*
-                    <Input
-                      name="mobileno"
-                      placeholder="Mobile No"
-                      value={formData.mobileno}
-                      onChange={handleInputChange}
-                    />
-                  </div>
+                  {["name", "username", "password", "mobileno"].map((field) => (
+                    <div className="col-lg-6 p-1" key={field}>
+                      {field.charAt(0).toUpperCase() + field.slice(1)}*
+                      <Input
+                        name={field}
+                        placeholder={field}
+                        value={formData[field]}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                  ))}
                   <div className="col-lg-6 p-1">
                     Role*<br />
                     <Select
                       className="w-100"
-                      showSearch
                       placeholder="Select Role"
-                      optionFilterProp="label"
                       value={formData.role}
                       onChange={(value) => handleSelectChange("role", value)}
                       options={[
@@ -147,9 +124,7 @@ function Admin() {
                     Status*<br />
                     <Select
                       className="w-100"
-                      showSearch
                       placeholder="Select Status"
-                      optionFilterProp="label"
                       value={formData.status}
                       onChange={(value) => handleSelectChange("status", value)}
                       options={[
@@ -162,7 +137,7 @@ function Admin() {
                     <Button type="primary" onClick={handleSubmit}>
                       Save
                     </Button>
-                    <Button variant="solid" className="ms-1" color="danger">
+                    <Button className="ms-2" danger>
                       Cancel
                     </Button>
                   </div>
@@ -173,7 +148,7 @@ function Admin() {
           <div className="row">
             <div className="col-lg-12">
               <div className="card p-3">
-                <Table columns={columns} dataSource={admin} rowKey="_id" />
+                <Table className="custom-table" columns={columns} dataSource={adminList} rowKey="_id" />
               </div>
             </div>
           </div>

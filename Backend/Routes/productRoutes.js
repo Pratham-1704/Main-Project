@@ -5,7 +5,7 @@ const Product = require("../Models/ProductSchema");
 // ➤ Get all products
 router.get("/", async (req, res) => {
     try {
-        let result = await Product.find({}).populate("categoryid");
+        let result = await Product.find({});
         res.json({ status: "success", data: result });
     } catch (err) {
         res.json({ status: "error", data: err });
@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     try {
         const id = req.params.id;
-        let object = await Product.findById(id).populate("categoryid");
+        let object = await Product.findById(id);
         res.json({ status: "success", data: object });
     } catch (err) {
         res.json({ status: "error", data: err });
