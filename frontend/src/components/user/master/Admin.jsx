@@ -158,8 +158,4 @@ function Admin() {
   );
 }
 
-<<<<<<< HEAD
-export default Admin;a
-=======
 export default Admin;
->>>>>>> 788a8e4b9ea72489526ab2267f2969395a0b636e

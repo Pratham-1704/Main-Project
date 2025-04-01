@@ -6,14 +6,10 @@ import Dashboard from './components/user/dashboard/Dashboard';
 import Clients from './components/user/master/Admin';
 import Employees from './components/user/master/Employees';
 import Forgotpassword from './components/Forgotpassword';
-<<<<<<< HEAD
-import FinancialYear from './components/user/master/FinancialYear';
-=======
 import Categories from './components/user/master/Categories';
 import Admin from './components/user/master/Admin';
 import Products from './components/user/master/Products';
 import Brand from './components/user/master/Brand';
->>>>>>> 788a8e4b9ea72489526ab2267f2969395a0b636e
 
 function App() {
   return (
@@ -31,13 +27,9 @@ function App() {
           <Route path="master" element={<Landing />}>
             <Route path="admin" element={<Admin />} />
             <Route path="employees" element={<Employees />} />
-<<<<<<< HEAD
-            <Route path='financialyear' element={<FinancialYear/>}/>
-=======
             <Route path="categories" element={<Categories />} />
             <Route path="products" element={<Products />} />
             <Route path="brands" element={<Brand />} />
->>>>>>> 788a8e4b9ea72489526ab2267f2969395a0b636e
           </Route>
         </Routes>
       </BrowserRouter>
