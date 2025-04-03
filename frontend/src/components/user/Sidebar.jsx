@@ -112,13 +112,7 @@ function Sidebar() {
                 <i class="bi bi-circle"></i>
                 <span>Quotations</span>
               </Link>
-            </li><li>
-              <Link to={"/master/leads"}>
-                <i class="bi bi-circle"></i>
-                <span>Lead</span>
-              </Link>
             </li>
-
           </ul>
         </li>
         <li class="nav-item">
