@@ -144,7 +144,7 @@ function Admin() {
       {contextHolder}
       <main id="main" className="main">
         <div className="pagetitle">
-          <h1>Admin Management</h1>
+          <h1>Admins</h1>
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">

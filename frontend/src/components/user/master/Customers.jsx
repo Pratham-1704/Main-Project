@@ -151,7 +151,7 @@ function Customers() {
       {contextHolder}
       <main id="main" className="main">
         <div className="pagetitle">
-          <h1>Customer Management</h1>
+          <h1>Customers</h1>
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">

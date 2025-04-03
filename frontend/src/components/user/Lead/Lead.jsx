@@ -173,7 +173,7 @@ function Lead() {
       {contextHolder}
       <main id="main" className="main">
         <div className="pagetitle">
-          <h1>Lead Management</h1>
+          <h1>Leads</h1>
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">

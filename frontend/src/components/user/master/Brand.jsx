@@ -103,7 +103,7 @@ function Brand() {
       {contextHolder}
       <main id="main" className="main">
         <div className="pagetitle">
-          <h1>Brand Management</h1>
+          <h1>Brands</h1>
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">

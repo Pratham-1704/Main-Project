@@ -185,7 +185,7 @@ function Quotations() {
             {contextHolder}
             <main id="main" className="main">
                 <div className="pagetitle">
-                    <h1>Quotation Management</h1>
+                    <h1>Quotations</h1>
                     <nav>
                         <ol className="breadcrumb">
                             <li className="breadcrumb-item">
