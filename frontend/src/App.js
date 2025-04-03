@@ -12,12 +12,27 @@ import Firms from './components/user/master/Firms';
 import BrandProducts from './components/user/master/BrandProduct';
 import Customers from './components/user/master/Customers';
 import FinancialYear from './components/user/master/FinancialYear';
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+import Lead from './components/user/master/Lead';
+import Quotations from './components/user/master/Quotations';
+
+=======
+<<<<<<< HEAD
+>>>>>>> 27b298e1e86423dd877d29dec5c6c6a05314efa9
 import Order from './components/user/master/Order';
 import ProfilePage from './components/user/ProfilePage';
 import Quotations from './components/user/master/Quotations';
 import Lead from './components/user/master/Lead';
 
 
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> f82e8dbd3d54ed7dd49363ab28d9f26166236a34
+>>>>>>> 29d5a64bde988cbf234f3287e87579fdda7724e4
+>>>>>>> 27b298e1e86423dd877d29dec5c6c6a05314efa9
 
 function App() {
   return (
@@ -42,7 +57,18 @@ function App() {
             <Route path="brandproduct" element={<BrandProducts />} />
             <Route path="customers" element={<Customers />} />
             <Route path="financialyear" element={<FinancialYear />} />
+<<<<<<< HEAD
             <Route path="Order" element={<Order/>}/>
+=======
+<<<<<<< HEAD
+            <Route path='leads' element={<Lead />} />
+=======
+<<<<<<< HEAD
+            <Route path="Order" element={<Order/>}/>
+=======
+>>>>>>> f82e8dbd3d54ed7dd49363ab28d9f26166236a34
+>>>>>>> 29d5a64bde988cbf234f3287e87579fdda7724e4
+>>>>>>> 27b298e1e86423dd877d29dec5c6c6a05314efa9
             <Route path="quotations" element={<Quotations />} />
             <Route path="leads" element={<Lead />} />
 
