@@ -83,7 +83,6 @@ function Sidebar() {
               </Link>
             </li>
 
-<<<<<<< HEAD
           <li>
             <Link to={"/master/customers"}>
               <i class="bi bi-circle"></i>
@@ -94,8 +93,6 @@ function Sidebar() {
               <i class="bi bi-circle"></i>
               <span>Lead</span>
             </Link>
-=======
->>>>>>> 29d5a64bde988cbf234f3287e87579fdda7724e4
             <li>
               <Link to={"/master/brandproduct"}>
                 <i class="bi bi-circle"></i>
