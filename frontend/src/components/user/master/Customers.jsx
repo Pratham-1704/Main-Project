@@ -20,8 +20,10 @@ function Customers() {
 
   const [customers, setCustomers] = useState([]);
   const [firms, setFirms] = useState([]);
+  const [states, setStates] = useState([]); // State to store the list of states
   const [messageApi, contextHolder] = message.useMessage();
 
+  // Fetch customers from the backend
   const fetchCustomers = async () => {
     try {
       const response = await axios.get("http://localhost:8081/customer");
@@ -32,6 +34,7 @@ function Customers() {
     }
   };
 
+  // Fetch firms from the backend
   const fetchFirms = async () => {
     try {
       const response = await axios.get("http://localhost:8081/firm");
@@ -41,9 +44,21 @@ function Customers() {
     }
   };
 
+  // Fetch states from the backend
+  const fetchStates = async () => {
+    try {
+      const response = await axios.get("http://localhost:8081/state");
+      setStates(response.data.status === "success" ? response.data.data : []);
+    } catch (error) {
+      console.error("Error fetching states:", error);
+      setStates([]);
+    }
+  };
+
   useEffect(() => {
     fetchCustomers();
     fetchFirms();
+    fetchStates(); // Fetch states when the component is mounted
   }, []);
 
   const handleInputChange = (e) => {
@@ -65,18 +80,7 @@ function Customers() {
       await axios.post("http://localhost:8081/customer", formData);
       messageApi.open({ type: "success", content: "Customer saved successfully!" });
       fetchCustomers();
-      setFormData({
-        firmid: "",
-        name: "",
-        firmname: "",
-        address: "",
-        city: "",
-        state: "",
-        mobileno1: "",
-        mobileno2: "",
-        profession: "",
-        gstno: "",
-      });
+      clearForm();
     } catch (error) {
       messageApi.open({ type: "error", content: "Failed to save customer!" });
       console.error("Error:", error);
@@ -98,7 +102,22 @@ function Customers() {
     }
   };
 
-  // Clear form data
+  const handleDelete = async () => {
+    if (!formData._id) {
+      messageApi.open({ type: "error", content: "Select a customer to delete!" });
+      return;
+    }
+    try {
+      await axios.delete(`http://localhost:8081/customer/${formData._id}`);
+      messageApi.open({ type: "success", content: "Customer deleted successfully!" });
+      fetchCustomers();
+      clearForm();
+    } catch (error) {
+      messageApi.open({ type: "error", content: "Failed to delete customer!" });
+      console.error("Error:", error);
+    }
+  };
+
   const clearForm = () => {
     setFormData({
       firmid: "",
@@ -112,34 +131,6 @@ function Customers() {
       profession: "",
       gstno: "",
     });
-  };
-
-  // Handle delete
-  const handleDelete = async () => {
-    if (!formData._id) {
-      messageApi.open({ type: "error", content: "Select a customer to delete!" });
-      return;
-    }
-    try {
-      await axios.delete(`http://localhost:8081/customer/${formData._id}`);
-      messageApi.open({ type: "success", content: "Customer deleted successfully!" });
-      fetchCustomers();
-      setFormData({
-        firmid: "",
-        name: "",
-        firmname: "",
-        address: "",
-        city: "",
-        state: "",
-        mobileno1: "",
-        mobileno2: "",
-        profession: "",
-        gstno: "",
-      });
-    } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to delete customer!" });
-      console.error("Error:", error);
-    }
   };
 
   const columns = [
@@ -191,7 +182,7 @@ function Customers() {
                     </Select>
                   </div>
                   {Object.keys(formData)
-                    .filter((key) => key !== "firmid" && key !== "firmname" && key !== "_id") // Exclude _id, firmid, and firmname
+                    .filter((key) => key !== "firmid" && key !== "firmname" && key !== "_id" && key !== "state") // Exclude _id, firmid, firmname, and state
                     .map((key) => (
                       <div className="col-lg-6 p-1" key={key}>
                         {key.charAt(0).toUpperCase() + key.slice(1)}*
@@ -203,6 +194,21 @@ function Customers() {
                         />
                       </div>
                     ))}
+                  <div className="col-lg-6 p-1">
+                    State*
+                    <Select
+                      style={{ width: "100%" }}
+                      placeholder="Select State"
+                      value={formData.state}
+                      onChange={(value) => setFormData({ ...formData, state: value })}
+                    >
+                      {states.map((state) => (
+                        <Select.Option key={state._id} value={state.name}>
+                          {state.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </div>
                   <div className="col-lg-12 p-1">
                     <Button
                       type="primary"
@@ -211,14 +217,24 @@ function Customers() {
                     >
                       Save
                     </Button>
-                    <Button color="green" variant="solid"  onClick={handleUpdate} style={{ marginRight: "10px" }}>
+                    <Button
+                    color="green" variant="solid"
+                      onClick={handleUpdate}
+                      style={{ marginRight: "10px" }}
+                    >
                       Update
                     </Button>
-                    <Button color="danger" variant="solid"  onClick={handleDelete} style={{ marginRight: "10px" }}>
+                    <Button
+                      color="danger" variant="solid"
+                      onClick={handleDelete}
+                      style={{ marginRight: "10px" }}
+                    >
                       Delete
                     </Button>
-
-                    <Button  variant="solid" onClick={clearForm} style={{ marginRight: "10px" }}>
+                    <Button
+                      onClick={clearForm}
+                      style={{ marginRight: "10px" }}
+                    >
                       Clear
                     </Button>
                   </div>
