@@ -10,18 +10,11 @@ import Categories from './components/user/master/Categories';
 import Admin from './components/user/master/Admin';
 import Products from './components/user/master/Products';
 import Brand from './components/user/master/Brand';
-<<<<<<< HEAD
-import FinancialYear from './components/user/master/FinancialYear';
-import Firms from './components/user/master/Firms';
-import BrandProducts from './components/user/master/BrandProduct';
-import Customers from './components/user/master/Customers';
-=======
 import Firms from './components/user/master/Firms';
 import BrandProducts from './components/user/master/BrandProduct';
 import Customers from './components/user/master/Customers';
 import FinancialYear from './components/user/master/FinancialYear';
 import ProfilePage from './components/user/ProfilePage';
->>>>>>> afdfe58e5e285bb0731b433a947021d2561b1eaa
 
 function App() {
   return (
