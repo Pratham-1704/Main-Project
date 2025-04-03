@@ -134,7 +134,7 @@ function Customers() {
   };
 
   const columns = [
-    { title: "Firm ID", dataIndex: "firmid", key: "firmid" },
+    // { title: "Firm ID", dataIndex: "firmid", key: "firmid" },
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Firm Name", dataIndex: "firmname", key: "firmname" },
     { title: "Address", dataIndex: "address", key: "address" },
