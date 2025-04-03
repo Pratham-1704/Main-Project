@@ -163,7 +163,11 @@ function Brand() {
           <div className="row">
             <div className="col-lg-12">
               <div className="card p-3">
-                <Table className="custom-table" columns={columns} dataSource={brands} rowKey="_id" />
+                <Table className="custom-table" columns={columns} dataSource={brands} rowKey="_id" onRow={(record) => ({
+                    onClick: () => {
+                      setFormData(record);
+                    },
+                  })}/>
               </div>
             </div>
           </div>
