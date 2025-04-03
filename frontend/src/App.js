@@ -3,7 +3,6 @@ import Login from './components/Login';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import Landing from './components/user/Landing';
 import Dashboard from './components/user/dashboard/Dashboard';
-//import Clients from './components/user/master/Admin';
 import Forgotpassword from './components/Forgotpassword';
 import Categories from './components/user/master/Categories';
 import Admin from './components/user/master/Admin';
@@ -13,21 +12,12 @@ import Firms from './components/user/master/Firms';
 import BrandProducts from './components/user/master/BrandProduct';
 import Customers from './components/user/master/Customers';
 import FinancialYear from './components/user/master/FinancialYear';
-<<<<<<< HEAD
 import Order from './components/user/master/Order';
 import ProfilePage from './components/user/ProfilePage';
-
-import Lead from './components/user/master/Lead';
-
-=======
->>>>>>> f82e8dbd3d54ed7dd49363ab28d9f26166236a34
 import Quotations from './components/user/master/Quotations';
 import Lead from './components/user/master/Lead';
 
-<<<<<<< HEAD
 
-=======
->>>>>>> f82e8dbd3d54ed7dd49363ab28d9f26166236a34
 
 function App() {
   return (
@@ -52,10 +42,7 @@ function App() {
             <Route path="brandproduct" element={<BrandProducts />} />
             <Route path="customers" element={<Customers />} />
             <Route path="financialyear" element={<FinancialYear />} />
-<<<<<<< HEAD
             <Route path="Order" element={<Order/>}/>
-=======
->>>>>>> f82e8dbd3d54ed7dd49363ab28d9f26166236a34
             <Route path="quotations" element={<Quotations />} />
             <Route path="leads" element={<Lead />} />
 
