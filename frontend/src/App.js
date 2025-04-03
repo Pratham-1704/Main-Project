@@ -12,9 +12,8 @@ import Products from './components/user/master/Products';
 import Brand from './components/user/master/Brand';
 import FinancialYear from './components/user/master/FinancialYear';
 import Firms from './components/user/master/Firms';
-import BrandProducts from './components/user/master/BrandProducts';
+import BrandProducts from './components/user/master/BrandProduct';
 import Customers from './components/user/master/Customers';
-import { message } from 'antd';
 
 function App() {
   return (
