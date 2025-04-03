@@ -12,18 +12,9 @@ import Firms from './components/user/master/Firms';
 import BrandProducts from './components/user/master/BrandProduct';
 import Customers from './components/user/master/Customers';
 import FinancialYear from './components/user/master/FinancialYear';
-
 import Lead from './components/user/master/Lead';
 import Quotations from './components/user/master/Quotations';
-
-
 import Order from './components/user/master/Order';
-import ProfilePage from './components/user/ProfilePage';
-import Quotations from './components/user/master/Quotations';
-import Lead from './components/user/master/Lead';
-
-
-
 
 function App() {
   return (
@@ -32,13 +23,11 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/forgot-password" element={<Forgotpassword />} />
-         
+
           <Route path="dashboard" element={<Landing />}>
-       
-            <Route path="" element={<Dashboard />} />
-            
-            
+          <Route path="" element={<Dashboard />} />
           </Route>
+
           <Route path="master" element={<Landing />}>
             <Route path="admin" element={<Admin />} />
             <Route path="categories" element={<Categories />} />
@@ -48,6 +37,7 @@ function App() {
             <Route path="brandproduct" element={<BrandProducts />} />
             <Route path="customers" element={<Customers />} />
             <Route path="financialyear" element={<FinancialYear />} />
+<<<<<<< HEAD
 
             <Route path="Order" element={<Order/>}/>
 
@@ -63,7 +53,14 @@ function App() {
 
 
 
+=======
+            <Route path='leads' element={<Lead />} />
+            <Route path="Order" element={<Order />} />
+            <Route path="quotations" element={<Quotations />} />
+            <Route path="leads" element={<Lead />} />
+>>>>>>> 97b71090330b44abb1ad007f2538dd38a46aa67a
           </Route>
+          
         </Routes>
       </BrowserRouter>
     </>
