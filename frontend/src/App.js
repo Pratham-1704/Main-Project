@@ -37,28 +37,10 @@ function App() {
             <Route path="brandproduct" element={<BrandProducts />} />
             <Route path="customers" element={<Customers />} />
             <Route path="financialyear" element={<FinancialYear />} />
-<<<<<<< HEAD
-
-            <Route path="Order" element={<Order/>}/>
-
-
-            <Route path='leads' element={<Lead />} />
-
-            <Route path="Order" element={<Order/>}/>
-
-            <Route path="quotations" element={<Quotations />} />
-            <Route path="leads" element={<Lead />} />
-
-            
-
-
-
-=======
             <Route path='leads' element={<Lead />} />
             <Route path="Order" element={<Order />} />
             <Route path="quotations" element={<Quotations />} />
             <Route path="leads" element={<Lead />} />
->>>>>>> 97b71090330b44abb1ad007f2538dd38a46aa67a
           </Route>
           
         </Routes>
