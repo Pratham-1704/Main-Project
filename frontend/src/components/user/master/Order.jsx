@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Button, Input, message, Table, DatePicker } from "antd";
+import { Button, Input, message, Table, DatePicker, Select } from "antd";
 import axios from "axios";
 import "./Css Files/style.css";
+
+const { Option } = Select;
 
 function Order() {
   const [formData, setFormData] = useState({
@@ -42,6 +44,10 @@ function Order() {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleSelectChange = (name, value) => {
+    setFormData({ ...formData, [name]: value });
+  };
+
   const handleDateChange = (date, dateString) => {
     setFormData({ ...formData, orderdate: dateString });
   };
@@ -54,38 +60,6 @@ function Order() {
       clearForm();
     } catch (error) {
       messageApi.open({ type: "error", content: "Failed to save order!" });
-      console.error("Error:", error);
-    }
-  };
-
-  const handleUpdate = async () => {
-    if (!formData._id) {
-      messageApi.open({ type: "error", content: "Select an order to update!" });
-      return;
-    }
-    try {
-      await axios.put(`http://localhost:8081/order/${formData._id}`, formData);
-      messageApi.open({ type: "success", content: "Order updated successfully!" });
-      fetchOrders();
-      clearForm();
-    } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to update order!" });
-      console.error("Error:", error);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!formData._id) {
-      messageApi.open({ type: "error", content: "Select an order to delete!" });
-      return;
-    }
-    try {
-      await axios.delete(`http://localhost:8081/order/${formData._id}`);
-      messageApi.open({ type: "success", content: "Order deleted successfully!" });
-      fetchOrders();
-      clearForm();
-    } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to delete order!" });
       console.error("Error:", error);
     }
   };
@@ -108,22 +82,6 @@ function Order() {
     });
   };
 
-  const columns = [
-    { title: "Firm ID", dataIndex: "firmid", key: "firmid" },
-    { title: "Quotation ID", dataIndex: "quotationid", key: "quotationid" },
-    { title: "Customer ID", dataIndex: "customerid", key: "customerid" },
-    { title: "Order No", dataIndex: "orderno", key: "orderno" },
-    { title: "Order Date", dataIndex: "orderdate", key: "orderdate" },
-    { title: "Billing Address", dataIndex: "baddress", key: "baddress" },
-    { title: "Shipping Address", dataIndex: "saddress", key: "saddress" },
-    { title: "Created On", dataIndex: "createdon", key: "createdon" },
-    { title: "Admin ID", dataIndex: "adminid", key: "adminid" },
-    { title: "Total Weight", dataIndex: "totalweight", key: "totalweight" },
-    { title: "Subtotal", dataIndex: "subtotal", key: "subtotal" },
-    { title: "GST Amount", dataIndex: "gstamount", key: "gstamount" },
-    { title: "Total", dataIndex: "total", key: "total" }
-  ];
-
   return (
     <>
       {contextHolder}
@@ -139,22 +97,45 @@ function Order() {
                   {Object.keys(formData).map((key) => (
                     <div className="col-lg-6 p-1" key={key}>
                       {key.replace(/([a-z])([A-Z])/g, "$1 $2").toUpperCase()}*
-                      {key === "orderdate" ? (
-                        <DatePicker onChange={handleDateChange} style={{ width: "100%" }} />
+                      {[
+                        "firmid",
+                        "quotationid",
+                        "customerid",
+                        "adminid"
+                      ].includes(key) ? (
+                        <Select
+                          name={key}
+                          style={{ width: "100%" }}
+                          placeholder={`Select ${key}`}
+                          onChange={(value) => handleSelectChange(key, value)}
+                        >
+                          <Option value="1">Option 1</Option>
+                          <Option value="2">Option 2</Option>
+                          <Option value="3">Option 3</Option>
+                        </Select>
+                      ) : key === "orderdate" ? (
+                        <DatePicker
+                          onChange={handleDateChange}
+                          style={{ width: "100%" }}
+                        />
                       ) : (
-                        <Input name={key} placeholder={`Enter ${key}`} value={formData[key]} onChange={handleInputChange} />
+                        <Input
+                          name={key}
+                          placeholder={`Enter ${key}`}
+                          value={formData[key]}
+                          onChange={handleInputChange}
+                        />
                       )}
                     </div>
                   ))}
                   <div className="col-lg-12 p-1">
-                    <Button type="primary" onClick={handleSubmit} style={{ marginRight: "10px" }}>Save</Button>
-                    <Button onClick={handleUpdate} style={{ marginRight: "10px", backgroundColor: "green", color: "white" }}>Update</Button>
-                    <Button onClick={handleDelete} style={{ marginRight: "10px", backgroundColor: "red", color: "white" }}>Delete</Button>
+                    <Button type="primary" onClick={handleSubmit} style={{ marginRight: "10px" }}>
+                      Save
+                    </Button>
                     <Button onClick={clearForm}>Cancel</Button>
                   </div>
                 </div>
               </div>
-              <Table className="custom-table" columns={columns} dataSource={orders} rowKey="_id" />
             </div>
           </div>
         </section>
