@@ -94,6 +94,10 @@ function Sidebar() {
               <span>Customers</span>
             </Link>
           </li>
+          <Link to={"/master/leads"}>
+              <i class="bi bi-circle"></i>
+              <span>Lead</span>
+            </Link>
 
         </ul>
       </li>

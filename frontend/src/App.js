@@ -14,7 +14,7 @@ import Firms from './components/user/master/Firms';
 import BrandProducts from './components/user/master/BrandProduct';
 import Customers from './components/user/master/Customers';
 import FinancialYear from './components/user/master/FinancialYear';
-import ProfilePage from './components/user/ProfilePage';
+import Lead from './components/user/master/Lead';
 
 function App() {
   return (
@@ -40,6 +40,7 @@ function App() {
             <Route path="brandproduct" element={<BrandProducts />} />
             <Route path="customers" element={<Customers />} />
             <Route path="financialyear" element={<FinancialYear />} />
+            <Route path='leads' element={<Lead />} />
             
 
 
