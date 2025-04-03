@@ -13,12 +13,9 @@ import Firms from './components/user/master/Firms';
 import BrandProducts from './components/user/master/BrandProduct';
 import Customers from './components/user/master/Customers';
 import FinancialYear from './components/user/master/FinancialYear';
-<<<<<<< HEAD
-import Lead from './components/user/master/Lead';
-=======
 import Quotations from './components/user/master/Quotations';
+import Lead from './components/user/master/Lead';
 
->>>>>>> 554a27ba74ab9bb31a764baff5d5a6c7849df3dc
 
 function App() {
   return (
@@ -43,12 +40,9 @@ function App() {
             <Route path="brandproduct" element={<BrandProducts />} />
             <Route path="customers" element={<Customers />} />
             <Route path="financialyear" element={<FinancialYear />} />
-<<<<<<< HEAD
-            <Route path='leads' element={<Lead />} />
-=======
             <Route path="quotations" element={<Quotations />} />
+            <Route path="leads" element={<Lead />} />
 
->>>>>>> 554a27ba74ab9bb31a764baff5d5a6c7849df3dc
             
 
 

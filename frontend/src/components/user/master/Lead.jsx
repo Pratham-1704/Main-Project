@@ -73,6 +73,7 @@ function Lead() {
 
   // Handle form submission
   const handleSubmit = async () => {
+    // Validate required fields
     if (
       !formData.firmid ||
       !formData.sourceid ||
@@ -85,13 +86,55 @@ function Lead() {
       messageApi.open({ type: "error", content: "All fields are required!" });
       return;
     }
+
     try {
-      await axios.post("http://localhost:8081/lead", formData);
-      messageApi.open({ type: "success", content: "Lead saved successfully!" });
+      console.log("Submitting formData:", formData); // Debugging: Log formData
+      const response = await axios.post("http://localhost:8081/lead", formData);
+      console.log("Save response:", response); // Debugging: Log response
+
+      if (response.data.status === "success") {
+        messageApi.open({ type: "success", content: "Lead saved successfully!" });
+        fetchLeads(); // Refresh the leads table
+        clearForm(); // Clear the form
+      } else {
+        messageApi.open({ type: "error", content: response.data.message || "Failed to save lead!" });
+      }
+    } catch (error) {
+      console.error("Error saving lead:", error); // Debugging: Log error
+      messageApi.open({ type: "error", content: "Failed to save lead!" });
+    }
+  };
+
+  // Handle update
+  const handleUpdate = async () => {
+    if (!formData._id) {
+      messageApi.open({ type: "error", content: "Select a lead to update!" });
+      return;
+    }
+    try {
+      await axios.put(`http://localhost:8081/lead/${formData._id}`, formData);
+      messageApi.open({ type: "success", content: "Lead updated successfully!" });
       fetchLeads();
       clearForm();
     } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to save lead!" });
+      messageApi.open({ type: "error", content: "Failed to update lead!" });
+      console.error("Error:", error);
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async () => {
+    if (!formData._id) {
+      messageApi.open({ type: "error", content: "Select a lead to delete!" });
+      return;
+    }
+    try {
+      await axios.delete(`http://localhost:8081/lead/${formData._id}`);
+      messageApi.open({ type: "success", content: "Lead deleted successfully!" });
+      fetchLeads();
+      clearForm();
+    } catch (error) {
+      messageApi.open({ type: "error", content: "Failed to delete lead!" });
       console.error("Error:", error);
     }
   };
@@ -155,7 +198,7 @@ function Lead() {
                     >
                       {firms.map((firm) => (
                         <Option key={firm.id} value={firm.id}>
-                          {firm.name}a
+                          {firm.name}
                         </Option>
                       ))}
                     </Select>
@@ -237,6 +280,20 @@ function Lead() {
                       style={{ marginRight: "10px" }}
                     >
                       Save
+                    </Button>
+                    <Button
+                      type="default"
+                      onClick={handleUpdate}
+                      style={{ marginRight: "10px" }}
+                    >
+                      Update
+                    </Button>
+                    <Button
+                      type="danger"
+                      onClick={handleDelete}
+                      style={{ marginRight: "10px" }}
+                    >
+                      Delete
                     </Button>
                     <Button
                       type="default"

@@ -76,25 +76,12 @@ function Sidebar() {
               </Link>
             </li>
 
-<<<<<<< HEAD
-          <li>
-            <Link to={"/master/customers"}>
-              <i class="bi bi-circle"></i>
-              <span>Customers</span>
-            </Link>
-          </li>
-          <Link to={"/master/leads"}>
-              <i class="bi bi-circle"></i>
-              <span>Lead</span>
-            </Link>
-=======
             <li>
               <Link to={"/master/brandproduct"}>
                 <i class="bi bi-circle"></i>
                 <span>Brand Product</span>
               </Link>
             </li>
->>>>>>> 554a27ba74ab9bb31a764baff5d5a6c7849df3dc
 
             <li>
               <Link to={"/master/customers"}>
@@ -107,6 +94,11 @@ function Sidebar() {
               <Link to={"/master/quotations"}>
                 <i class="bi bi-circle"></i>
                 <span>Quotations</span>
+              </Link>
+            </li><li>
+              <Link to={"/master/leads"}>
+                <i class="bi bi-circle"></i>
+                <span>Lead</span>
               </Link>
             </li>
 
