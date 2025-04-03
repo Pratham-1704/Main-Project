@@ -121,7 +121,7 @@ function Quotations() {
             return;
         }
         try {
-            await axios.put(`http://localhost:8081/quotations/${formData._id}`, formData);
+            await axios.put(`http://localhost:8081/quotation/${formData._id}`, formData);
             messageApi.open({ type: "success", content: "Quotation updated successfully!" });
             fetchQuotations();
             clearForm();
@@ -137,7 +137,7 @@ function Quotations() {
             return;
         }
         try {
-            await axios.delete(`http://localhost:8081/quotations/${formData._id}`);
+            await axios.delete(`http://localhost:8081/quotation/${formData._id}`);
             messageApi.open({ type: "success", content: "Quotation deleted successfully!" });
             fetchQuotations();
             clearForm();
