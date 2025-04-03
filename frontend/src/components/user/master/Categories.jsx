@@ -38,7 +38,6 @@ function Categories() {
       messageApi.open({ type: "error", content: "All fields are required!" });
       return;
     }
-
     try {
       await axios.post("http://localhost:8081/category", formData);
       messageApi.open({ type: "success", content: "Category saved successfully!" });
@@ -52,39 +51,41 @@ function Categories() {
 
   // Handle update
   const handleUpdate = async () => {
-    if (!formData.name || !formData.type || !formData.billingIn || !formData.srno) {
-      messageApi.open({ type: "error", content: "All fields are required!" });
+    if (!formData._id) {
+      messageApi.open({ type: "error", content: "Select a category to update!" });
       return;
     }
-
+  
     try {
-      await axios.put(`http://localhost:8081/category/${formData.srno}`, formData);
+      await axios.put(`http://localhost:8081/category/${formData._id}`, formData);
       messageApi.open({ type: "success", content: "Category updated successfully!" });
-      fetchCategories();
+      fetchCategories(); // Refresh categories list
       clearForm();
     } catch (error) {
       messageApi.open({ type: "error", content: "Failed to update category!" });
       console.error("Error:", error);
     }
   };
+  
 
   // Handle delete
   const handleDelete = async () => {
-    if (!formData.srno) {
+    if (!formData._id) {
       messageApi.open({ type: "error", content: "Select a category to delete!" });
       return;
     }
-
+  
     try {
-      await axios.delete(`http://localhost:8081/category/${formData.srno}`);
+      await axios.delete(`http://localhost:8081/category/${formData._id}`);
       messageApi.open({ type: "success", content: "Category deleted successfully!" });
-      fetchCategories();
+      fetchCategories(); // Refresh categories list
       clearForm();
     } catch (error) {
       messageApi.open({ type: "error", content: "Failed to delete category!" });
       console.error("Error:", error);
     }
-  }
+  };
+  
 
   // Clear form
   const clearForm = () => {

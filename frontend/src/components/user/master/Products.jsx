@@ -78,44 +78,36 @@ function Products() {
 
   // Handle update
   const handleUpdate = async () => {
-    if (!formData.categoryid || !formData.name || !formData.weight || !formData.srno) {
-      messageApi.open({ type: "error", content: "All fields are required!" });
+    if (!formData._id) {
+      messageApi.open({ type: "error", content: "Select a category to update!" });
       return;
     }
+  
     try {
-      await axios.put(`http://localhost:8081/product/${formData.srno}`, formData);
+      await axios.put(`http://localhost:8081/product/${formData._id}`, formData);
       messageApi.open({ type: "success", content: "Product updated successfully!" });
-      setFormData({
-        categoryid: "",
-        name: "",
-        weight: "",
-        srno: "",
-      }); // Reset form after successful submission
-      fetchProducts(); // Refresh the product list
+      fetchProducts(); // Refresh categories list
+      clearForm();
     } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to update product!" });
+      messageApi.open({ type: "error", content: "Failed to update Product!" });
       console.error("Error:", error);
     }
   };
 
   // Handle delete
   const handleDelete = async () => {
-    if (!formData.srno) {
-      messageApi.open({ type: "error", content: "Select a product to delete!" });
+    if (!formData._id) {
+      messageApi.open({ type: "error", content: "Select a category to delete!" });
       return;
     }
+  
     try {
-      await axios.delete(`http://localhost:8081/product/${formData.srno}`);
+      await axios.delete(`http://localhost:8081/product/${formData._id}`);
       messageApi.open({ type: "success", content: "Product deleted successfully!" });
-      setFormData({
-        categoryid: "",
-        name: "",
-        weight: "",
-        srno: "",
-      }); // Reset form after successful submission
-      fetchProducts(); // Refresh the product list
+      fetchProducts(); // Refresh categories list
+      clearForm();
     } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to delete product!" });
+      messageApi.open({ type: "error", content: "Failed to delete Product!" });
       console.error("Error:", error);
     }
   };

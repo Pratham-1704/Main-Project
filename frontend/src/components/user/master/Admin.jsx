@@ -24,6 +24,7 @@ function Admin() {
       setAdminList(response.data.status === "success" ? response.data.data : []);
     } catch (error) {
       console.error("Error fetching admins:", error);
+      messageApi.error("Failed to fetch admin list!");
       setAdminList([]);
     }
   };
@@ -234,7 +235,13 @@ function Admin() {
           <div className="row">
             <div className="col-lg-12">
               <div className="card p-3">
-                <Table className="custom-table" columns={columns} dataSource={adminList} rowKey="_id" />
+                <Table className="custom-table" columns={columns} dataSource={adminList} rowKey="_id"
+                onRow={(record) => ({
+                  onClick: () => {
+                    setFormData(record); // Populate form with selected row data
+                  },
+                })}
+                />
               </div>
             </div>
           </div>

@@ -74,6 +74,26 @@ function Sidebar() {
               <span>Brand</span>
             </Link>
           </li>
+          <li>
+            <Link to={"/master/firms"}>
+              <i class="bi bi-circle"></i>
+              <span>Firms</span>
+            </Link>
+          </li>
+
+          <li>
+            <Link to={"/master/brandproduct"}>
+              <i class="bi bi-circle"></i>
+              <span>Brand Product</span>
+            </Link>
+          </li>
+
+          <li>
+            <Link to={"/master/customers"}>
+              <i class="bi bi-circle"></i>
+              <span>Customers</span>
+            </Link>
+          </li>
 
         </ul>
       </li>

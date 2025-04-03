@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router'
 
 function Header() {
   return (
@@ -92,10 +93,12 @@ function Header() {
                 </li>
 
                 <li>
-                  <a className="dropdown-item d-flex align-items-center" href="#">
+                  <Link to={"/"}>
+                  <a className="dropdown-item d-flex align-items-center">
                     <i className="bi bi-box-arrow-right"></i>
                     <span>Sign Out</span>
                   </a>
+                  </Link>
                 </li>
               </ul>
             </li>

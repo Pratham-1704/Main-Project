@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const CustomerSchema = new mongoose.Schema({
     firmid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Firm", 
+        ref: "firm", 
         required: [true, "Firm ID is required"] 
     },
     name: { 
