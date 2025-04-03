@@ -37,16 +37,12 @@ function App() {
             <Route path="categories" element={<Categories />} />
             <Route path="products" element={<Products />} />
             <Route path="brands" element={<Brand />} />
-<<<<<<< HEAD
             <Route path="firms" element={<Firms />} />
             <Route path="brandproduct" element={<BrandProducts />} />
             <Route path="customers" element={<Customers />} />
             <Route path="financialyear" element={<FinancialYear />} />
 
 
-=======
-            <Route path="financialYear" element={<FinancialYear/>} />
->>>>>>> 33c62eed5d38742173d35a4787ca738cae8f49ea
           </Route>
         </Routes>
       </BrowserRouter>
