@@ -4,7 +4,6 @@ import { BrowserRouter, Route, Routes } from 'react-router';
 import Landing from './components/user/Landing';
 import Dashboard from './components/user/dashboard/Dashboard';
 //import Clients from './components/user/master/Admin';
-import Employees from './components/user/master/Employees';
 import Forgotpassword from './components/Forgotpassword';
 import Categories from './components/user/master/Categories';
 import Admin from './components/user/master/Admin';
@@ -14,7 +13,8 @@ import Firms from './components/user/master/Firms';
 import BrandProducts from './components/user/master/BrandProduct';
 import Customers from './components/user/master/Customers';
 import FinancialYear from './components/user/master/FinancialYear';
-import ProfilePage from './components/user/ProfilePage';
+import Quotations from './components/user/master/Quotations';
+
 
 function App() {
   return (
@@ -32,7 +32,6 @@ function App() {
           </Route>
           <Route path="master" element={<Landing />}>
             <Route path="admin" element={<Admin />} />
-            <Route path="employees" element={<Employees />} />
             <Route path="categories" element={<Categories />} />
             <Route path="products" element={<Products />} />
             <Route path="brands" element={<Brand />} />
@@ -40,6 +39,8 @@ function App() {
             <Route path="brandproduct" element={<BrandProducts />} />
             <Route path="customers" element={<Customers />} />
             <Route path="financialyear" element={<FinancialYear />} />
+            <Route path="quotations" element={<Quotations />} />
+
             
 
 

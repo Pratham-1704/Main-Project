@@ -3,17 +3,17 @@ const mongoose = require("mongoose");
 const QuotationSchema = new mongoose.Schema({
     firmid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Firm", 
+        ref: "firm", 
         required: [true, "Firm ID is required"] 
     },
     sourceid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Source", 
+        ref: "source", 
         required: [true, "Source ID is required"] 
     },
     customerid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Customer", 
+        ref: "customer", 
         required: [true, "Customer ID is required"] 
     },
     quotationno: { 
@@ -42,7 +42,7 @@ const QuotationSchema = new mongoose.Schema({
     },
     adminid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Admin", 
+        ref: "admin", 
         required: [true, "Admin ID is required"] 
     },
     totalweight: { 
