@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, message, Table, DatePicker } from "antd";
+import { Button, message, Table, DatePicker, Input, Popconfirm } from "antd";
 import axios from "axios";
 import moment from "moment";
-import "./Css Files/style.css"; // Import the custom CSS file
+import "./Css Files/style.css"; // Import custom styles
 
 function FinancialYear() {
   const [formData, setFormData] = useState({
+    name: "",
     startdate: null,
     enddate: null,
   });
@@ -14,7 +15,7 @@ function FinancialYear() {
   const [financialYears, setFinancialYears] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
 
-  // Fetch financial years from the backend
+  // Fetch financial years from backend
   const fetchFinancialYears = async () => {
     try {
       const response = await axios.get("http://localhost:8081/financialYear");
@@ -25,6 +26,11 @@ function FinancialYear() {
     }
   };
 
+  // Handle input change
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   // Handle date changes
   const handleDateChange = (field, date) => {
     setFormData({ ...formData, [field]: date ? moment(date).format("YYYY-MM-DD") : null });
@@ -32,67 +38,46 @@ function FinancialYear() {
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (!formData.startdate || !formData.enddate) {
-      messageApi.open({ type: "error", content: "Both Start Date and End Date are required!" });
+    if (!formData.name || !formData.startdate || !formData.enddate) {
+      messageApi.open({ type: "error", content: "All fields are required!" });
       return;
     }
 
-    console.log("Submitting form data:", formData); // Debugging
-
     try {
-      const response = await axios.post("http://localhost:8081/financialYear", formData);
-      console.log("Response from server:", response.data); // Debugging
-      messageApi.open({ type: "success", content: "Financial Year saved successfully!" });
+      await axios.post("http://localhost:8081/financialYear", formData);
+      messageApi.open({ type: "success", content: "Financial Year added successfully!" });
       fetchFinancialYears();
       clearForm();
     } catch (error) {
-      console.error("Error:", error.response || error); // Debugging
-      messageApi.open({ type: "error", content: "Failed to save financial year!" });
+      messageApi.open({ type: "error", content: "Failed to add financial year!" });
     }
   };
 
   // Handle update
-  const handleUpdate = async () => {
-    if (!formData._id) {
-      messageApi.open({ type: "error", content: "Select a financial year to update!" });
-      return;
-    }
-
+  const handleUpdate = async (record) => {
     try {
-      await axios.put(`http://localhost:8081/financialYear/${formData._id}`, formData);
+      await axios.put(`http://localhost:8081/financialYear/${record._id}`, record);
       messageApi.open({ type: "success", content: "Financial Year updated successfully!" });
       fetchFinancialYears();
-      clearForm();
     } catch (error) {
       messageApi.open({ type: "error", content: "Failed to update financial year!" });
-      console.error("Error:", error);
     }
   };
 
   // Handle delete
-  const handleDelete = async () => {
-    if (!formData._id) {
-      messageApi.open({ type: "error", content: "Select a financial year to delete!" });
-      return;
-    }
-
+  const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8081/financialYear/${formData._id}`);
+      await axios.delete(`http://localhost:8081/financialYear/${id}`);
       messageApi.open({ type: "success", content: "Financial Year deleted successfully!" });
       fetchFinancialYears();
-      clearForm();
     } catch (error) {
       messageApi.open({ type: "error", content: "Failed to delete financial year!" });
-      console.error("Error:", error);
     }
   };
 
   // Clear form
   const clearForm = () => {
-    setFormData({
-      startdate: null,
-      enddate: null,
-    });
+    setFormData({ name: "", startdate: null, enddate: null });
   };
 
   useEffect(() => {
@@ -101,8 +86,34 @@ function FinancialYear() {
 
   // Table columns configuration
   const columns = [
+    { title: "Name", dataIndex: "name", key: "name" },
     { title: "Start Date", dataIndex: "startdate", key: "startdate" },
     { title: "End Date", dataIndex: "enddate", key: "enddate" },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <>
+          <Button
+            type="link"
+            onClick={() => setFormData(record)}
+            style={{ marginRight: "10px" }}
+          >
+            Update
+          </Button>
+          <Popconfirm
+            title="Are you sure you want to delete this financial year?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="link" danger>
+              Delete
+            </Button>
+          </Popconfirm>
+        </>
+      ),
+    },
   ];
 
   return (
@@ -126,12 +137,22 @@ function FinancialYear() {
               <div className="card p-3">
                 <div className="row">
                   <div className="col-lg-6 p-1">
+                    Name*
+                    <Input
+                      name="name"
+                      placeholder="Enter Financial Year Name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      style={{ width: "100%" }}
+                    />
+                  </div>
+                  <div className="col-lg-6 p-1">
                     Start Date*
                     <DatePicker
                       name="startdate"
                       placeholder="Select Start Date"
                       value={formData.startdate ? moment(formData.startdate) : null}
-                      onChange={(date, dateString) => handleDateChange("startdate", date, dateString)}
+                      onChange={(date) => handleDateChange("startdate", date)}
                       style={{ width: "100%" }}
                     />
                   </div>
@@ -141,36 +162,15 @@ function FinancialYear() {
                       name="enddate"
                       placeholder="Select End Date"
                       value={formData.enddate ? moment(formData.enddate) : null}
-                      onChange={(date, dateString) => handleDateChange("enddate", date, dateString)}
+                      onChange={(date) => handleDateChange("enddate", date)}
                       style={{ width: "100%" }}
                     />
                   </div>
                   <div className="col-lg-12 p-1">
-                    <Button
-                      type="primary"
-                      onClick={handleSubmit}
-                      style={{ marginRight: "10px" }}
-                    >
+                    <Button type="primary" onClick={handleSubmit} style={{ marginRight: "10px" }}>
                       Save
                     </Button>
-                    <Button
-                      color="green"
-                      onClick={handleUpdate}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Update
-                    </Button>
-                    <Button
-                      color="danger"
-                      onClick={handleDelete}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Delete
-                    </Button>
-                    <Button
-                      onClick={clearForm}
-                      style={{ marginRight: "10px" }}
-                    >
+                    <Button onClick={clearForm} style={{ marginRight: "10px" }}>
                       Clear
                     </Button>
                   </div>
@@ -186,11 +186,6 @@ function FinancialYear() {
                   columns={columns}
                   dataSource={financialYears}
                   rowKey="_id"
-                  onRow={(record) => ({
-                    onClick: () => {
-                      setFormData(record); // Populate form with selected row data
-                    },
-                  })}
                 />
               </div>
             </div>

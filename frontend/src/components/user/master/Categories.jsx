@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, Input, message, Table } from "antd";
+import { Button, Input, message, Table, Popconfirm } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./Css Files/style.css"; // Import the custom CSS file
 
@@ -32,12 +33,23 @@ function Categories() {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Handle form submission
-  const handleSubmit = async () => {
+  // Validate form data
+  const validateForm = () => {
     if (!formData.name || !formData.type || !formData.billingIn || !formData.srno) {
       messageApi.open({ type: "error", content: "All fields are required!" });
-      return;
+      return false;
     }
+    if (isNaN(formData.srno)) {
+      messageApi.open({ type: "error", content: "Serial No must be a number!" });
+      return false;
+    }
+    return true;
+  };
+
+  // Handle form submission
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
     try {
       await axios.post("http://localhost:8081/category", formData);
       messageApi.open({ type: "success", content: "Category saved successfully!" });
@@ -55,37 +67,30 @@ function Categories() {
       messageApi.open({ type: "error", content: "Select a category to update!" });
       return;
     }
-  
+    if (!validateForm()) return;
+
     try {
       await axios.put(`http://localhost:8081/category/${formData._id}`, formData);
       messageApi.open({ type: "success", content: "Category updated successfully!" });
-      fetchCategories(); // Refresh categories list
+      fetchCategories();
       clearForm();
     } catch (error) {
       messageApi.open({ type: "error", content: "Failed to update category!" });
       console.error("Error:", error);
     }
   };
-  
 
   // Handle delete
-  const handleDelete = async () => {
-    if (!formData._id) {
-      messageApi.open({ type: "error", content: "Select a category to delete!" });
-      return;
-    }
-  
+  const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8081/category/${formData._id}`);
+      await axios.delete(`http://localhost:8081/category/${id}`);
       messageApi.open({ type: "success", content: "Category deleted successfully!" });
-      fetchCategories(); // Refresh categories list
-      clearForm();
+      fetchCategories();
     } catch (error) {
       messageApi.open({ type: "error", content: "Failed to delete category!" });
       console.error("Error:", error);
     }
   };
-  
 
   // Clear form
   const clearForm = () => {
@@ -107,6 +112,28 @@ function Categories() {
     { title: "Type", dataIndex: "type", key: "type" },
     { title: "Billing In", dataIndex: "billingIn", key: "billingIn" },
     { title: "Serial No", dataIndex: "srno", key: "srno" },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => setFormData(record)}
+            style={{ marginRight: "10px" }}
+          />
+          <Popconfirm
+            title="Are you sure you want to delete this category?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="link" icon={<DeleteOutlined />} danger />
+          </Popconfirm>
+        </>
+      ),
+    },
   ];
 
   return (
@@ -174,23 +201,7 @@ function Categories() {
                       Save
                     </Button>
                     <Button
-                      color="green" variant="solid"
-                      onClick={handleUpdate}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Update
-                    </Button>
-
-                    <Button
-                      color="danger" variant="solid"
-                      onClick={handleDelete}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Delete
-                    </Button>
-
-                    <Button
-                      variant="solid"
+                      danger
                       onClick={clearForm}
                       style={{ marginRight: "10px" }}
                     >
@@ -209,11 +220,7 @@ function Categories() {
                   columns={columns}
                   dataSource={categories}
                   rowKey="_id"
-                  onRow={(record) => ({
-                    onClick: () => {
-                      setFormData(record); // Populate form with selected row data
-                    },
-                  })}
+                   pagination={{ pageSize: 5 , showSizeChanger: false}}
                 />
               </div>
             </div>

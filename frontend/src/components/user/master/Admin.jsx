@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button, Input, Select, message, Table } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons"; // Import icons
 import axios from "axios";
 import "./Css Files/style.css"; // Import your custom styles
 
@@ -14,6 +15,7 @@ function Admin() {
     status: "",
   });
 
+  const [originalData, setOriginalData] = useState(null); // Store original data for comparison
   const [adminList, setAdminList] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -45,7 +47,11 @@ function Admin() {
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (Object.values(formData).some((field) => !field.trim())) {
+    const isFormValid = Object.values(formData).every(
+      (field) => typeof field === "string" ? field.trim() !== "" : field !== null && field !== undefined
+    );
+
+    if (!isFormValid) {
       messageApi.error("All fields are required!");
       return;
     }
@@ -70,7 +76,22 @@ function Admin() {
 
   // Handle update
   const handleUpdate = async () => {
-    if (Object.values(formData).some((field) => !field.trim())) {
+    if (!formData._id) {
+      messageApi.error("Select an admin to update!");
+      return;
+    }
+
+    // Check if there are any changes
+    if (JSON.stringify(formData) === JSON.stringify(originalData)) {
+      messageApi.info("No changes have been made.");
+      return;
+    }
+
+    const isFormValid = Object.values(formData).every(
+      (field) => typeof field === "string" ? field.trim() !== "" : field !== null && field !== undefined
+    );
+
+    if (!isFormValid) {
       messageApi.error("All fields are required!");
       return;
     }
@@ -85,39 +106,26 @@ function Admin() {
         mobileno: "",
         role: "",
         status: "",
-      }); // Reset form after successful submission
+      }); // Reset form after successful update
+      setOriginalData(null); // Clear the original data
       fetchAdmins(); // Refresh the admin list
     } catch (error) {
       messageApi.error("Failed to update admin!");
       console.error("Error:", error);
     }
-  }
+  };
 
   // Handle delete
-  const handleDelete = async () => {
-    if (!formData._id) {
-      messageApi.error("Select an admin to delete!");
-      return;
-    }
-
+  const handleDeleteRow = async (id) => {
     try {
-      await axios.delete(`http://localhost:8081/admin/${formData._id}`);
+      await axios.delete(`http://localhost:8081/admin/${id}`);
       messageApi.success("Admin deleted successfully!");
-      setFormData({
-        name: "",
-        username: "",
-        password: "",
-        mobileno: "",
-        role: "",
-        status: "",
-      }); // Reset form after successful submission
       fetchAdmins(); // Refresh the admin list
     } catch (error) {
       messageApi.error("Failed to delete admin!");
       console.error("Error:", error);
     }
-  }
-  
+  };
 
   // Clear form
   const clearForm = () => {
@@ -129,7 +137,9 @@ function Admin() {
       role: "",
       status: "",
     });
-  }
+    setOriginalData(null); // Clear the original data
+  };
+
   // Table columns
   const columns = [
     { title: "Name", dataIndex: "name", key: "name" },
@@ -137,6 +147,29 @@ function Admin() {
     { title: "Mobile No", dataIndex: "mobileno", key: "mobileno" },
     { title: "Role", dataIndex: "role", key: "role" },
     { title: "Status", dataIndex: "status", key: "status" },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <div>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => {
+              setFormData(record); // Populate form with selected row data for update
+              setOriginalData(record); // Store the original data for comparison
+            }}
+            style={{ marginRight: "10px" }}
+          />
+          <Button
+            type="link"
+            icon={<DeleteOutlined />}
+            danger
+            onClick={() => handleDeleteRow(record._id)} // Call delete function with the record ID
+          />
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -199,27 +232,17 @@ function Admin() {
                   <div className="col-lg-12 p-1">
                     <Button
                       type="primary"
-                      onClick={handleSubmit}
+                      onClick={() => {
+                        if (formData._id) {
+                          handleUpdate(); // Call update function if _id exists
+                        } else {
+                          handleSubmit(); // Call submit function for new records
+                        }
+                      }}
                       style={{ marginRight: "10px" }}
                     >
                       Save
                     </Button>
-                    <Button
-                      color="green" variant="solid"
-                      onClick={handleUpdate}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Update
-                    </Button>
-
-                    <Button
-                      color="danger" variant="solid"
-                      onClick={handleDelete}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Delete
-                    </Button>
-
                     <Button
                       variant="solid"
                       onClick={clearForm}
@@ -235,12 +258,11 @@ function Admin() {
           <div className="row">
             <div className="col-lg-12">
               <div className="card p-3">
-                <Table className="custom-table" columns={columns} dataSource={adminList} rowKey="_id"
-                onRow={(record) => ({
-                  onClick: () => {
-                    setFormData(record); // Populate form with selected row data
-                  },
-                })}
+                <Table
+                  className="custom-table"
+                  columns={columns}
+                  dataSource={adminList}
+                  rowKey="_id"
                 />
               </div>
             </div>
