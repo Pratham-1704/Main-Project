@@ -129,7 +129,7 @@ function Order() {
       {contextHolder}
       <main id="main" className="main">
         <div className="pagetitle">
-          <h1>Order Management</h1>
+          <h1>Orders</h1>
         </div>
         <section className="section">
           <div className="row">

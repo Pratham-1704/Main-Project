@@ -114,7 +114,7 @@ function Categories() {
       {contextHolder}
       <main id="main" className="main">
         <div className="pagetitle">
-          <h1>Category Management</h1>
+          <h1>Categories</h1>
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">

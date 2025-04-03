@@ -143,7 +143,7 @@ function Products() {
       {contextHolder}
       <main id="main" className="main">
         <div className="pagetitle">
-          <h1>Product Management</h1>
+          <h1>Products</h1>
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
