@@ -12,9 +12,9 @@ import Firms from './components/user/master/Firms';
 import BrandProducts from './components/user/master/BrandProduct';
 import Customers from './components/user/master/Customers';
 import FinancialYear from './components/user/master/FinancialYear';
-import Lead from './components/user/master/Lead';
-import Quotations from './components/user/master/Quotations';
-import Order from './components/user/master/Order';
+import Lead from './components/user/Lead/Lead';
+import Quotations from './components/user/Lead/Quotations';
+import Order from './components/user/Lead/Order';
 
 function App() {
   return (
@@ -43,6 +43,13 @@ function App() {
             <Route path="leads" element={<Lead />} />
           </Route>
           
+          <Route path="lead" element={<Landing />}> 
+            <Route path="lead" element={<Lead />} />
+            <Route path="quotations" element={<Quotations />} />
+            <Route path="order" element={<Order />} />
+          </Route>
+
+
         </Routes>
       </BrowserRouter>
     </>

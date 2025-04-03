@@ -5,7 +5,7 @@ const Firm = require("../Models/FirmSchema");
 // ➤ Create a new firm
 router.post("/", async (req, res) => {
     try {
-        const newFirm = new Firm(req.body);
+        const newFirm = new Firm(req.body).populate("productid").populate("customerid");
         const savedFirm = await newFirm.save();
         res.status(201).json({ status: "success", data: savedFirm });
     } catch (err) {

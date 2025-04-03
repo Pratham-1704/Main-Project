@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button, Input, message, Table, Select, DatePicker } from "antd";
 import axios from "axios";
 import moment from "moment"; // Import moment
-import "./Css Files/style.css"; // Import the custom CSS file
+import "../master/Css Files/style.css"; // Import the custom CSS file
 
 function Quotations() {
     const [formData, setFormData] = useState({
@@ -87,6 +87,7 @@ function Quotations() {
         fetchCustomers();
         fetchSources();
         fetchAdmins();
+        clearForm();
     }, []);
 
     const handleInputChange = (e) => {

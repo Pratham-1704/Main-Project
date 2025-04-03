@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button, message, Table, Select, DatePicker } from "antd"; // Added DatePicker
 import axios from "axios";
-import "./Css Files/style.css"; // Import the custom CSS file
+import "../master/Css Files/style.css"; // Import the custom CSS file
 import moment from "moment"; // Import moment for date formatting
 import { Input } from "antd"; // Import Input from antd
 
