@@ -1,11 +1,6 @@
 const mongoose = require("mongoose");
 
 const QuotationSchema = new mongoose.Schema({
-    firmid: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "firm", 
-        required: [true, "Firm ID is required"] 
-    },
     sourceid: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "source", 

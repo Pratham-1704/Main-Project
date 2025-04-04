@@ -10,7 +10,6 @@ const { Option } = Select;
 
 function Lead() {
   const [formData, setFormData] = useState({
-    firmid: "",
     sourceid: "",
     customerid: "",
     adminid: "",
@@ -20,7 +19,6 @@ function Lead() {
   });
 
   const [leads, setLeads] = useState([]);
-  const [firms, setFirms] = useState([]); // State for firms
   const [sources, setSources] = useState([]); // State for sources
   const [admins, setAdmins] = useState([]); // State for admins
   const [customers, setCustomers] = useState([]); // State for customers
@@ -40,13 +38,11 @@ function Lead() {
   // Fetch firms, sources, admins, and customers for dropdowns
   const fetchDropdownData = async () => {
     try {
-      const [firmsResponse, sourcesResponse, adminsResponse, customersResponse] = await Promise.all([
-        axios.get("http://localhost:8081/firm"),
+      const [sourcesResponse, adminsResponse, customersResponse] = await Promise.all([
         axios.get("http://localhost:8081/source"),
         axios.get("http://localhost:8081/admin"),
         axios.get("http://localhost:8081/customer"),
       ]);
-      setFirms(firmsResponse.data.data || []);
       setSources(sourcesResponse.data.data || []);
       setAdmins(adminsResponse.data.data || []);
       setCustomers(customersResponse.data.data || []);
@@ -75,7 +71,6 @@ function Lead() {
   const handleSubmit = async () => {
     // Validate required fields
     if (
-      !formData.firmid ||
       !formData.sourceid ||
       !formData.customerid ||
       !formData.adminid ||
@@ -142,7 +137,6 @@ function Lead() {
   // Clear form
   const clearForm = () => {
     setFormData({
-      firmid: "",
       sourceid: "",
       customerid: "",
       adminid: "",
@@ -159,7 +153,6 @@ function Lead() {
 
   // Table columns configuration
   const columns = [
-    { title: "Firm ID", dataIndex: "firmid", key: "firmid" },
     { title: "Source ID", dataIndex: "sourceid", key: "sourceid" },
     { title: "Customer ID", dataIndex: "customerid", key: "customerid" },
     { title: "Admin ID", dataIndex: "adminid", key: "adminid" },
@@ -189,22 +182,7 @@ function Lead() {
               <div className="card p-3">
                 <div className="row">
                   <div className="col-lg-6 p-1">
-                    Firm ID*
-                    <Select
-                      placeholder="Select Firm"
-                      value={formData.firmid}
-                      onChange={(value) => handleDropdownChange("firmid", value)}
-                      style={{ width: "100%" }}
-                    >
-                      {firms.map((firm) => (
-                        <Option key={firm.id} value={firm.id}>
-                          {firm.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Source ID*
+                    Source*
                     <Select
                       placeholder="Select Source"
                       value={formData.sourceid}
@@ -219,7 +197,7 @@ function Lead() {
                     </Select>
                   </div>
                   <div className="col-lg-6 p-1">
-                    Customer ID*
+                    Customer*
                     <Select
                       placeholder="Select Customer"
                       value={formData.customerid}
@@ -234,7 +212,7 @@ function Lead() {
                     </Select>
                   </div>
                   <div className="col-lg-6 p-1">
-                    Admin ID*
+                    Admin*
                     <Select
                       placeholder="Select Admin"
                       value={formData.adminid}

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Quotation = require("../models/QuotationSchema");
+const Quotation = require("../Models/QuotationSchema");
 
 // ➤ Create a new quotation
 router.post("/", async (req, res) => {
@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
 // ➤ Get all quotations
 router.get("/", async (req, res) => {
     try {
-        const quotations = await Quotation.find().populate("firmid sourceid customerid adminid");
+        const quotations = await Quotation.find().populate("sourceid","name").populate("customerid","name");
         res.json({ status: "success", data: quotations });
     } catch (err) {
         res.status(500).json({ status: "error", message: err.message });
