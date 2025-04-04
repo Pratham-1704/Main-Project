@@ -23,6 +23,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Add a new category
+// Add a new category
 router.post("/", async (req, res) => {
   const { name, type, billingIn, srno } = req.body;
 
@@ -35,9 +36,18 @@ router.post("/", async (req, res) => {
     await newCategory.save();
     res.json({ status: "success", data: newCategory });
   } catch (error) {
+    if (error.name === "ValidationError") {
+      // Return Mongoose validation error
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ status: "error", message: messages.join(", ") });
+    } else if (error.code === 11000) {
+      // Handle duplicate srno
+      return res.status(400).json({ status: "error", message: "Serial number must be unique" });
+    }
     res.status(500).json({ status: "error", message: "Failed to add category" });
   }
 });
+
 
 // Update a category by ID
 router.put("/:id", async (req, res) => {

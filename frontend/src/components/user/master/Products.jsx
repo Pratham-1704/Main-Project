@@ -60,14 +60,20 @@ const Products = () => {
 
     } catch (error) {
       console.error("Validation failed or request error:", error);
-
-      // 💡 Check if the error is from the backend (axios error with response)
-      if (error.response && error.response.data && error.response.data.message) {
-        messageApi.error(error.response.data.message); // Show server-side error (like "srno already exists")
+    
+      if (error.response?.data?.message) {
+        const errMsg = error.response.data.message;
+    
+        if (errMsg.includes("Serial number")) {
+          form.setFields([{ name: "srno", errors: [errMsg] }]);
+        } else {
+          messageApi.error(errMsg);
+        }
       } else {
-        // messageApi.error("Failed to save product. Please try again!");
+        messageApi.error("Something went wrong. Please try again.");
       }
     }
+    
   };
 
 
@@ -151,7 +157,7 @@ const Products = () => {
         </div>
         <section className="section">
           <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
-            <Form form={form} layout="vertical" >
+            <Form form={form} layout="vertical">
               <div className="row">
                 <div className="col-lg-6 p-1">
                   <Form.Item
@@ -169,16 +175,18 @@ const Products = () => {
                     />
                   </Form.Item>
                 </div>
-                <div className="col-lg-6 p-1" >
+                <div className="col-lg-6 p-1">
                   <Form.Item
                     name="name"
                     label="Name"
-                    rules={[{ required: true, message: "Please enter the product name!" }]}
+                    rules={[
+                      { required: true, message: "Please enter the product name!" },
+                      { min: 2, message: "Product name must be at least 2 characters long!" }, // Minimum length validation
+                    ]}
                   >
                     <Input placeholder="Product Name" />
                   </Form.Item>
                 </div>
-
                 <div className="col-lg-6 p-1">
                   <Form.Item
                     name="weight"
@@ -195,25 +203,13 @@ const Products = () => {
                     <Input placeholder="Weight" />
                   </Form.Item>
                 </div>
-
-
-
-                {/* <div className="col-lg-6 p-1">
-                  <Form.Item
-                    name="weight"
-                    label="Weight"
-                    rules={[{ required: true, message: "Please enter the product weight!" }]}
-                  >
-                    <Input placeholder="Weight" />
-                  </Form.Item>
-                </div> */}
                 <div className="col-lg-6 p-1">
                   <Form.Item
                     name="srno"
                     label="Serial No"
                     rules={[{ required: true, message: "Please enter the serial number!" }]}
                   >
-                    <Input placeholder="Serial Number" />
+                    <Input placeholder="Serial Number" disabled={!!editingId} />
                   </Form.Item>
                 </div>
                 <div className="col-lg-12 p-1">

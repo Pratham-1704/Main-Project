@@ -1,117 +1,81 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, Input, message, Table, Popconfirm } from "antd";
+import { Button, Input, message, Table, Popconfirm, Form } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
-import "./Css Files/style.css"; // Import the custom CSS file
+import "./Css Files/style.css"; // Import your CSS file
 
-function Categories() {
-  const [formData, setFormData] = useState({
-    name: "",
-    type: "",
-    billingIn: "",
-    srno: "",
-  });
+const Categories = () => {
+  const [form] = Form.useForm(); // Ant Design form instance
+  const [data, setData] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [messageApi, contextHolder] = message.useMessage(); // Message API for notifications
 
-  const [categories, setCategories] = useState([]);
-  const [messageApi, contextHolder] = message.useMessage();
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  // Fetch categories from the backend
-  const fetchCategories = async () => {
+  const fetchData = async () => {
     try {
       const response = await axios.get("http://localhost:8081/category");
-      setCategories(response.data.status === "success" ? response.data.data : []);
+      setData(response.data.status === "success" ? response.data.data : []);
     } catch (error) {
       console.error("Error fetching categories:", error);
-      setCategories([]);
+      setData([]);
     }
   };
 
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  // Validate form data
-  const validateForm = () => {
-    if (!formData.name || !formData.type || !formData.billingIn || !formData.srno) {
-      messageApi.open({ type: "error", content: "All fields are required!" });
-      return false;
-    }
-    if (isNaN(formData.srno)) {
-      messageApi.open({ type: "error", content: "Serial No must be a number!" });
-      return false;
-    }
-    return true;
-  };
-
-  // Handle form submission
   const handleSubmit = async () => {
-    if (!validateForm()) return;
-
     try {
-      await axios.post("http://localhost:8081/category", formData);
-      messageApi.open({ type: "success", content: "Category saved successfully!" });
-      fetchCategories();
-      clearForm();
+      const values = await form.validateFields();
+
+      if (!editingId) {
+        await axios.post("http://localhost:8081/category", values);
+        messageApi.success("Category added successfully!");
+      } else {
+        await axios.put(`http://localhost:8081/category/${editingId}`, values);
+        messageApi.success("Category updated successfully!");
+        setEditingId(null);
+      }
+
+      fetchData();
+      form.resetFields();
+
     } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to save category!" });
-      console.error("Error:", error);
+      console.error("Validation failed or request error:", error);
+    
+      const errorMsg = error.response?.data?.message || "An unexpected error occurred.";
+      messageApi.error(errorMsg);
     }
   };
 
-  // Handle update
-  const handleUpdate = async () => {
-    if (!formData._id) {
-      messageApi.open({ type: "error", content: "Select a category to update!" });
-      return;
-    }
-    if (!validateForm()) return;
-
-    try {
-      await axios.put(`http://localhost:8081/category/${formData._id}`, formData);
-      messageApi.open({ type: "success", content: "Category updated successfully!" });
-      fetchCategories();
-      clearForm();
-    } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to update category!" });
-      console.error("Error:", error);
-    }
+  const handleEdit = (record) => {
+    form.setFieldsValue(record);
+    setEditingId(record._id);
   };
 
-  // Handle delete
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:8081/category/${id}`);
-      messageApi.open({ type: "success", content: "Category deleted successfully!" });
-      fetchCategories();
+      messageApi.success("Category deleted successfully!");
+      fetchData();
     } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to delete category!" });
-      console.error("Error:", error);
+      messageApi.error("Failed to delete category!");
+      console.error("Error deleting category:", error);
     }
   };
 
-  // Clear form
   const clearForm = () => {
-    setFormData({
-      name: "",
-      type: "",
-      billingIn: "",
-      srno: "",
-    });
+    form.resetFields();
+    setEditingId(null);
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  // Table columns configuration
   const columns = [
+    { title: "Serial No", dataIndex: "srno", key: "srno", align: "center" },
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Type", dataIndex: "type", key: "type" },
     { title: "Billing In", dataIndex: "billingIn", key: "billingIn" },
-    { title: "Serial No", dataIndex: "srno", key: "srno" },
+   
     {
       title: "Actions",
       key: "actions",
@@ -120,8 +84,8 @@ function Categories() {
           <Button
             type="link"
             icon={<EditOutlined />}
-            onClick={() => setFormData(record)}
-            style={{ marginRight: "10px" }}
+            onClick={() => handleEdit(record)}
+            className="action-button edit-button"
           />
           <Popconfirm
             title="Are you sure you want to delete this category?"
@@ -129,7 +93,12 @@ function Categories() {
             okText="Yes"
             cancelText="No"
           >
-            <Button type="link" icon={<DeleteOutlined />} danger />
+            <Button
+              type="link"
+              icon={<DeleteOutlined />}
+              danger
+              className="action-button delete-button"
+            />
           </Popconfirm>
         </>
       ),
@@ -152,83 +121,78 @@ function Categories() {
           </nav>
         </div>
         <section className="section">
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card p-3">
-                <div className="row">
-                  <div className="col-lg-6 p-1">
-                    Name*
-                    <Input
-                      name="name"
-                      placeholder="Category Name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Type*
-                    <Input
-                      name="type"
-                      placeholder="Type"
-                      value={formData.type}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Billing In*
-                    <Input
-                      name="billingIn"
-                      placeholder="Billing In"
-                      value={formData.billingIn}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Serial No*
-                    <Input
-                      name="srno"
-                      placeholder="Serial No"
-                      value={formData.srno}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="col-lg-12 p-1">
-                    <Button
-                      type="primary"
-                      onClick={handleSubmit}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Save
-                    </Button>
-                    <Button
-                      danger
-                      onClick={clearForm}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Clear
-                    </Button>
-                  </div>
+          <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
+            <Form form={form} layout="vertical">
+              <div className="row">
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="name"
+                    label="Name"
+                    rules={[{ required: true, message: "Please enter category name!" }]}
+                  >
+                    <Input placeholder="Category Name" />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="type"
+                    label="Type"
+                    rules={[{ required: true, message: "Please enter type!" }]}
+                  >
+                    <Input placeholder="Type" />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="billingIn"
+                    label="Billing In"
+                    rules={[{ required: true, message: "Please enter billing information!" }]}
+                  >
+                    <Input placeholder="Billing In" />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="srno"
+                    label="Serial No"
+                    rules={[
+                      { required: true, message: "Please enter serial number!" },
+                      {
+                        validator: (_, value) =>
+                          isNaN(value) ? Promise.reject("Serial No must be a number!") : Promise.resolve(),
+                      },
+                    ]}
+                  >
+                    <Input placeholder="Serial Number" />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-12 p-1">
+                  <Button type="primary" onClick={handleSubmit}>
+                    {editingId ? "Update" : "Save"}
+                  </Button>
+                  <Button
+                    type="default"
+                    onClick={clearForm}
+                    style={{ marginLeft: "10px" }}
+                  >
+                    {editingId ? "Cancel" : "Clear"}
+                  </Button>
                 </div>
               </div>
-            </div>
+            </Form>
           </div>
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card p-3">
-                <Table
-                  className="custom-table"
-                  columns={columns}
-                  dataSource={categories}
-                  rowKey="_id"
-                   pagination={{ pageSize: 5 , showSizeChanger: false}}
-                />
-              </div>
-            </div>
+          <div className="card p-3 custom-table">
+            <Table
+              columns={columns}
+              dataSource={data}
+              rowKey="_id"
+              pagination={{ pageSize: 5, showSizeChanger: false }}
+            />
           </div>
         </section>
       </main>
     </>
   );
-}
+};
 
 export default Categories;

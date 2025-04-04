@@ -28,17 +28,21 @@ router.post("/", async (req, res) => {
     try {
         const data = req.body;
 
-        // Check if srno already exists
-        const existingProduct = await Product.findOne({ srno: data.srno });
-        if (existingProduct) {
-            return res.status(400).json({ status: "error", message: "Serial number already exists." });
-        }
+        // Fetch the highest srno from the database
+        const lastProduct = await Product.findOne().sort({ srno: -1 });
+        const nextSrno = lastProduct ? lastProduct.srno + 1 : 1;
 
-        const newProduct = await Product.create(data);
-        res.json({ status: "success", data: newProduct });
+        // Assign the next srno to the new product
+        const newProduct = new Product({
+            ...data,
+            srno: nextSrno,
+        });
+
+        const savedProduct = await newProduct.save();
+        res.json({ status: "success", data: savedProduct });
     } catch (err) {
         console.error("Error creating product:", err);
-        res.status(500).json({ status: "error", message: "Please fill correct values" });
+        res.status(500).json({ status: "error", message: "Failed to create product." });
     }
 });
 
