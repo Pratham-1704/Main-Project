@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
         res.json({ status: "success", data: newProduct });
     } catch (err) {
         console.error("Error creating product:", err);
-        res.status(500).json({ status: "error", message: "Failed to create product." });
+        res.status(500).json({ status: "error", message: "Please fill correct values" });
     }
 });
 

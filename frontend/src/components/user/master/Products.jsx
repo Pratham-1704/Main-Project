@@ -5,6 +5,9 @@ import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./Css Files/style.css"; // Import your CSS file
 import { Color } from "antd/es/color-picker";
+import { Tooltip } from 'antd';
+import { InfoCircleOutlined } from '@ant-design/icons';
+
 
 const Products = () => {
   const [form] = Form.useForm(); // Ant Design form instance
@@ -150,7 +153,7 @@ const Products = () => {
           <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
             <Form form={form} layout="vertical" >
               <div className="row">
-                <div className="col-lg-6 ">
+                <div className="col-lg-6 p-1">
                   <Form.Item
                     name="categoryid"
                     label="Category"
@@ -166,7 +169,7 @@ const Products = () => {
                     />
                   </Form.Item>
                 </div>
-                <div className="col-lg-6 " >
+                <div className="col-lg-6 p-1" >
                   <Form.Item
                     name="name"
                     label="Name"
@@ -175,7 +178,27 @@ const Products = () => {
                     <Input placeholder="Product Name" />
                   </Form.Item>
                 </div>
-                <div className="col-lg-6 ">
+
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="weight"
+                    label={
+                      <span>
+                        Weight&nbsp;
+                        <Tooltip title="Enter weight in kg">
+                          <InfoCircleOutlined style={{ color: "#1890ff", cursor: "pointer" }} />
+                        </Tooltip>
+                      </span>
+                    }
+                    rules={[{ required: true, message: "Please enter the product weight!" }]}
+                  >
+                    <Input placeholder="Weight" />
+                  </Form.Item>
+                </div>
+
+
+
+                {/* <div className="col-lg-6 p-1">
                   <Form.Item
                     name="weight"
                     label="Weight"
@@ -183,8 +206,8 @@ const Products = () => {
                   >
                     <Input placeholder="Weight" />
                   </Form.Item>
-                </div>
-                <div className="col-lg-6 ">
+                </div> */}
+                <div className="col-lg-6 p-1">
                   <Form.Item
                     name="srno"
                     label="Serial No"
@@ -193,7 +216,7 @@ const Products = () => {
                     <Input placeholder="Serial Number" />
                   </Form.Item>
                 </div>
-                <div className="col-lg-12 ">
+                <div className="col-lg-12 p-1">
                   <Button type="primary" onClick={handleSubmit}>
                     {editingId ? "Update" : "Save"}
                   </Button>
