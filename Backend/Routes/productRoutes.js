@@ -28,16 +28,17 @@ router.post("/", async (req, res) => {
     try {
         const data = req.body;
 
-        // Check if product with same srno exists
-        let existingProduct = await Product.findOne({ srno: data.srno });
+        // Check if srno already exists
+        const existingProduct = await Product.findOne({ srno: data.srno });
         if (existingProduct) {
-            return res.status(400).json({ status: "error", data: "Product with this serial number already exists." });
+            return res.status(400).json({ status: "error", message: "Serial number already exists." });
         }
 
-        let object = await Product.create(data);
-        res.json({ status: "success", data: object });
+        const newProduct = await Product.create(data);
+        res.json({ status: "success", data: newProduct });
     } catch (err) {
-        res.json({ status: "error", data: err });
+        console.error("Error creating product:", err);
+        res.status(500).json({ status: "error", message: "Failed to create product." });
     }
 });
 
@@ -46,10 +47,18 @@ router.put("/:id", async (req, res) => {
     try {
         const id = req.params.id;
         const data = req.body;
-        let object = await Product.findByIdAndUpdate(id, data, { new: true });
-        res.json({ status: "success", data: object });
+
+        // Check if srno already exists for another product
+        const existingProduct = await Product.findOne({ srno: data.srno, _id: { $ne: id } });
+        if (existingProduct) {
+            return res.status(400).json({ status: "error", message: "Serial number already exists." });
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(id, data, { new: true });
+        res.json({ status: "success", data: updatedProduct });
     } catch (err) {
-        res.json({ status: "error", data: err });
+        console.error("Error updating product:", err);
+        res.status(500).json({ status: "error", message: "Failed to update product." });
     }
 });
 

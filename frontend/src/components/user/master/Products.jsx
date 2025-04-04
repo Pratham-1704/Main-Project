@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, Input, Select, message, Table, Popconfirm } from "antd";
-import { EditOutlined, DeleteOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
+import { Button, Input, Select, Table, Popconfirm, Form, message } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
-import "./Css Files/style.css";
+import "./Css Files/style.css"; // Import your CSS file
+import { Color } from "antd/es/color-picker";
 
 const Products = () => {
-  const [formData, setFormData] = useState({
-    categoryid: "",
-    name: "",
-    weight: "",
-    srno: "",
-  });
+  const [form] = Form.useForm(); // Ant Design form instance
   const [data, setData] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [messageApi, contextHolder] = message.useMessage();
   const [editingId, setEditingId] = useState(null);
+  const [messageApi, contextHolder] = message.useMessage(); // Message API for notifications
+
 
   useEffect(() => {
     fetchData();
@@ -42,71 +39,59 @@ const Products = () => {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSelectChange = (value) => {
-    setFormData({ ...formData, categoryid: value });
-  };
-
-  const validateForm = () => {
-    if (!formData.categoryid || !formData.name || !formData.weight || !formData.srno) {
-      messageApi.error("All fields are required!");
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = async () => {
-    if (!validateForm()) return;
     try {
-      await axios.post("http://localhost:8081/product", formData);
-      messageApi.success("Product saved successfully!");
-      clearForm();
+      const values = await form.validateFields();
+
+      if (!editingId) {
+        await axios.post("http://localhost:8081/product", values);
+        messageApi.success("Product added successfully!");
+      } else {
+        await axios.put(`http://localhost:8081/product/${editingId}`, values);
+        messageApi.success("Product updated successfully!");
+        setEditingId(null);
+      }
+
       fetchData();
+      form.resetFields();
+
     } catch (error) {
-      messageApi.error("Failed to save product!");
-      console.error("Error:", error);
+      console.error("Validation failed or request error:", error);
+
+      // 💡 Check if the error is from the backend (axios error with response)
+      if (error.response && error.response.data && error.response.data.message) {
+        messageApi.error(error.response.data.message); // Show server-side error (like "srno already exists")
+      } else {
+        // messageApi.error("Failed to save product. Please try again!");
+      }
     }
   };
 
-  const handleUpdate = async () => {
-    if (!formData._id) {
-      messageApi.error("Select a product to update!");
-      return;
-    }
-    if (!validateForm()) return;
-    try {
-      await axios.put(`http://localhost:8081/product/${formData._id}`, formData);
-      messageApi.success("Product updated successfully!");
-      clearForm();
-      fetchData();
-      setEditingId(null);
-    } catch (error) {
-      messageApi.error("Failed to update product!");
-      console.error("Error:", error);
-    }
-  };
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:8081/product/${id}`);
-      messageApi.success("Product deleted successfully!");
+      messageApi.success("Product deleted successfully!"); // Success message
       fetchData();
     } catch (error) {
-      messageApi.error("Failed to delete product!");
-      console.error("Error:", error);
+      console.error("Error deleting product:", error);
+      messageApi.error("Failed to delete product. Please try again!"); // Error message
     }
   };
 
+  const handleEdit = (record) => {
+    form.setFieldsValue(record); // Populate the form with the selected record
+    setEditingId(record._id); // Set the editing ID
+  };
+
   const clearForm = () => {
-    setFormData({ categoryid: "", name: "", weight: "", srno: "" });
-    setEditingId(null);
+    form.resetFields(); // Reset the form fields
+    setEditingId(null); // Clear the editing ID
   };
 
   const columns = [
+    { title: "Serial No", dataIndex: "srno", key: "srno", align: "center" },
+    { title: "Name", dataIndex: "name", key: "name" },
     {
       title: "Category",
       dataIndex: "categoryid",
@@ -116,40 +101,33 @@ const Products = () => {
         return category ? category.name : "Unknown";
       },
     },
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Weight", dataIndex: "weight", key: "weight" },
-    { title: "Serial No", dataIndex: "srno", key: "srno" },
+    { title: "Weight", dataIndex: "weight", key: "weight", align: "center" },
+
     {
       title: "Actions",
       key: "actions",
+      align: "center",
       render: (text, record) => (
         <>
-          {editingId === record._id ? (
-            <>
-              <Button type="link" icon={<SaveOutlined />} onClick={handleUpdate} style={{ marginRight: "10px" }} />
-              <Button type="link" icon={<CloseOutlined />} onClick={clearForm} danger />
-            </>
-          ) : (
-            <>
-              <Button
-                type="link"
-                icon={<EditOutlined />}
-                onClick={() => {
-                  setFormData(record);
-                  setEditingId(record._id);
-                }}
-                style={{ marginRight: "10px" }}
-              />
-              <Popconfirm
-                title="Are you sure you want to delete this product?"
-                onConfirm={() => handleDelete(record._id)}
-                okText="Yes"
-                cancelText="No"
-              >
-                <Button type="link" icon={<DeleteOutlined />} danger />
-              </Popconfirm>
-            </>
-          )}
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+            className="action-button edit-button"
+          />
+          <Popconfirm
+            title="Are you sure you want to delete this product?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              type="link"
+              icon={<DeleteOutlined />}
+              danger
+              className="action-button delete-button"
+            />
+          </Popconfirm>
         </>
       ),
     },
@@ -157,7 +135,16 @@ const Products = () => {
 
   return (
     <>
-      {contextHolder}
+      {contextHolder /* Render the message context holder at the top */}
+      <div className="pagetitle">
+        <h1>Products</h1>
+        <nav>
+          <ol className="breadcrumb">
+            <li className="breadcrumb-item"><Link to={"/"}>Dashboard</Link></li>
+            <li className="breadcrumb-item active">Products</li>
+          </ol>
+        </nav>
+      </div>
       <main id="main" className="main">
         <div className="pagetitle">
           <h1>Products</h1>
@@ -169,59 +156,72 @@ const Products = () => {
           </nav>
         </div>
         <section className="section">
-          <div className="card p-3">
-            <div className="row">
-              <div className="col-lg-6 p-1">
-                Category*
-                <Select
-                  className="w-100"
-                  placeholder="Select Category"
-                  value={formData.categoryid}
-                  onChange={handleSelectChange}
-                  options={categories.map((category) => ({
-                    value: category._id,
-                    label: category.name,
-                  }))}
-                />
-              </div>
-              <div className="col-lg-6 p-1">
-                Name*
-                <Input name="name" placeholder="Product Name" value={formData.name} onChange={handleInputChange} />
-              </div>
-              <div className="col-lg-6 p-1">
-                Weight*
-                <Input name="weight" placeholder="Weight" value={formData.weight} onChange={handleInputChange} />
-              </div>
-              <div className="col-lg-6 p-1">
-                Serial No*
-                <Input name="srno" placeholder="Serial Number" value={formData.srno} onChange={handleInputChange} />
-              </div>
-
-              <div className="col-lg-12 p-1">
-                <Button type="primary" onClick={editingId ? handleUpdate : handleSubmit}>
-                  {editingId ? "Update" : "Save"}
-                </Button>
-                {editingId && (
-                  <Button type="default" onClick={clearForm} style={{ marginLeft: "10px" }}>
-                    Cancel
-                  </Button>
-                )}
-                <Button type="default" onClick={clearForm} danger style={{ marginLeft: "10px" }}>
-                  Clear
-                </Button>
+          <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
+            <Form form={form} layout="vertical" >
+              <div className="row">
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="categoryid"
+                    label="Category"
+                    rules={[{ required: true, message: "Please select a category!" }]}
+                  >
+                    <Select
+                      className="w-100"
+                      placeholder="Select Category"
+                      options={categories.map((category) => ({
+                        value: category._id,
+                        label: category.name,
+                      }))}
+                    />
+                  </Form.Item>
                 </div>
-
-
-
-            </div>
+                <div className="col-lg-6 p-1" >
+                  <Form.Item
+                    name="name"
+                    label="Name"
+                    rules={[{ required: true, message: "Please enter the product name!" }]}
+                  >
+                    <Input placeholder="Product Name" />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="weight"
+                    label="Weight"
+                    rules={[{ required: true, message: "Please enter the product weight!" }]}
+                  >
+                    <Input placeholder="Weight" />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="srno"
+                    label="Serial No"
+                    rules={[{ required: true, message: "Please enter the serial number!" }]}
+                  >
+                    <Input placeholder="Serial Number" />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-12 p-1">
+                  <Button type="primary" onClick={handleSubmit}>
+                    {editingId ? "Update" : "Save"}
+                  </Button>
+                  <Button type="default" onClick={clearForm} style={{ marginLeft: "10px" }}>
+                    {editingId ? "Cancel" : "Clear"}
+                  </Button>
+                </div>
+              </div>
+            </Form>
           </div>
-          <div className="card p-3">
-            <Table columns={columns} 
-            dataSource={data}
-             rowKey="_id"
-             pagination={{ pageSize: 5 , showSizeChanger: false}}
-             />
+          <div className="card p-3 custom-table">
+            <Table
+              columns={columns}
+              dataSource={data}
+              rowKey="_id"
+              pagination={{ pageSize: 5, showSizeChanger: false }}
+            />
           </div>
+
         </section>
       </main>
     </>
@@ -229,3 +229,4 @@ const Products = () => {
 };
 
 export default Products;
+
