@@ -150,7 +150,7 @@ const Products = () => {
           <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
             <Form form={form} layout="vertical" >
               <div className="row">
-                <div className="col-lg-6 p-1">
+                <div className="col-lg-6 ">
                   <Form.Item
                     name="categoryid"
                     label="Category"
@@ -166,7 +166,7 @@ const Products = () => {
                     />
                   </Form.Item>
                 </div>
-                <div className="col-lg-6 p-1" >
+                <div className="col-lg-6 " >
                   <Form.Item
                     name="name"
                     label="Name"
@@ -175,7 +175,7 @@ const Products = () => {
                     <Input placeholder="Product Name" />
                   </Form.Item>
                 </div>
-                <div className="col-lg-6 p-1">
+                <div className="col-lg-6 ">
                   <Form.Item
                     name="weight"
                     label="Weight"
@@ -184,7 +184,7 @@ const Products = () => {
                     <Input placeholder="Weight" />
                   </Form.Item>
                 </div>
-                <div className="col-lg-6 p-1">
+                <div className="col-lg-6 ">
                   <Form.Item
                     name="srno"
                     label="Serial No"
@@ -193,7 +193,7 @@ const Products = () => {
                     <Input placeholder="Serial Number" />
                   </Form.Item>
                 </div>
-                <div className="col-lg-12 p-1">
+                <div className="col-lg-12 ">
                   <Button type="primary" onClick={handleSubmit}>
                     {editingId ? "Update" : "Save"}
                   </Button>

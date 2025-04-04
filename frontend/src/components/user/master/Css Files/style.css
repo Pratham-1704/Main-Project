@@ -3,7 +3,7 @@
     background-color: #a386d6; /* Lavender Purple */
     color: #ffffff; /* White Text */
     font-weight: bold;
-    font-size: 16px;
+    font-size: 14px;
 
   }
   
@@ -11,7 +11,7 @@
   .custom-table .ant-table-tbody > tr > td {
     background-color: #e4ebff; /* Soft Icy Blue */
     color: #2f2f2f; /* Dark Gray Text */
-    font-size: 17px;
+    font-size: 12px;
   }
   
   /* Hovered row */
@@ -59,7 +59,7 @@
 
   /* Target form labels */
 .section .ant-form-item-label > label {
-    font-size: 16px; /* Bigger label text */
+    font-size: 14px; /* Bigger label text */
     font-weight: 500;
   }
   
@@ -67,23 +67,23 @@
   .section .ant-input,
   .section .ant-select-selector {
     font-size: 16px; /* Bigger input and dropdown text */
-    height: 40px !important; /* Taller inputs */
-    padding: 6px 12px;
+    height: 30px !important; /* Taller inputs */
+    padding: 6px 10px;
   }
   
   /* Dropdown selected value */
   .section .ant-select-selection-item {
-    font-size: 16px;
+    font-size: 14px;
   }
   
   /* Dropdown placeholder */
   .section .ant-select-selection-placeholder {
-    font-size: 16px;
+    font-size: 14px;
   }
   
   /* Button text size */
   .section .ant-btn {
-    font-size: 16px;
+    font-size: 14px;
     height: 38px;
     padding: 6px 20px;
   }
@@ -93,9 +93,9 @@
 
   .section .ant-input,
 .section .ant-select-selector {
-  border-radius: 10px;
+  border-radius:5px;
   box-shadow: none;
 }
 .section{
-  margin-top: 10px;
+
 }
