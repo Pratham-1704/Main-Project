@@ -93,6 +93,9 @@
 
   .section .ant-input,
 .section .ant-select-selector {
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: none;
+}
+.section{
+  margin-top: 10px;
 }

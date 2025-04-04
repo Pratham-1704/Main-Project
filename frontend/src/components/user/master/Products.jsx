@@ -136,15 +136,6 @@ const Products = () => {
   return (
     <>
       {contextHolder /* Render the message context holder at the top */}
-      <div className="pagetitle">
-        <h1>Products</h1>
-        <nav>
-          <ol className="breadcrumb">
-            <li className="breadcrumb-item"><Link to={"/"}>Dashboard</Link></li>
-            <li className="breadcrumb-item active">Products</li>
-          </ol>
-        </nav>
-      </div>
       <main id="main" className="main">
         <div className="pagetitle">
           <h1>Products</h1>
