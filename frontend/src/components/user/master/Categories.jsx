@@ -43,8 +43,10 @@ const Categories = () => {
 
     } catch (error) {
       console.error("Validation failed or request error:", error);
-    
-      const errorMsg = error.response?.data?.message || "An unexpected error occurred.";
+
+      const errorMsg = error.response?.data?.message || "Please fill the values Correctly!!";
+      //messageApi.error("please fill values correctly!");
+
       messageApi.error(errorMsg);
     }
   };
@@ -70,12 +72,36 @@ const Categories = () => {
     setEditingId(null);
   };
 
+  // Custom validator function for form fields 
+  const getValidator = (fieldName, message, extraCheck) => ({
+    validator: async (_, value) => {
+      if (!value) {
+        setTimeout(() => {
+          form.setFields([{ name: fieldName, errors: [] }]);
+        }, 5000);
+        return Promise.reject(message);
+      }
+
+      if (extraCheck) {
+        const error = extraCheck(value);
+        if (error) {
+          setTimeout(() => {
+            form.setFields([{ name: fieldName, errors: [] }]);
+          }, 5000);
+          return Promise.reject(error);
+        }
+      }
+
+      return Promise.resolve();
+    },
+  });
+
   const columns = [
     { title: "Serial No", dataIndex: "srno", key: "srno", align: "center" },
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Type", dataIndex: "type", key: "type" },
     { title: "Billing In", dataIndex: "billingIn", key: "billingIn" },
-   
+
     {
       title: "Actions",
       key: "actions",
@@ -128,44 +154,50 @@ const Categories = () => {
                   <Form.Item
                     name="name"
                     label="Name"
-                    rules={[{ required: true, message: "Please enter category name!" }]}
+                    rules={[getValidator("name", "Please enter category name!"),
+                      getValidator("name", "Category name must be at least 2 characters!", (val) => val.length >= 2)
+
+                    ]}
+                    
                   >
                     <Input placeholder="Category Name" />
                   </Form.Item>
                 </div>
+
                 <div className="col-lg-6 p-1">
                   <Form.Item
                     name="type"
                     label="Type"
-                    rules={[{ required: true, message: "Please enter type!" }]}
+                    rules={[getValidator("type", "Please enter type!")]}
                   >
                     <Input placeholder="Type" />
                   </Form.Item>
                 </div>
+
                 <div className="col-lg-6 p-1">
                   <Form.Item
                     name="billingIn"
                     label="Billing In"
-                    rules={[{ required: true, message: "Please enter billing information!" }]}
+                    rules={[getValidator("billingIn", "Please enter billing information!")]}
                   >
                     <Input placeholder="Billing In" />
                   </Form.Item>
                 </div>
+
                 <div className="col-lg-6 p-1">
                   <Form.Item
                     name="srno"
                     label="Serial No"
                     rules={[
-                      { required: true, message: "Please enter serial number!" },
-                      {
-                        validator: (_, value) =>
-                          isNaN(value) ? Promise.reject("Serial No must be a number!") : Promise.resolve(),
-                      },
+                      getValidator("srno", "Please enter serial number!", (value) =>
+                        isNaN(value) ? "Serial No must be a number!" : null
+                      ),
                     ]}
                   >
                     <Input placeholder="Serial Number" />
                   </Form.Item>
                 </div>
+
                 <div className="col-lg-12 p-1">
                   <Button type="primary" onClick={handleSubmit}>
                     {editingId ? "Update" : "Save"}
@@ -180,6 +212,7 @@ const Categories = () => {
                 </div>
               </div>
             </Form>
+
           </div>
           <div className="card p-3 custom-table">
             <Table

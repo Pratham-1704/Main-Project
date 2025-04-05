@@ -1,16 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, Input, message, Table, Popconfirm } from "antd";
+import {
+  Button,
+  Input,
+  message,
+  Table,
+  Popconfirm,
+  Form,
+} from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
-import "./Css Files/style.css"; // Import the custom CSS file
+import "./Css Files/style.css";
 
-function Brand() {
-  const [formData, setFormData] = useState({ name: "", srno: "" });
+const Brand = () => {
+  const [form] = Form.useForm();
   const [brands, setBrands] = useState([]);
+  const [editingId, setEditingId] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
+  const [initialValues, setInitialValues] = useState(null);
 
-  // Fetch brands from the backend
+  useEffect(() => {
+    fetchBrands();
+  }, []);
+
   const fetchBrands = async () => {
     try {
       const response = await axios.get("http://localhost:8081/brand");
@@ -21,64 +33,48 @@ function Brand() {
     }
   };
 
-  useEffect(() => {
-    fetchBrands();
-  }, []);
-
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  // Validate form data
-  const validateForm = () => {
-    if (!formData.name || !formData.srno) {
-      messageApi.error("All fields are required!");
-      return false;
-    }
-    if (isNaN(formData.srno)) {
-      messageApi.error("Serial No must be a number!");
-      return false;
-    }
-    return true;
-  };
-
-  // Handle form submission
   const handleSubmit = async () => {
-    if (!validateForm()) return;
-
     try {
-      await axios.post("http://localhost:8081/brand", formData);
-      messageApi.success("Brand saved successfully!");
+      const values = await form.validateFields();
+  
+      if (editingId) {
+        // Check if values are different
+        const isChanged = Object.keys(values).some(
+          (key) => values[key] !== initialValues?.[key]
+        );
+  
+        if (!isChanged) {
+          messageApi.info("No changes made.");
+          return;
+        }
+  
+        await axios.put(`http://localhost:8081/brand/${editingId}`, values);
+        messageApi.success("Brand updated successfully!");
+        setEditingId(null);
+        setInitialValues(null);
+      } else {
+        await axios.post("http://localhost:8081/brand", values);
+        messageApi.success("Brand added successfully!");
+      }
+  
       fetchBrands();
-      clearForm();
+      form.resetFields();
     } catch (error) {
-      messageApi.error("Failed to save brand!");
-      console.error("Error:", error);
+      console.error("Error submitting form:", error);
+      const errorMsg =
+        error.response?.data?.message || "An unexpected error occurred.";
+      messageApi.error(errorMsg);
     }
   };
+  
 
-  // Handle update
-  const handleUpdate = async () => {
-    if (!formData._id) {
-      messageApi.error("Select a brand to update!");
-      return;
-    }
-    if (!validateForm()) return;
-
-    try {
-      await axios.put(`http://localhost:8081/brand/${formData._id}`, formData);
-      messageApi.success("Brand updated successfully!");
-      fetchBrands();
-      clearForm();
-    } catch (error) {
-      messageApi.error("Failed to update brand!");
-      console.error("Error:", error);
-    }
+  const handleEdit = (record) => {
+    form.setFieldsValue(record);
+    setEditingId(record._id);
+    setInitialValues(record); // Save original data
   };
+  
 
-  // Handle delete
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:8081/brand/${id}`);
@@ -86,19 +82,20 @@ function Brand() {
       fetchBrands();
     } catch (error) {
       messageApi.error("Failed to delete brand!");
-      console.error("Error:", error);
+      console.error("Error deleting brand:", error);
     }
   };
 
-  // Clear form
   const clearForm = () => {
-    setFormData({ name: "", srno: "" });
+    form.resetFields();
+    setEditingId(null);
+    setInitialValues(null);
   };
+  
 
-  // Table columns configuration
   const columns = [
+    { title: "Serial No", dataIndex: "srno", key: "srno", align: "center" },
     { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Serial No", dataIndex: "srno", key: "srno" },
     {
       title: "Actions",
       key: "actions",
@@ -107,8 +104,8 @@ function Brand() {
           <Button
             type="link"
             icon={<EditOutlined />}
-            onClick={() => setFormData(record)}
-            style={{ marginRight: "10px" }}
+            onClick={() => handleEdit(record)}
+            className="action-button edit-button"
           />
           <Popconfirm
             title="Are you sure you want to delete this brand?"
@@ -116,7 +113,12 @@ function Brand() {
             okText="Yes"
             cancelText="No"
           >
-            <Button type="link" icon={<DeleteOutlined />} danger />
+            <Button
+              type="link"
+              icon={<DeleteOutlined />}
+              danger
+              className="action-button delete-button"
+            />
           </Popconfirm>
         </>
       ),
@@ -139,61 +141,63 @@ function Brand() {
           </nav>
         </div>
         <section className="section">
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card p-3">
-                <div className="row">
-                  <div className="col-lg-6 p-1">
-                    Name*
-                    <Input
-                      name="name"
-                      placeholder="Brand Name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Serial No*
-                    <Input
-                      name="srno"
-                      placeholder="Serial No"
-                      value={formData.srno}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="col-lg-12 p-1">
-                    <Button
-                      type="primary"
-                      onClick={handleSubmit}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Save
-                    </Button>
-                    <Button danger onClick={clearForm} style={{ marginRight: "10px" }}>
-                      Clear
-                    </Button>
-                  </div>
+          <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
+            <Form form={form} layout="vertical">
+              <div className="row">
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="name"
+                    label="Name"
+                    rules={[{ required: true, message: "Please enter brand name!" }]}
+                  >
+                    <Input placeholder="Brand Name" />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="srno"
+                    label="Serial No"
+                    rules={[
+                      { required: true, message: "Please enter serial number!" },
+                      {
+                        validator: (_, value) =>
+                          isNaN(value)
+                            ? Promise.reject("Serial No must be a number!")
+                            : Promise.resolve(),
+                      },
+                    ]}
+                  >
+                    <Input placeholder="Serial Number" disabled={!!editingId} />
+                  </Form.Item>
+
+                </div>
+                <div className="col-lg-12 p-1">
+                  <Button type="primary" onClick={handleSubmit}>
+                    {editingId ? "Update" : "Save"}
+                  </Button>
+                  <Button
+                    type="default"
+                    onClick={clearForm}
+                    style={{ marginLeft: "10px" }}
+                  >
+                    {editingId ? "Cancel" : "Clear"}
+                  </Button>
                 </div>
               </div>
-            </div>
+            </Form>
           </div>
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card p-3">
-                <Table
-                  className="custom-table"
-                  columns={columns}
-                  dataSource={brands}
-                  rowKey="_id"
-                  pagination={{ pageSize: 5, showSizeChanger: false }}
-                />
-              </div>
-            </div>
+          <div className="card p-3 custom-table">
+            <Table
+              columns={columns}
+              dataSource={brands}
+              rowKey="_id"
+              pagination={{ pageSize: 5, showSizeChanger: false }}
+            />
           </div>
         </section>
       </main>
     </>
   );
-}
+};
 
 export default Brand;

@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, Input, Select, Table, Popconfirm, Form, message } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Button, Input, Select, Table, Popconfirm, Form, message, Tooltip } from "antd";
+import { EditOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import axios from "axios";
-import "./Css Files/style.css"; // Import your CSS file
-import { Color } from "antd/es/color-picker";
-import { Tooltip } from 'antd';
-import { InfoCircleOutlined } from '@ant-design/icons';
-
+import "./Css Files/style.css";
 
 const Products = () => {
-  const [form] = Form.useForm(); // Ant Design form instance
+  const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [editingId, setEditingId] = useState(null);
-  const [messageApi, contextHolder] = message.useMessage(); // Message API for notifications
-
+  const [messageApi, contextHolder] = message.useMessage();
+    const [initialValues, setInitialValues] = useState(null);
+  
 
   useEffect(() => {
     fetchData();
@@ -42,60 +39,83 @@ const Products = () => {
     }
   };
 
+  const getTimedValidator = (field, message, extraCheck = null) => ({
+    validator: async (_, value) => {
+      if (!value || (extraCheck && !extraCheck(value))) {
+        setTimeout(() => {
+          form.setFields([{ name: field, errors: [] }]);
+        }, 3000);
+        return Promise.reject(new Error(message));
+      }
+      return Promise.resolve();
+    },
+  });
+
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-
-      if (!editingId) {
-        await axios.post("http://localhost:8081/product", values);
-        messageApi.success("Product added successfully!");
-      } else {
+  
+      if (editingId) {
+        // Check if values are different
+        const isChanged = Object.keys(values).some(
+          (key) => values[key] !== initialValues?.[key]
+        );
+  
+        if (!isChanged) {
+          messageApi.info("No changes made.");
+          return;
+        }
+  
         await axios.put(`http://localhost:8081/product/${editingId}`, values);
-        messageApi.success("Product updated successfully!");
+        messageApi.success("Brand updated successfully!");
         setEditingId(null);
+        setInitialValues(null);
+      } else {
+        await axios.post("http://localhost:8081/product", values);
+        messageApi.success("Brand added successfully!");
       }
-
+  
       fetchData();
       form.resetFields();
-
     } catch (error) {
-      console.error("Validation failed or request error:", error);
-    
-      if (error.response?.data?.message) {
-        const errMsg = error.response.data.message;
-    
-        if (errMsg.includes("Serial number")) {
-          form.setFields([{ name: "srno", errors: [errMsg] }]);
-        } else {
-          messageApi.error(errMsg);
-        }
-      } else {
-        messageApi.error("Something went wrong. Please try again.");
-      }
+      console.error("Error submitting form:", error);
+      const errorMsg =
+        error.response?.data?.message || "All Fields are Required!";
+      messageApi.error(errorMsg);
     }
-    
   };
-
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:8081/product/${id}`);
-      messageApi.success("Product deleted successfully!"); // Success message
+      messageApi.success("Product deleted successfully!");
       fetchData();
     } catch (error) {
       console.error("Error deleting product:", error);
-      messageApi.error("Failed to delete product. Please try again!"); // Error message
+      messageApi.error("Failed to delete product. Please try again!");
     }
   };
 
+  // const handleEdit = (record) => {
+  //   form.setFieldsValue(record);
+  //   setEditingId(record._id);
+  // };
+
   const handleEdit = (record) => {
-    form.setFieldsValue(record); // Populate the form with the selected record
-    setEditingId(record._id); // Set the editing ID
+    form.setFieldsValue(record);
+    setEditingId(record._id);
+    setInitialValues(record); // Save original data
   };
 
+  // const clearForm = () => {
+  //   form.resetFields();
+  //   setEditingId(null);
+  // };
+
   const clearForm = () => {
-    form.resetFields(); // Reset the form fields
-    setEditingId(null); // Clear the editing ID
+    form.resetFields();
+    setEditingId(null);
+    setInitialValues(null);
   };
 
   const columns = [
@@ -111,12 +131,11 @@ const Products = () => {
       },
     },
     { title: "Weight", dataIndex: "weight", key: "weight", align: "center" },
-
     {
       title: "Actions",
       key: "actions",
       align: "center",
-      render: (text, record) => (
+      render: (_, record) => (
         <>
           <Button
             type="link"
@@ -144,13 +163,13 @@ const Products = () => {
 
   return (
     <>
-      {contextHolder /* Render the message context holder at the top */}
+      {contextHolder}
       <main id="main" className="main">
         <div className="pagetitle">
           <h1>Products</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item"><Link to={"/"}>Dashboard</Link></li>
+              <li className="breadcrumb-item"><Link to="/">Dashboard</Link></li>
               <li className="breadcrumb-item active">Products</li>
             </ol>
           </nav>
@@ -159,19 +178,25 @@ const Products = () => {
           <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
             <Form form={form} layout="vertical">
               <div className="row">
+              <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="srno"
+                    label="Serial No"
+                    rules={[getTimedValidator("srno", "Please enter the serial number!")]}
+                  >
+                    <Input placeholder="Serial Number" disabled={!!editingId} />
+                  </Form.Item>
+                </div>
                 <div className="col-lg-6 p-1">
                   <Form.Item
                     name="categoryid"
                     label="Category"
-                    rules={[{ required: true, message: "Please select a category!" }]}
+                    rules={[getTimedValidator("categoryid", "Please select a category!")]}
                   >
                     <Select
                       className="w-100"
                       placeholder="Select Category"
-                      options={categories.map((category) => ({
-                        value: category._id,
-                        label: category.name,
-                      }))}
+                      options={categories.map((c) => ({ value: c._id, label: c.name }))}
                     />
                   </Form.Item>
                 </div>
@@ -180,8 +205,8 @@ const Products = () => {
                     name="name"
                     label="Name"
                     rules={[
-                      { required: true, message: "Please enter the product name!" },
-                      { min: 2, message: "Product name must be at least 2 characters long!" }, // Minimum length validation
+                      getTimedValidator("name", "Please enter the product name!"),
+                      getTimedValidator("name", "Product name must be at least 2 characters!", (val) => val.length >= 2)
                     ]}
                   >
                     <Input placeholder="Product Name" />
@@ -198,20 +223,12 @@ const Products = () => {
                         </Tooltip>
                       </span>
                     }
-                    rules={[{ required: true, message: "Please enter the product weight!" }]}
+                    rules={[getTimedValidator("weight", "Please enter the product weight!")]}
                   >
                     <Input placeholder="Weight" />
                   </Form.Item>
                 </div>
-                <div className="col-lg-6 p-1">
-                  <Form.Item
-                    name="srno"
-                    label="Serial No"
-                    rules={[{ required: true, message: "Please enter the serial number!" }]}
-                  >
-                    <Input placeholder="Serial Number" disabled={!!editingId} />
-                  </Form.Item>
-                </div>
+                
                 <div className="col-lg-12 p-1">
                   <Button type="primary" onClick={handleSubmit}>
                     {editingId ? "Update" : "Save"}
@@ -231,7 +248,6 @@ const Products = () => {
               pagination={{ pageSize: 5, showSizeChanger: false }}
             />
           </div>
-
         </section>
       </main>
     </>
@@ -239,4 +255,3 @@ const Products = () => {
 };
 
 export default Products;
-
