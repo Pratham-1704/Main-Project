@@ -1,29 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, Input, Select, message, Table } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons"; // Import icons
+import { Button, Input, Select, message, Table, Popconfirm, Form } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
-import "./Css Files/style.css"; // Import your custom styles
+import "./Css Files/style.css";
 
-function Admin() {
-  const [formData, setFormData] = useState({
-    name: "",
-    username: "",
-    password: "",
-    mobileno: "",
-    role: "",
-    status: "",
-  });
-
-  const [originalData, setOriginalData] = useState(null); // Store original data for comparison
+const Admin = () => {
+  const [form] = Form.useForm();
   const [adminList, setAdminList] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [initialValues, setInitialValues] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
 
-  // Fetch admins from the backend
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
+
   const fetchAdmins = async () => {
     try {
-      const response = await axios.get("http://localhost:8081/admin");
-      setAdminList(response.data.status === "success" ? response.data.data : []);
+      const res = await axios.get("http://localhost:8081/admin");
+      setAdminList(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
       console.error("Error fetching admins:", error);
       messageApi.error("Failed to fetch admin list!");
@@ -31,116 +27,108 @@ function Admin() {
     }
   };
 
-  useEffect(() => {
-    fetchAdmins();
-  }, []);
+  let debounceTimer = null;
 
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+const getTimedValidator = (field, message, extraCheck = null) => ({
+  validator: async (_, value) => {
+    if (!value || (extraCheck && !extraCheck(value))) {
+      setTimeout(() => {
+        form.setFields([{ name: field, errors: [] }]);
+      }, 5000);
+      return Promise.reject(new Error(message));
+    }
 
-  const handleSelectChange = (name, value) => {
-    setFormData({ ...formData, [name]: value });
-  };
+    if (field === "username") {
+      return new Promise((resolve, reject) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(async () => {
+          try {
+            const res = await axios.get("http://localhost:8081/admin/check-username", {
+              params: { username: value },
+            });
 
-  // Handle form submission
+            const isSameAsOriginal = value === initialValues?.username;
+            if (res.data.exists && !isSameAsOriginal) {
+              setTimeout(() => {
+                form.setFields([{ name: field, errors: [] }]);
+              }, 5000);
+              reject(new Error("Username already exists!"));
+            } else {
+              resolve();
+            }
+          } catch (err) {
+            reject(new Error("Username check failed. Try again!"));
+          }
+        }, 300); // Debounce delay
+      });
+    }
+
+    return Promise.resolve();
+  },
+});
+
+
   const handleSubmit = async () => {
-    const isFormValid = Object.values(formData).every(
-      (field) => typeof field === "string" ? field.trim() !== "" : field !== null && field !== undefined
-    );
-
-    if (!isFormValid) {
-      messageApi.error("All fields are required!");
-      return;
-    }
-
     try {
-      await axios.post("http://localhost:8081/admin", formData);
-      messageApi.success("Admin added successfully!");
-      setFormData({
-        name: "",
-        username: "",
-        password: "",
-        mobileno: "",
-        role: "",
-        status: "",
-      }); // Reset form after successful submission
-      fetchAdmins(); // Refresh the admin list
+      const values = await form.validateFields();
+
+      if (editingId) {
+        const isChanged = Object.keys(values).some(
+          (key) => values[key]?.toString().trim() !== initialValues?.[key]?.toString().trim()
+        );
+        if (!isChanged) {
+          messageApi.info("No changes made.");
+          return;
+        }
+
+        await axios.put(`http://localhost:8081/admin/${editingId}`, values);
+        messageApi.success("Admin updated successfully!");
+        setEditingId(null);
+        setInitialValues(null);
+      } else {
+        await axios.post("http://localhost:8081/admin", values);
+        messageApi.success("Admin added successfully!");
+      }
+
+      form.resetFields();
+      fetchAdmins();
     } catch (error) {
-      messageApi.error("Failed to add admin!");
-      console.error("Error:", error);
+      console.error("Error submitting form:", error);
+      const errorMsg =
+        error.response?.data?.message ||
+        error.message ||
+        "Something went wrong. Please try again!";
+      messageApi.error(errorMsg);
     }
   };
 
-  // Handle update
-  const handleUpdate = async () => {
-    if (!formData._id) {
-      messageApi.error("Select an admin to update!");
-      return;
-    }
-
-    // Check if there are any changes
-    if (JSON.stringify(formData) === JSON.stringify(originalData)) {
-      messageApi.info("No changes have been made.");
-      return;
-    }
-
-    const isFormValid = Object.values(formData).every(
-      (field) => typeof field === "string" ? field.trim() !== "" : field !== null && field !== undefined
-    );
-
-    if (!isFormValid) {
-      messageApi.error("All fields are required!");
-      return;
-    }
-
-    try {
-      await axios.put(`http://localhost:8081/admin/${formData._id}`, formData);
-      messageApi.success("Admin updated successfully!");
-      setFormData({
-        name: "",
-        username: "",
-        password: "",
-        mobileno: "",
-        role: "",
-        status: "",
-      }); // Reset form after successful update
-      setOriginalData(null); // Clear the original data
-      fetchAdmins(); // Refresh the admin list
-    } catch (error) {
-      messageApi.error("Failed to update admin!");
-      console.error("Error:", error);
-    }
+  const handleEdit = (record) => {
+    form.setFieldsValue(record);
+    setEditingId(record._id);
+    setInitialValues(record);
   };
 
-  // Handle delete
-  const handleDeleteRow = async (id) => {
+  const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:8081/admin/${id}`);
       messageApi.success("Admin deleted successfully!");
-      fetchAdmins(); // Refresh the admin list
+      fetchAdmins();
     } catch (error) {
-      messageApi.error("Failed to delete admin!");
-      console.error("Error:", error);
+      console.error("Error deleting admin:", error);
+      const errorMsg =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to delete admin!";
+      messageApi.error(errorMsg);
     }
   };
 
-  // Clear form
   const clearForm = () => {
-    setFormData({
-      name: "",
-      username: "",
-      password: "",
-      mobileno: "",
-      role: "",
-      status: "",
-    });
-    setOriginalData(null); // Clear the original data
+    form.resetFields();
+    setEditingId(null);
+    setInitialValues(null);
   };
 
-  // Table columns
   const columns = [
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Username", dataIndex: "username", key: "username" },
@@ -150,24 +138,29 @@ function Admin() {
     {
       title: "Actions",
       key: "actions",
-      render: (text, record) => (
-        <div>
+      align: "center",
+      render: (_, record) => (
+        <>
           <Button
             type="link"
             icon={<EditOutlined />}
-            onClick={() => {
-              setFormData(record); // Populate form with selected row data for update
-              setOriginalData(record); // Store the original data for comparison
-            }}
-            style={{ marginRight: "10px" }}
+            onClick={() => handleEdit(record)}
+            className="action-button edit-button"
           />
-          <Button
-            type="link"
-            icon={<DeleteOutlined />}
-            danger
-            onClick={() => handleDeleteRow(record._id)} // Call delete function with the record ID
-          />
-        </div>
+          <Popconfirm
+            title="Are you sure you want to delete this admin?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              type="link"
+              icon={<DeleteOutlined />}
+              danger
+              className="action-button delete-button"
+            />
+          </Popconfirm>
+        </>
       ),
     },
   ];
@@ -180,97 +173,86 @@ function Admin() {
           <h1>Admins</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to={"/"}>Dashboard</Link>
-              </li>
+              <li className="breadcrumb-item"><Link to="/">Dashboard</Link></li>
               <li className="breadcrumb-item active">Admin</li>
             </ol>
           </nav>
         </div>
+
         <section className="section">
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card p-3">
-                <div className="row">
-                  {["name", "username", "password", "mobileno"].map((field) => (
-                    <div className="col-lg-6 p-1" key={field}>
-                      {field.charAt(0).toUpperCase() + field.slice(1)}*
-                      <Input
-                        name={field}
-                        placeholder={field}
-                        value={formData[field]}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                  ))}
-                  <div className="col-lg-6 p-1">
-                    Role*<br />
+          <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
+            <Form form={form} layout="vertical">
+              <div className="row">
+                {[{ name: "name", label: "Name" },
+                { name: "username", label: "Username" },
+                { name: "password", label: "Password" },
+                { name: "mobileno", label: "Mobile No" }
+                ].map(({ name, label }) => (
+                  <div className="col-lg-6 p-1" key={name}>
+                    <Form.Item
+                      name={name}
+                      label={label}
+                      rules={[getTimedValidator(name, `Please enter ${label.toLowerCase()}!`)]}
+                    >
+                      <Input placeholder={label} />
+                    </Form.Item>
+                  </div>
+                ))}
+
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="role"
+                    label="Role"
+                    rules={[getTimedValidator("role", "Please select role!")]}>
                     <Select
-                      className="w-100"
                       placeholder="Select Role"
-                      value={formData.role}
-                      onChange={(value) => handleSelectChange("role", value)}
                       options={[
                         { value: "admin", label: "Admin" },
                         { value: "user", label: "User" },
                       ]}
                     />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Status*<br />
+                  </Form.Item>
+                </div>
+
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="status"
+                    label="Status"
+                    rules={[getTimedValidator("status", "Please select status!")]}>
                     <Select
-                      className="w-100"
                       placeholder="Select Status"
-                      value={formData.status}
-                      onChange={(value) => handleSelectChange("status", value)}
                       options={[
                         { value: "active", label: "Active" },
                         { value: "inactive", label: "Inactive" },
                       ]}
                     />
-                  </div>
-                  <div className="col-lg-12 p-1">
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        if (formData._id) {
-                          handleUpdate(); // Call update function if _id exists
-                        } else {
-                          handleSubmit(); // Call submit function for new records
-                        }
-                      }}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Save
-                    </Button>
-                    <Button
-                      variant="solid"
-                      onClick={clearForm}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Clear
-                    </Button>
-                  </div>
+                  </Form.Item>
+                </div>
+
+                <div className="col-lg-12 p-1">
+                  <Button type="primary" onClick={handleSubmit}>
+                    {editingId ? "Update" : "Save"}
+                  </Button>
+                  <Button onClick={clearForm} style={{ marginLeft: 10 }}>
+                    {editingId ? "Cancel" : "Clear"}
+                  </Button>
                 </div>
               </div>
-            </div>
+            </Form>
           </div>
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card p-3">
-                <Table
-                  className="custom-table"
-                  columns={columns}
-                  dataSource={adminList}
-                  rowKey="_id"
-                />
-              </div>
-            </div>
+
+          <div className="card p-3 custom-table">
+            <Table
+              columns={columns}
+              dataSource={adminList}
+              rowKey="_id"
+              pagination={{ pageSize: 5, showSizeChanger: false }}
+            />
           </div>
         </section>
       </main>
     </>
   );
-}
+};
 
 export default Admin;

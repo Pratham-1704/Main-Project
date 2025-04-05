@@ -18,7 +18,7 @@ const FinancialYearSchema = new mongoose.Schema({
         required: [true, "End date is required"],
         validate: {
             validator: function (value) {
-                return value > this.startdate;
+                return value < this.startdate;
             },
             message: "End date must be after start date"
         }

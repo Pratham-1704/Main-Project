@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { Button, Input, message, Table, Popconfirm, Form } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
-import "./Css Files/style.css"; // Import your CSS file
+import "./Css Files/style.css";
 
 const Categories = () => {
-  const [form] = Form.useForm(); // Ant Design form instance
+  const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [editingId, setEditingId] = useState(null);
-  const [messageApi, contextHolder] = message.useMessage(); // Message API for notifications
+  const [messageApi, contextHolder] = message.useMessage();
+  const [initialValues, setInitialValues] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -17,43 +18,64 @@ const Categories = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("http://localhost:8081/category");
-      setData(response.data.status === "success" ? response.data.data : []);
+      const res = await axios.get("http://localhost:8081/category");
+      setData(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
       console.error("Error fetching categories:", error);
       setData([]);
     }
   };
 
-  const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields();
+  const getTimedValidator = (field, message, extraCheck = null) => ({
+    validator: async (_, value) => {
+      if (!value || (extraCheck && !extraCheck(value))) {
+        setTimeout(() => {
+          form.setFields([{ name: field, errors: [] }]);
+        }, 3000);
+        return Promise.reject(new Error(message));
+      }
+      return Promise.resolve();
+    },
+  });
 
-      if (!editingId) {
-        await axios.post("http://localhost:8081/category", values);
-        messageApi.success("Category added successfully!");
-      } else {
-        await axios.put(`http://localhost:8081/category/${editingId}`, values);
-        messageApi.success("Category updated successfully!");
-        setEditingId(null);
+  const handleSubmit = async () => {
+  try {
+    const values = await form.validateFields();
+
+    if (editingId) {
+      const isChanged = Object.keys(values).some(
+        (key) => values[key]?.toString().trim() !== initialValues?.[key]?.toString().trim()
+      );
+
+      if (!isChanged) {
+        messageApi.info("No changes made. Update not required.");
+        return;
       }
 
-      fetchData();
-      form.resetFields();
-
-    } catch (error) {
-      console.error("Validation failed or request error:", error);
-
-      const errorMsg = error.response?.data?.message || "Please fill the values Correctly!!";
-      //messageApi.error("please fill values correctly!");
-
-      messageApi.error(errorMsg);
+      await axios.put(`http://localhost:8081/category/${editingId}`, values);
+      messageApi.success("Category updated successfully!");
+      setEditingId(null);
+      setInitialValues(null);
+    } else {
+      await axios.post("http://localhost:8081/category", values);
+      messageApi.success("Category added successfully!");
     }
-  };
+
+    fetchData();
+    form.resetFields();
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    const errorMsg =
+      error.response?.data?.message || "Please fill the values correctly!";
+    messageApi.error(errorMsg);
+  }
+};
+
 
   const handleEdit = (record) => {
     form.setFieldsValue(record);
     setEditingId(record._id);
+    setInitialValues(record);
   };
 
   const handleDelete = async (id) => {
@@ -62,50 +84,27 @@ const Categories = () => {
       messageApi.success("Category deleted successfully!");
       fetchData();
     } catch (error) {
-      messageApi.error("Failed to delete category!");
       console.error("Error deleting category:", error);
+      messageApi.error("Failed to delete category!");
     }
   };
 
   const clearForm = () => {
     form.resetFields();
     setEditingId(null);
+    setInitialValues(null);
   };
-
-  // Custom validator function for form fields 
-  const getValidator = (fieldName, message, extraCheck) => ({
-    validator: async (_, value) => {
-      if (!value) {
-        setTimeout(() => {
-          form.setFields([{ name: fieldName, errors: [] }]);
-        }, 5000);
-        return Promise.reject(message);
-      }
-
-      if (extraCheck) {
-        const error = extraCheck(value);
-        if (error) {
-          setTimeout(() => {
-            form.setFields([{ name: fieldName, errors: [] }]);
-          }, 5000);
-          return Promise.reject(error);
-        }
-      }
-
-      return Promise.resolve();
-    },
-  });
 
   const columns = [
     { title: "Serial No", dataIndex: "srno", key: "srno", align: "center" },
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Type", dataIndex: "type", key: "type" },
     { title: "Billing In", dataIndex: "billingIn", key: "billingIn" },
-
     {
       title: "Actions",
       key: "actions",
-      render: (text, record) => (
+      align: "center",
+      render: (_, record) => (
         <>
           <Button
             type="link"
@@ -139,9 +138,7 @@ const Categories = () => {
           <h1>Categories</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to={"/"}>Dashboard</Link>
-              </li>
+              <li className="breadcrumb-item"><Link to="/">Dashboard</Link></li>
               <li className="breadcrumb-item active">Categories</li>
             </ol>
           </nav>
@@ -152,13 +149,26 @@ const Categories = () => {
               <div className="row">
                 <div className="col-lg-6 p-1">
                   <Form.Item
+                    name="srno"
+                    label="Serial No"
+                    rules={[
+                      getTimedValidator("srno", "Please enter serial number!", (val) =>
+                        isNaN(val) ? false : true
+                      ),
+                    ]}
+                  >
+                    <Input placeholder="Serial Number" disabled={!!editingId}/>
+                  </Form.Item>
+                </div>
+
+                <div className="col-lg-6 p-1">
+                  <Form.Item
                     name="name"
                     label="Name"
-                    rules={[getValidator("name", "Please enter category name!"),
-                      getValidator("name", "Category name must be at least 2 characters!", (val) => val.length >= 2)
-
+                    rules={[
+                      getTimedValidator("name", "Please enter category name!"),
+                      getTimedValidator("name", "Name must be at least 2 characters!", (val) => val.length >= 2),
                     ]}
-                    
                   >
                     <Input placeholder="Category Name" />
                   </Form.Item>
@@ -168,7 +178,7 @@ const Categories = () => {
                   <Form.Item
                     name="type"
                     label="Type"
-                    rules={[getValidator("type", "Please enter type!")]}
+                    rules={[getTimedValidator("type", "Please enter type!")]}
                   >
                     <Input placeholder="Type" />
                   </Form.Item>
@@ -178,23 +188,9 @@ const Categories = () => {
                   <Form.Item
                     name="billingIn"
                     label="Billing In"
-                    rules={[getValidator("billingIn", "Please enter billing information!")]}
+                    rules={[getTimedValidator("billingIn", "Please enter billing info!")]}
                   >
                     <Input placeholder="Billing In" />
-                  </Form.Item>
-                </div>
-
-                <div className="col-lg-6 p-1">
-                  <Form.Item
-                    name="srno"
-                    label="Serial No"
-                    rules={[
-                      getValidator("srno", "Please enter serial number!", (value) =>
-                        isNaN(value) ? "Serial No must be a number!" : null
-                      ),
-                    ]}
-                  >
-                    <Input placeholder="Serial Number" />
                   </Form.Item>
                 </div>
 
@@ -202,18 +198,14 @@ const Categories = () => {
                   <Button type="primary" onClick={handleSubmit}>
                     {editingId ? "Update" : "Save"}
                   </Button>
-                  <Button
-                    type="default"
-                    onClick={clearForm}
-                    style={{ marginLeft: "10px" }}
-                  >
+                  <Button type="default" onClick={clearForm} style={{ marginLeft: "10px" }}>
                     {editingId ? "Cancel" : "Clear"}
                   </Button>
                 </div>
               </div>
             </Form>
-
           </div>
+
           <div className="card p-3 custom-table">
             <Table
               columns={columns}

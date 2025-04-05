@@ -144,16 +144,8 @@ const Brand = () => {
           <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
             <Form form={form} layout="vertical">
               <div className="row">
-                <div className="col-lg-6 p-1">
-                  <Form.Item
-                    name="name"
-                    label="Name"
-                    rules={[{ required: true, message: "Please enter brand name!" }]}
-                  >
-                    <Input placeholder="Brand Name" />
-                  </Form.Item>
-                </div>
-                <div className="col-lg-6 p-1">
+
+              <div className="col-lg-6 p-1">
                   <Form.Item
                     name="srno"
                     label="Serial No"
@@ -171,6 +163,17 @@ const Brand = () => {
                   </Form.Item>
 
                 </div>
+                
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="name"
+                    label="Name"
+                    rules={[{ required: true, message: "Please enter brand name!" }]}
+                  >
+                    <Input placeholder="Brand Name" />
+                  </Form.Item>
+                </div>
+               
                 <div className="col-lg-12 p-1">
                   <Button type="primary" onClick={handleSubmit}>
                     {editingId ? "Update" : "Save"}

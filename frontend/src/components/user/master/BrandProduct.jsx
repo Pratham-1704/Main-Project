@@ -1,159 +1,185 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, Input, Select, message, Table } from "antd";
+import {
+  Button,
+  Input,
+  Select,
+  message,
+  Table,
+  Popconfirm,
+  Form,
+} from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./Css Files/style.css";
 
-function BrandProducts() {
-  const [formData, setFormData] = useState({
-    brandid: "",
-    productid: "",
-    parity: "",
-    rate: "",
-    billingrate: "",
-  });
-
-  const [brandProducts, setBrandProducts] = useState([]);
-  const [brands, setBrands] = useState([]); // Store brand data
-  const [products, setProducts] = useState([]); // Store product data
+const BrandProduct = () => {
+  const [form] = Form.useForm();
+  const [data, setData] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [initialValues, setInitialValues] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
 
-  // Fetch brand products
+  useEffect(() => {
+    fetchAll();
+  }, []);
+
+  const fetchAll = () => {
+    fetchBrandProducts();
+    fetchBrands();
+    fetchProducts();
+  };
+
   const fetchBrandProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:8081/brandproduct");
-      setBrandProducts(response.data.status === "success" ? response.data.data : []);
+      const res = await axios.get("http://localhost:8081/brandproduct");
+      setData(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
       console.error("Error fetching brand products:", error);
-      setBrandProducts([]);
+      setData([]);
     }
   };
 
-  // Fetch brands for the dropdown
   const fetchBrands = async () => {
     try {
-      const response = await axios.get("http://localhost:8081/brand");
-      setBrands(response.data.status === "success" ? response.data.data : []);
+      const res = await axios.get("http://localhost:8081/brand");
+      setBrands(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
       console.error("Error fetching brands:", error);
       setBrands([]);
     }
   };
 
-  // Fetch products for the dropdown
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:8081/product");
-      setProducts(response.data.status === "success" ? response.data.data : []);
+      const res = await axios.get("http://localhost:8081/product");
+      setProducts(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
       console.error("Error fetching products:", error);
       setProducts([]);
     }
   };
 
-  useEffect(() => {
-    fetchBrandProducts();
-    fetchBrands();
-    fetchProducts();
-  }, []);
+  const getTimedValidator = (field, msg, extraCheck = null) => ({
+    validator: async (_, value) => {
+      if (!value || (extraCheck && !extraCheck(value))) {
+        setTimeout(() => {
+          form.setFields([{ name: field, errors: [] }]);
+        }, 3000);
+        return Promise.reject(new Error(msg));
+      }
+      return Promise.resolve();
+    },
+  });
 
-  // Handle input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSelectChange = (name, value) => {
-    setFormData({ ...formData, [name]: value });
-  };
-
-  // Handle form submission (CREATE)
   const handleSubmit = async () => {
-    if (!formData.brandid || !formData.productid || !formData.parity || !formData.rate || !formData.billingrate) {
-      messageApi.open({ type: "error", content: "All fields are required!" });
-      return;
-    }
     try {
-      await axios.post("http://localhost:8081/brandProduct", formData);
-      messageApi.open({ type: "success", content: "Brand product saved successfully!" });
+      const values = await form.validateFields();
+
+      if (editingId) {
+        const isChanged = Object.keys(values).some(
+          (key) =>
+            values[key]?.toString().trim() !==
+            initialValues?.[key]?.toString().trim()
+        );
+
+        if (!isChanged) {
+          messageApi.info("No changes made. Update not required.");
+          return;
+        }
+
+        await axios.put(
+          `http://localhost:8081/brandproduct/${editingId}`,
+          values
+        );
+        messageApi.success("Brand product updated successfully!");
+        setEditingId(null);
+        setInitialValues(null);
+      } else {
+        await axios.post("http://localhost:8081/brandproduct", values);
+        messageApi.success("Brand product added successfully!");
+      }
+
       fetchBrandProducts();
-      clearForm();
+      form.resetFields();
     } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to save brand product!" });
       console.error("Error:", error);
+      const errMsg =
+        error.response?.data?.message ||
+        "Please fill all values correctly!";
+      messageApi.error(errMsg);
     }
   };
 
-  // Handle update (UPDATE)
-  const handleUpdate = async () => {
-    if (!formData._id) {
-      messageApi.open({ type: "error", content: "Select a brand product to update!" });
-      return;
-    }
+  const handleEdit = (record) => {
+    form.setFieldsValue(record);
+    setEditingId(record._id);
+    setInitialValues(record);
+  };
 
+  const handleDelete = async (id) => {
     try {
-      await axios.put(`http://localhost:8081/brandProduct/${formData._id}`, formData);
-      messageApi.open({ type: "success", content: "Brand product updated successfully!" });
+      await axios.delete(`http://localhost:8081/brandproduct/${id}`);
+      messageApi.success("Brand product deleted successfully!");
       fetchBrandProducts();
-      clearForm();
     } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to update brand product!" });
-      console.error("Error:", error);
+      console.error("Error deleting brand product:", error);
+      messageApi.error("Failed to delete brand product!");
     }
   };
 
-  // Handle delete (DELETE)
-  const handleDelete = async () => {
-    if (!formData._id) {
-      messageApi.open({ type: "error", content: "Select a brand product to delete!" });
-      return;
-    }
-
-    try {
-      await axios.delete(`http://localhost:8081/brandProduct/${formData._id}`);
-      messageApi.open({ type: "success", content: "Brand product deleted successfully!" });
-      fetchBrandProducts();
-      clearForm();
-    } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to delete brand product!" });
-      console.error("Error:", error);
-    }
-  };
-
-  // Clear form
   const clearForm = () => {
-    setFormData({
-      brandid: "",
-      productid: "",
-      parity: "",
-      rate: "",
-      billingrate: "",
-    });
+    form.resetFields();
+    setEditingId(null);
+    setInitialValues(null);
   };
 
-  // Table columns configuration
   const columns = [
     {
       title: "Brand",
       dataIndex: "brandid",
       key: "brandid",
-      render: (brandid) => {
-        const brand = brands.find((b) => b._id === brandid);
-        return brand ? brand.name : "Unknown";
-      },
+      render: (id) => brands.find((b) => b._id === id)?.name || "Unknown",
     },
     {
       title: "Product",
       dataIndex: "productid",
       key: "productid",
-      render: (productid) => {
-        const product = products.find((p) => p._id === productid);
-        return product ? product.name : "Unknown";
-      },
+      render: (id) => products.find((p) => p._id === id)?.name || "Unknown",
     },
     { title: "Parity", dataIndex: "parity", key: "parity" },
     { title: "Rate", dataIndex: "rate", key: "rate" },
     { title: "Billing Rate", dataIndex: "billingrate", key: "billingrate" },
+    {
+      title: "Actions",
+      key: "actions",
+      align: "center",
+      render: (_, record) => (
+        <>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+            className="action-button edit-button"
+          />
+          <Popconfirm
+            title="Are you sure you want to delete this brand product?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              type="link"
+              icon={<DeleteOutlined />}
+              danger
+              className="action-button delete-button"
+            />
+          </Popconfirm>
+        </>
+      ),
+    },
   ];
 
   return (
@@ -165,112 +191,113 @@ function BrandProducts() {
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
-                <Link to={"/"}>Dashboard</Link>
+                <Link to="/">Dashboard</Link>
               </li>
               <li className="breadcrumb-item active">Brand Products</li>
             </ol>
           </nav>
         </div>
+
         <section className="section">
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card p-3">
-                <div className="row">
-                  <div className="col-lg-6 p-1">
-                    Brand*
+          <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
+            <Form form={form} layout="vertical">
+              <div className="row">
+                <div className="col-lg-6">
+                  <Form.Item
+                    name="brandid"
+                    label="Brand"
+                    rules={[
+                      getTimedValidator("brandid", "Please select a brand!"),
+                    ]}
+                  >
                     <Select
-                      className="w-100"
                       placeholder="Select Brand"
-                      value={formData.brandid} // Use brandid from formData
-                      onChange={(value) => handleSelectChange("brandid", value)}
-                      options={brands.map((brand) => ({
-                        value: brand._id,
-                        label: brand.name,
+                      options={brands.map((b) => ({
+                        value: b._id,
+                        label: b.name,
                       }))}
                     />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Product*
+                  </Form.Item>
+                </div>
+
+                <div className="col-lg-6 ">
+                  <Form.Item
+                    name="productid"
+                    label="Product"
+                    rules={[
+                      getTimedValidator("productid", "Please select a product!"),
+                    ]}
+                  >
                     <Select
-                      className="w-100"
                       placeholder="Select Product"
-                      value={formData.productid}
-                      onChange={(value) => handleSelectChange("productid", value)}
-                      options={products.map((product) => ({
-                        value: product._id,
-                        label: product.name,
+                      options={products.map((p) => ({
+                        value: p._id,
+                        label: p.name,
                       }))}
                     />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Parity*
-                    <Input name="parity" placeholder="Parity" value={formData.parity} onChange={handleInputChange} />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Rate*
-                    <Input name="rate" placeholder="Rate" value={formData.rate} onChange={handleInputChange} />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Billing Rate*
-                    <Input name="billingrate" placeholder="Billing Rate" value={formData.billingrate} onChange={handleInputChange} />
-                  </div>
-                  <div className="col-lg-12 p-1">
-                    <Button
-                      type="primary"
-                      onClick={handleSubmit}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Save
-                    </Button>
-                    <Button
-                      color="green" variant="solid"
-                      onClick={handleUpdate}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Update
-                    </Button>
+                  </Form.Item>
+                </div>
 
-                    <Button
-                      color="danger" variant="solid"
-                      onClick={handleDelete}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Delete
-                    </Button>
+                <div className="col-lg-6 ">
+                  <Form.Item
+                    name="parity"
+                    label="Parity"
+                    rules={[getTimedValidator("parity", "Please enter parity!")]}
+                  >
+                    <Input placeholder="Parity" />
+                  </Form.Item>
+                </div>
 
-                    <Button
-                      variant="solid"
-                      onClick={clearForm}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Clear
-                    </Button>
-                  </div>
+                <div className="col-lg-6 ">
+                  <Form.Item
+                    name="rate"
+                    label="Rate"
+                    rules={[getTimedValidator("rate", "Please enter rate!")]}
+                  >
+                    <Input placeholder="Rate" />
+                  </Form.Item>
+                </div>
+
+                <div className="col-lg-6 ">
+                  <Form.Item
+                    name="billingrate"
+                    label="Billing Rate"
+                    rules={[
+                      getTimedValidator("billingrate", "Please enter billing rate!"),
+                    ]}
+                  >
+                    <Input placeholder="Billing Rate" />
+                  </Form.Item>
+                </div>
+
+                <div className="col-lg-12 p-1">
+                  <Button type="primary" onClick={handleSubmit}>
+                    {editingId ? "Update" : "Save"}
+                  </Button>
+                  <Button
+                    type="default"
+                    onClick={clearForm}
+                    style={{ marginLeft: "10px" }}
+                  >
+                    {editingId ? "Cancel" : "Clear"}
+                  </Button>
                 </div>
               </div>
-            </div>
+            </Form>
           </div>
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card p-3">
-                <Table
-                  className="custom-table"
-                  columns={columns}
-                  dataSource={brandProducts}
-                  rowKey="_id"
-                  onRow={(record) => ({
-                    onClick: () => {
-                      setFormData(record); // Populate form with selected row data
-                    },
-                  })}
-                />
-              </div>
-            </div>
+
+          <div className="card p-3 custom-table">
+            <Table
+              columns={columns}
+              dataSource={data}
+              rowKey="_id"
+              pagination={{ pageSize: 5, showSizeChanger: false }}
+            />
           </div>
         </section>
       </main>
     </>
   );
-}
+};
 
-export default BrandProducts;
+export default BrandProduct;

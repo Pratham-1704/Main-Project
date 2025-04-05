@@ -1,115 +1,163 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  Form,
+  Input,
+  DatePicker,
+  Button,
+  Table,
+  Popconfirm,
+  message,
+} from "antd";
 import { Link } from "react-router-dom";
-import { Button, message, Table, DatePicker, Input, Popconfirm } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import moment from "moment";
-import "./Css Files/style.css"; // Import custom styles
+import "./Css Files/style.css";
 
-function FinancialYear() {
-  const [formData, setFormData] = useState({
-    name: "",
-    startdate: null,
-    enddate: null,
-  });
-
-  const [financialYears, setFinancialYears] = useState([]);
+const FinancialYear = () => {
+  const [form] = Form.useForm();
+  const [data, setData] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [initialValues, setInitialValues] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
 
-  // Fetch financial years from backend
-  const fetchFinancialYears = async () => {
-    try {
-      const response = await axios.get("http://localhost:8081/financialYear");
-      setFinancialYears(response.data.status === "success" ? response.data.data : []);
-    } catch (error) {
-      console.error("Error fetching financial years:", error);
-      setFinancialYears([]);
-    }
-  };
-
-  // Handle input change
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  // Handle date changes
-  const handleDateChange = (field, date) => {
-    setFormData({ ...formData, [field]: date ? moment(date).format("YYYY-MM-DD") : null });
-  };
-
-  // Handle form submission
-  const handleSubmit = async () => {
-    if (!formData.name || !formData.startdate || !formData.enddate) {
-      messageApi.open({ type: "error", content: "All fields are required!" });
-      return;
-    }
-
-    try {
-      await axios.post("http://localhost:8081/financialYear", formData);
-      messageApi.open({ type: "success", content: "Financial Year added successfully!" });
-      fetchFinancialYears();
-      clearForm();
-    } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to add financial year!" });
-    }
-  };
-
-  // Handle update
-  const handleUpdate = async (record) => {
-    try {
-      await axios.put(`http://localhost:8081/financialYear/${record._id}`, record);
-      messageApi.open({ type: "success", content: "Financial Year updated successfully!" });
-      fetchFinancialYears();
-    } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to update financial year!" });
-    }
-  };
-
-  // Handle delete
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:8081/financialYear/${id}`);
-      messageApi.open({ type: "success", content: "Financial Year deleted successfully!" });
-      fetchFinancialYears();
-    } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to delete financial year!" });
-    }
-  };
-
-  // Clear form
-  const clearForm = () => {
-    setFormData({ name: "", startdate: null, enddate: null });
-  };
-
   useEffect(() => {
-    fetchFinancialYears();
+    fetchData();
   }, []);
 
-  // Table columns configuration
+  const fetchData = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/financialyear");
+      setData(res.data.status === "success" ? res.data.data : []);
+    } catch (err) {
+      console.error("Error fetching financial years:", err);
+      messageApi.error("Failed to fetch financial years.");
+    }
+  };
+
+  const getTimedValidator = (field, msg, extraCheck = null) => ({
+    validator: async (_, value) => {
+      if (!value || (extraCheck && !extraCheck(value))) {
+        setTimeout(() => {
+          form.setFields([{ name: field, errors: [] }]);
+        }, 3000);
+        return Promise.reject(new Error(msg));
+      }
+      return Promise.resolve();
+    },
+  });
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+
+      const payload = {
+        ...values,
+        startdate: values.startdate?.toISOString(),
+        enddate: values.enddate?.toISOString(),
+      };
+
+      if (editingId) {
+        const isChanged = Object.keys(payload).some((key) => {
+          const current = payload[key]?.toString().trim();
+          const original = initialValues?.[key]?.toString().trim();
+          return current !== original;
+        });
+
+        if (!isChanged) {
+          messageApi.info("No changes made. Update not required.");
+          return;
+        }
+
+        await axios.put(`http://localhost:8081/financialyear/${editingId}`, payload);
+        messageApi.success("Financial year updated successfully!");
+        setEditingId(null);
+        setInitialValues(null);
+      } else {
+        await axios.post("http://localhost:8081/financialyear", payload);
+        messageApi.success("Financial year added successfully!");
+      }
+
+      fetchData();
+      form.resetFields();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      const msg = error.response?.data?.message || "Please fill the values correctly!";
+      messageApi.error(msg);
+    }
+  };
+
+  const handleEdit = (record) => {
+    const formatted = {
+      ...record,
+      startdate: moment(record.startdate),
+      enddate: moment(record.enddate),
+    };
+
+    form.setFieldsValue(formatted);
+    setEditingId(record._id);
+    setInitialValues({ ...record });
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8081/financialyear/${id}`);
+      messageApi.success("Deleted successfully!");
+      fetchData();
+    } catch (error) {
+      console.error("Delete error:", error);
+      messageApi.error("Failed to delete!");
+    }
+  };
+
+  const clearForm = () => {
+    form.resetFields();
+    setEditingId(null);
+    setInitialValues(null);
+  };
+
   const columns = [
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Start Date", dataIndex: "startdate", key: "startdate" },
-    { title: "End Date", dataIndex: "enddate", key: "enddate" },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Start Date",
+      dataIndex: "startdate",
+      key: "startdate",
+      render: (date) => moment(date).format("YYYY-MM-DD"),
+    },
+    {
+      title: "End Date",
+      dataIndex: "enddate",
+      key: "enddate",
+      render: (date) => moment(date).format("YYYY-MM-DD"),
+    },
     {
       title: "Actions",
       key: "actions",
-      render: (text, record) => (
+      align: "center",
+      render: (_, record) => (
         <>
           <Button
             type="link"
-            onClick={() => setFormData(record)}
-            style={{ marginRight: "10px" }}
-          >
-            Update
-          </Button>
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+            className="action-button edit-button"
+          />
           <Popconfirm
             title="Are you sure you want to delete this financial year?"
             onConfirm={() => handleDelete(record._id)}
             okText="Yes"
             cancelText="No"
           >
-            <Button type="link" danger>
-              Delete
-            </Button>
+            <Button
+              type="link"
+              icon={<DeleteOutlined />}
+              danger
+              className="action-button delete-button"
+            />
           </Popconfirm>
         </>
       ),
@@ -125,75 +173,84 @@ function FinancialYear() {
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
-                <Link to={"/"}>Dashboard</Link>
+                <Link to="/">Dashboard</Link>
               </li>
               <li className="breadcrumb-item active">Financial Years</li>
             </ol>
           </nav>
         </div>
+
         <section className="section">
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card p-3">
-                <div className="row">
-                  <div className="col-lg-6 p-1">
-                    Name*
-                    <Input
-                      name="name"
-                      placeholder="Enter Financial Year Name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      style={{ width: "100%" }}
-                    />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Start Date*
-                    <DatePicker
-                      name="startdate"
-                      placeholder="Select Start Date"
-                      value={formData.startdate ? moment(formData.startdate) : null}
-                      onChange={(date) => handleDateChange("startdate", date)}
-                      style={{ width: "100%" }}
-                    />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    End Date*
-                    <DatePicker
-                      name="enddate"
-                      placeholder="Select End Date"
-                      value={formData.enddate ? moment(formData.enddate) : null}
-                      onChange={(date) => handleDateChange("enddate", date)}
-                      style={{ width: "100%" }}
-                    />
-                  </div>
-                  <div className="col-lg-12 p-1">
-                    <Button type="primary" onClick={handleSubmit} style={{ marginRight: "10px" }}>
-                      Save
-                    </Button>
-                    <Button onClick={clearForm} style={{ marginRight: "10px" }}>
-                      Clear
-                    </Button>
-                  </div>
+          <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
+            <Form form={form} layout="vertical">
+              <div className="row">
+                <div className="col-lg-4 p-1">
+                  <Form.Item
+                    name="name"
+                    label="Name"
+                    rules={[
+                      getTimedValidator("name", "Please enter financial year name!"),
+                      getTimedValidator("name", "Name must be at least 2 characters!", (val) => val.length >= 2),
+                    ]}
+                  >
+                    <Input placeholder="Financial Year Name" />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-4 p-1">
+                  <Form.Item
+                    name="startdate"
+                    label="Start Date"
+                    rules={[getTimedValidator("startdate", "Please select start date!")]}
+                  >
+                    <DatePicker style={{ width: "100%" }} />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-4 p-1">
+                  <Form.Item
+                    name="enddate"
+                    label="End Date"
+                    dependencies={["startdate"]}
+                    rules={[
+                      getTimedValidator("enddate", "Please select end date!"),
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          const start = getFieldValue("startdate");
+                          if (!value || !start || value.isAfter(start)) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(new Error("End date must be after start date!"));
+                        },
+                      }),
+                    ]}
+                  >
+                    <DatePicker style={{ width: "100%" }} />
+                  </Form.Item>
+
+                </div>
+                <div className="col-lg-12 p-1">
+                  <Button type="primary" onClick={handleSubmit}>
+                    {editingId ? "Update" : "Save"}
+                  </Button>
+                  <Button onClick={clearForm} style={{ marginLeft: 10 }}>
+                    {editingId ? "Cancel" : "Clear"}
+                  </Button>
                 </div>
               </div>
-            </div>
+            </Form>
           </div>
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card p-3">
-                <Table
-                  className="custom-table"
-                  columns={columns}
-                  dataSource={financialYears}
-                  rowKey="_id"
-                />
-              </div>
-            </div>
+
+          <div className="card p-3 custom-table">
+            <Table
+              columns={columns}
+              dataSource={data}
+              rowKey="_id"
+              pagination={{ pageSize: 5, showSizeChanger: false }}
+            />
           </div>
         </section>
       </main>
     </>
   );
-}
+};
 
 export default FinancialYear;
