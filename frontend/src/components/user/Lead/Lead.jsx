@@ -1,30 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, message, Table, Select, DatePicker } from "antd"; // Added DatePicker
+import { Button, Input, message, Table, Select, DatePicker, Popconfirm, Form } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
-import "../master/Css Files/style.css"; // Import the custom CSS file
-import moment from "moment"; // Import moment for date formatting
-import { Input } from "antd"; // Import Input from antd
+import "../master/Css Files/style.css";
+import moment from "moment";
 
-const { Option } = Select;
-
-function Lead() {
-  const [formData, setFormData] = useState({
-    sourceid: "",
-    customerid: "",
-    adminid: "",
-    leadno: "",
-    leaddate: null, // Changed to null for DatePicker
-    createdon: null, // Changed to null for DatePicker
-  });
-
+const Lead = () => {
+  const [form] = Form.useForm();
   const [leads, setLeads] = useState([]);
-  const [sources, setSources] = useState([]); // State for sources
-  const [admins, setAdmins] = useState([]); // State for admins
-  const [customers, setCustomers] = useState([]); // State for customers
+  const [sources, setSources] = useState([]);
+  const [admins, setAdmins] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [editingId, setEditingId] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
+  const [initialValues, setInitialValues] = useState(null);
 
-  // Fetch leads from the backend
+  useEffect(() => {
+    fetchLeads();
+    fetchDropdownData();
+  }, []);
+
   const fetchLeads = async () => {
     try {
       const response = await axios.get("http://localhost:8081/lead");
@@ -35,7 +31,6 @@ function Lead() {
     }
   };
 
-  // Fetch firms, sources, admins, and customers for dropdowns
   const fetchDropdownData = async () => {
     try {
       const [sourcesResponse, adminsResponse, customersResponse] = await Promise.all([
@@ -51,114 +46,100 @@ function Lead() {
     }
   };
 
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  // Handle dropdown changes
-  const handleDropdownChange = (name, value) => {
-    setFormData({ ...formData, [name]: value });
-  };
-
-  // Handle date changes
-  const handleDateChange = (name, date, dateString) => {
-    setFormData({ ...formData, [name]: dateString });
-  };
-
-  // Handle form submission
   const handleSubmit = async () => {
-    // Validate required fields
-    if (
-      !formData.sourceid ||
-      !formData.customerid ||
-      !formData.adminid ||
-      !formData.leadno ||
-      !formData.leaddate ||
-      !formData.createdon
-    ) {
-      messageApi.open({ type: "error", content: "All fields are required!" });
-      return;
-    }
-
     try {
-      console.log("Submitting formData:", formData); // Debugging: Log formData
-      const response = await axios.post("http://localhost:8081/lead", formData);
-      console.log("Save response:", response); // Debugging: Log response
+      const values = await form.validateFields();
 
-      if (response.data.status === "success") {
-        messageApi.open({ type: "success", content: "Lead saved successfully!" });
-        fetchLeads(); // Refresh the leads table
-        clearForm(); // Clear the form
+      if (editingId) {
+        const isChanged = Object.keys(values).some(
+          (key) => values[key]?.toString().trim() !== initialValues?.[key]?.toString().trim()
+        );
+
+        if (!isChanged) {
+          messageApi.info("No changes made. Update not required.");
+          return;
+        }
+
+        await axios.put(`http://localhost:8081/lead/${editingId}`, values);
+        messageApi.success("Lead updated successfully!");
+        setEditingId(null);
+        setInitialValues(null);
       } else {
-        messageApi.open({ type: "error", content: response.data.message || "Failed to save lead!" });
+        await axios.post("http://localhost:8081/lead", values);
+        messageApi.success("Lead added successfully!");
       }
-    } catch (error) {
-      console.error("Error saving lead:", error); // Debugging: Log error
-      messageApi.open({ type: "error", content: "Failed to save lead!" });
-    }
-  };
 
-  // Handle update
-  const handleUpdate = async () => {
-    if (!formData._id) {
-      messageApi.open({ type: "error", content: "Select a lead to update!" });
-      return;
-    }
-    try {
-      await axios.put(`http://localhost:8081/lead/${formData._id}`, formData);
-      messageApi.open({ type: "success", content: "Lead updated successfully!" });
       fetchLeads();
-      clearForm();
+      form.resetFields();
     } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to update lead!" });
-      console.error("Error:", error);
+      console.error("Error submitting form:", error);
+      const errorMsg = error.response?.data?.message || "Please fill the values correctly!";
+      messageApi.error(errorMsg);
     }
   };
 
-  // Handle delete
-  const handleDelete = async () => {
-    if (!formData._id) {
-      messageApi.open({ type: "error", content: "Select a lead to delete!" });
-      return;
-    }
-    try {
-      await axios.delete(`http://localhost:8081/lead/${formData._id}`);
-      messageApi.open({ type: "success", content: "Lead deleted successfully!" });
-      fetchLeads();
-      clearForm();
-    } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to delete lead!" });
-      console.error("Error:", error);
-    }
-  };
-
-  // Clear form
-  const clearForm = () => {
-    setFormData({
-      sourceid: "",
-      customerid: "",
-      adminid: "",
-      leadno: "",
-      leaddate: null,
-      createdon: null,
+  const handleEdit = (record) => {
+    form.setFieldsValue({
+      ...record,
+      leaddate: record.leaddate ? moment(record.leaddate) : null,
+      createdon: record.createdon ? moment(record.createdon) : null,
     });
+    setEditingId(record._id);
+    setInitialValues(record);
   };
 
-  useEffect(() => {
-    fetchLeads();
-    fetchDropdownData(); // Fetch dropdown data on component mount
-  }, []);
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8081/lead/${id}`);
+      messageApi.success("Lead deleted successfully!");
+      fetchLeads();
+    } catch (error) {
+      console.error("Error deleting lead:", error);
+      messageApi.error("Failed to delete lead!");
+    }
+  };
 
-  // Table columns configuration
+  const clearForm = () => {
+    form.resetFields();
+    setEditingId(null);
+    setInitialValues(null);
+  };
+
   const columns = [
-    { title: "Source ID", dataIndex: "sourceid", key: "sourceid" },
-    { title: "Customer ID", dataIndex: "customerid", key: "customerid" },
-    { title: "Admin ID", dataIndex: "adminid", key: "adminid" },
+    { title: "Source", dataIndex: "sourceid", key: "sourceid" },
+    { title: "Customer", dataIndex: "customerid", key: "customerid" },
+    { title: "Admin", dataIndex: "adminid", key: "adminid" },
     { title: "Lead No", dataIndex: "leadno", key: "leadno" },
     { title: "Lead Date", dataIndex: "leaddate", key: "leaddate" },
     { title: "Created On", dataIndex: "createdon", key: "createdon" },
+    {
+      title: "Actions",
+      key: "actions",
+      align: "center",
+      render: (_, record) => (
+        <>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+            className="action-button edit-button"
+          />
+          <Popconfirm
+            title="Are you sure you want to delete this lead?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              type="link"
+              icon={<DeleteOutlined />}
+              danger
+              className="action-button delete-button"
+            />
+          </Popconfirm>
+        </>
+      ),
+    },
   ];
 
   return (
@@ -170,142 +151,111 @@ function Lead() {
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
-                <Link to={"/"}>Dashboard</Link>
+                <Link to="/">Dashboard</Link>
               </li>
               <li className="breadcrumb-item active">Leads</li>
             </ol>
           </nav>
         </div>
         <section className="section">
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card p-3">
-                <div className="row">
-                  <div className="col-lg-6 p-1">
-                    Source*
+          <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
+            <Form form={form} layout="vertical">
+              <div className="row">
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="sourceid"
+                    label="Source"
+                    rules={[{ required: true, message: "Please select a source!" }]}
+                  >
                     <Select
                       placeholder="Select Source"
-                      value={formData.sourceid}
-                      onChange={(value) => handleDropdownChange("sourceid", value)}
-                      style={{ width: "100%" }}
-                    >
-                      {sources.map((source) => (
-                        <Option key={source.id} value={source.id}>
-                          {source.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Customer*
+                      options={sources.map((source) => ({
+                        value: source.id,
+                        label: source.name,
+                      }))}
+                    />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="customerid"
+                    label="Customer"
+                    rules={[{ required: true, message: "Please select a customer!" }]}
+                  >
                     <Select
                       placeholder="Select Customer"
-                      value={formData.customerid}
-                      onChange={(value) => handleDropdownChange("customerid", value)}
-                      style={{ width: "100%" }}
-                    >
-                      {customers.map((customer) => (
-                        <Option key={customer.id} value={customer.id}>
-                          {customer.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Admin*
+                      options={customers.map((customer) => ({
+                        value: customer.id,
+                        label: customer.name,
+                      }))}
+                    />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="adminid"
+                    label="Admin"
+                    rules={[{ required: true, message: "Please select an admin!" }]}
+                  >
                     <Select
                       placeholder="Select Admin"
-                      value={formData.adminid}
-                      onChange={(value) => handleDropdownChange("adminid", value)}
-                      style={{ width: "100%" }}
-                    >
-                      {admins.map((admin) => (
-                        <Option key={admin.id} value={admin.id}>
-                          {admin.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Lead No*
-                    <Input
-                      name="leadno"
-                      placeholder="Lead No"
-                      value={formData.leadno}
-                      onChange={handleInputChange}
+                      options={admins.map((admin) => ({
+                        value: admin.id,
+                        label: admin.name,
+                      }))}
                     />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Lead Date*
-                    <DatePicker
-                      style={{ width: "100%" }}
-                      value={formData.leaddate ? moment(formData.leaddate) : null}
-                      onChange={(date, dateString) => handleDateChange("leaddate", date, dateString)}
-                    />
-                  </div>
-                  <div className="col-lg-6 p-1">
-                    Created On*
-                    <DatePicker
-                      style={{ width: "100%" }}
-                      value={formData.createdon ? moment(formData.createdon) : null}
-                      onChange={(date, dateString) => handleDateChange("createdon", date, dateString)}
-                    />
-                  </div>
-                  <div className="col-lg-12 p-1">
-                    <Button
-                      type="primary"
-                      onClick={handleSubmit}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Save
-                    </Button>
-                    <Button
-                      type="default"
-                      onClick={handleUpdate}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Update
-                    </Button>
-                    <Button
-                      type="danger"
-                      onClick={handleDelete}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Delete
-                    </Button>
-                    <Button
-                      type="default"
-                      onClick={clearForm}
-                      style={{ marginRight: "10px" }}
-                    >
-                      Clear
-                    </Button>
-                  </div>
+                  </Form.Item>
+                </div>
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="leadno"
+                    label="Lead No"
+                    rules={[{ required: true, message: "Please enter the lead number!" }]}
+                  >
+                    <Input placeholder="Lead No" />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="leaddate"
+                    label="Lead Date"
+                    rules={[{ required: true, message: "Please select a lead date!" }]}
+                  >
+                    <DatePicker style={{ width: "100%" }} />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="createdon"
+                    label="Created On"
+                    rules={[{ required: true, message: "Please select a creation date!" }]}
+                  >
+                    <DatePicker style={{ width: "100%" }} />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-12 p-1">
+                  <Button type="primary" onClick={handleSubmit}>
+                    {editingId ? "Update" : "Save"}
+                  </Button>
+                  <Button type="default" onClick={clearForm} style={{ marginLeft: "10px" }}>
+                    {editingId ? "Cancel" : "Clear"}
+                  </Button>
                 </div>
               </div>
-            </div>
+            </Form>
           </div>
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card p-3">
-                <Table
-                  className="custom-table"
-                  columns={columns}
-                  dataSource={leads}
-                  rowKey="_id"
-                  onRow={(record) => ({
-                    onClick: () => {
-                      setFormData(record); // Populate form with selected row data
-                    },
-                  })}
-                />
-              </div>
-            </div>
+          <div className="card p-3 custom-table">
+            <Table
+              columns={columns}
+              dataSource={leads}
+              rowKey="_id"
+              pagination={{ pageSize: 5, showSizeChanger: false }}
+            />
           </div>
         </section>
       </main>
     </>
   );
-}
+};
 
 export default Lead;
