@@ -68,6 +68,27 @@ router.delete("/:id", async (req, res) => {
 });
 
 // ➤ Admin login
+// ➤ Simple Admin login (no password hash)
+router.post("/login", async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        const admin = await Admin.findOne({ username, password });
+
+        if (!admin) {
+            return res.status(401).json({ status: "error", message: "Invalid username or password" });
+        }
+
+        if (admin.status !== "active") {
+            return res.status(403).json({ status: "error", message: "Admin account is inactive" });
+        }
+
+        res.json({ status: "success", message: "Login successful", data: admin });
+    } catch (err) {
+        res.status(500).json({ status: "error", message: "Server error" });
+    }
+});
+
 
 
 module.exports = router;

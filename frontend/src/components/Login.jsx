@@ -1,82 +1,87 @@
-import React from 'react'
-import { Link, useNavigate } from 'react-router';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-    let navigate = useNavigate();
+  const navigate = useNavigate();
 
-    function login(e){
-        e.preventDefault();
-        navigate('/dashboard');
+  const login = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const res = await axios.post("http://localhost:8081/admin/login", {
+        username,
+        password,
+      });
+  
+      if (res.data.status === "success") {
+        // Save user data to localStorage
+        //localStorage.setItem("user", JSON.stringify(res.data.user)); // assuming response includes a `user` object
+       // console.log(res.data.user);
+        navigate("/dashboard");
+      } else {
+        setError("Invalid credentials");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
     }
+  };
+  
 
   return (
-    <>
-     <main>
-    <div className="container">
+    <main>
+      <div className="container">
+        <section className="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+          <div className="col-lg-4 col-md-6">
+            <div className="card mb-3">
+              <div className="card-body">
+                <h5 className="card-title text-center pb-0 fs-4">Login</h5>
+                <p className="text-center small">Enter username & password</p>
 
-      <section className="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+                {error && <div className="alert alert-danger">{error}</div>}
 
-              <div className="d-flex justify-content-center py-4">
-                <a href="index.html" className="logo d-flex align-items-center w-auto">
-                  <img src="assets/img/logo.png" alt="" />
-                  <span className="d-none d-lg-block">Steel Traders</span>
-                </a>
-              </div>
-              <div className="card mb-3">
-
-                <div className="card-body">
-
-                  <div className="pt-4 pb-2">
-                    <h5 className="card-title text-center pb-0 fs-4">Login to Your Account</h5>
-                    <p className="text-center small">Enter your username & password to login</p>
+                <form onSubmit={login} className="row g-3">
+                  <div className="col-12">
+                    <label className="form-label">Username</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                    />
                   </div>
 
-                  <div className="row g-3 needs-validation">
-
-                    <div className="col-12">
-                      <label for="yourUsername" className="form-label">Username</label>
-                      <div className="input-group has-validation">
-                        <span className="input-group-text" id="inputGroupPrepend">@</span>
-                        <input type="text" name="username" className="form-control" id="yourUsername" required="" />
-                        <div className="invalid-feedback">Please enter your username.</div>
-                      </div>
-                    </div>
-
-                    <div className="col-12">
-                      <label for="yourPassword" className="form-label">Password</label>
-                      <input type="password" name="password" className="form-control" id="yourPassword" required="" />
-                      <div className="invalid-feedback">Please enter your password!</div>
-                    </div>
-                    <div className="col-12">
-                      <button className="btn btn-primary w-100" onClick={(e)=>{ login(e); } } type="submit">Login</button>
-                    </div>
-                    <div className="col-12">
-                      <p className="small mb-0">Forgot password? <Link to={ "/forgot-password"}>Recover password</Link></p>
-                    </div>
+                  <div className="col-12">
+                    <label className="form-label">Password</label>
+                    <input
+                      type="password"
+                      className="form-control"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
                   </div>
 
-                </div>
-              </div>
+                  <div className="col-12">
+                    <button type="submit" className="btn btn-primary w-100">Login</button>
+                  </div>
 
-              <div className="credits">
-                Designed by <a href="https://igaptechnologies.com/">iGAP Technologies</a>
+                  <div className="col-12">
+                    <p className="small mb-0">Forgot password? <Link to="/forgot-password">Recover</Link></p>
+                  </div>
+                </form>
               </div>
-
             </div>
           </div>
-        </div>
-
-      </section>
-
-    </div>
-  </main>
-    <a href="#" className="back-to-top d-flex align-items-center justify-content-center"><i className="bi bi-arrow-up-short"></i></a>
-    </>
-  )
+        </section>
+      </div>
+    </main>
+  );
 }
 
 export default Login;
