@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
 const CustomerSchema = new mongoose.Schema({
-    firmid: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "firm", 
-        required: [true, "Firm ID is required"] 
-    },
+    // firmid: { 
+    //     type: mongoose.Schema.Types.ObjectId, 
+    //     ref: "firm", 
+    //     required: [true, "Firm ID is required"] 
+    // },
     name: { 
         type: String, 
         required: [true, "Customer name is required"], 
@@ -13,13 +13,13 @@ const CustomerSchema = new mongoose.Schema({
         minlength: [3, "Name must be at least 3 characters long"],
         maxlength: [50, "Name must not exceed 50 characters"]
     },
-    firmname: { 
-        type: String, 
-        required: [true, "Firm name is required"], 
-        trim: true, 
-        minlength: [3, "Firm name must be at least 3 characters long"],
-        maxlength: [50, "Firm name must not exceed 50 characters"]
-    },
+    // firmname: { 
+    //     type: String, 
+    //     required: [true, "Firm name is required"], 
+    //     trim: true, 
+    //     minlength: [3, "Firm name must be at least 3 characters long"],
+    //     maxlength: [50, "Firm name must not exceed 50 characters"]
+    // },
     address: { 
         type: String, 
         required: [true, "Address is required"], 
