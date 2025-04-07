@@ -42,10 +42,6 @@ const Lead = () => {
         axios.get("http://localhost:8081/customer"),
       ]);
 
-      console.log("Sources Response:", sourcesResponse.data);
-      console.log("Admins Response:", adminsResponse.data);
-      console.log("Customers Response:", customersResponse.data);
-
       setSources(sourcesResponse.data.data || []);
       setAdmins(adminsResponse.data.data || []);
       setCustomers(customersResponse.data.data || []);
@@ -60,7 +56,16 @@ const Lead = () => {
     try {
       const values = await form.validateFields();
 
+      // Normalize date fields for comparison and submission
+      if (values.leaddate) {
+        values.leaddate = values.leaddate.toISOString();
+      }
+      if (values.createdon) {
+        values.createdon = values.createdon.toISOString();
+      }
+
       if (editingId) {
+        // Check if values are different from initialValues
         const isChanged = Object.keys(values).some(
           (key) => values[key]?.toString().trim() !== initialValues?.[key]?.toString().trim()
         );
@@ -70,15 +75,15 @@ const Lead = () => {
           return;
         }
 
+        // Update the lead
         await axios.put(`http://localhost:8081/lead/${editingId}`, values);
         messageApi.success("Lead updated successfully!");
         setEditingId(null);
         setInitialValues(null);
       } else {
+        // Add a new lead
         await axios.post("http://localhost:8081/lead", values);
         messageApi.success("Lead added successfully!");
-        setEditingId(null);
-        setInitialValues(null);
       }
 
       fetchLeads();
@@ -91,13 +96,20 @@ const Lead = () => {
   };
 
   const handleEdit = (record) => {
-    form.setFieldsValue({
+    // Convert date strings to moment objects for the form
+    const formattedRecord = {
       ...record,
       leaddate: record.leaddate ? moment(record.leaddate) : null,
       createdon: record.createdon ? moment(record.createdon) : null,
-    });
+    };
+
+    form.setFieldsValue(formattedRecord);
     setEditingId(record._id);
-    setInitialValues(record);
+    setInitialValues({
+      ...formattedRecord,
+      leaddate: formattedRecord.leaddate ? formattedRecord.leaddate.toISOString() : null,
+      createdon: formattedRecord.createdon ? formattedRecord.createdon.toISOString() : null,
+    });
   };
 
   const handleDelete = async (id) => {
