@@ -15,6 +15,7 @@ const Lead = () => {
   const [editingId, setEditingId] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [initialValues, setInitialValues] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchLeads();
@@ -28,6 +29,8 @@ const Lead = () => {
     } catch (error) {
       console.error("Error fetching leads:", error);
       setLeads([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,11 +41,18 @@ const Lead = () => {
         axios.get("http://localhost:8081/admin"),
         axios.get("http://localhost:8081/customer"),
       ]);
+
+      console.log("Sources Response:", sourcesResponse.data);
+      console.log("Admins Response:", adminsResponse.data);
+      console.log("Customers Response:", customersResponse.data);
+
       setSources(sourcesResponse.data.data || []);
       setAdmins(adminsResponse.data.data || []);
       setCustomers(customersResponse.data.data || []);
     } catch (error) {
       console.error("Error fetching dropdown data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,6 +77,8 @@ const Lead = () => {
       } else {
         await axios.post("http://localhost:8081/lead", values);
         messageApi.success("Lead added successfully!");
+        setEditingId(null);
+        setInitialValues(null);
       }
 
       fetchLeads();
@@ -122,7 +134,6 @@ const Lead = () => {
             type="link"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
-            className="action-button edit-button"
           />
           <Popconfirm
             title="Are you sure you want to delete this lead?"
@@ -130,17 +141,16 @@ const Lead = () => {
             okText="Yes"
             cancelText="No"
           >
-            <Button
-              type="link"
-              icon={<DeleteOutlined />}
-              danger
-              className="action-button delete-button"
-            />
+            <Button type="link" icon={<DeleteOutlined />} danger />
           </Popconfirm>
         </>
       ),
     },
   ];
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -248,7 +258,7 @@ const Lead = () => {
             <Table
               columns={columns}
               dataSource={leads}
-              rowKey="_id"
+              rowKey={(record) => record._id || record.id || record.key}
               pagination={{ pageSize: 5, showSizeChanger: false }}
             />
           </div>

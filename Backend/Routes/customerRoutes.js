@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
 // ➤ Get all customers
 router.get("/", async (req, res) => {
     try {
-        const customers = await Customer.find().populate("firmid", "name");
+        const customers = await Customer.find();
         res.json({ status: "success", data: customers });
     } catch (err) {
         res.status(500).json({ status: "error", message: err.message });

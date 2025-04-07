@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
 const OrderSchema = new mongoose.Schema({
-    firmid: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "Firm", 
-        required: [true, "Firm ID is required"] 
-    },
+    // firmid: { 
+    //     type: mongoose.Schema.Types.ObjectId, 
+    //     ref: "Firm", 
+    //     required: [true, "Firm ID is required"] 
+    // },
     quotationid: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "Quotation", 
@@ -13,7 +13,7 @@ const OrderSchema = new mongoose.Schema({
     },
     customerid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Customer", 
+        ref: "customer", 
         required: [true, "Customer ID is required"] 
     },
     orderno: { 
