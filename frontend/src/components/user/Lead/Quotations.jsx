@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, Input, message, Table, Select, DatePicker, Form, Popconfirm } from "antd";
+
+import {
+  Button,
+  Input,
+  message,
+  Table,
+  Select,
+  DatePicker,
+  Form,
+  Popconfirm,
+} from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import moment from "moment";
@@ -13,53 +23,11 @@ const Quotations = () => {
   const [sources, setSources] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [qtnoPreview, setQtnoPreview] = useState(""); // For showing the next quotation number
   const [messageApi, contextHolder] = message.useMessage();
   const [initialValues, setInitialValues] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-    fetchCustomers();
-    fetchSources();
-    fetchAdmins();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const res = await axios.get("http://localhost:8081/quotation");
-      setData(res.data.status === "success" ? res.data.data : []);
-    } catch (error) {
-      console.error("Error fetching quotations:", error);
-      setData([]);
-    }
-  };
-
-  const fetchCustomers = async () => {
-    try {
-      const response = await axios.get("http://localhost:8081/customer");
-      setCustomers(response.data.status === "success" ? response.data.data : []);
-    } catch (error) {
-      console.error("Error fetching customers:", error);
-    }
-  };
-
-  const fetchSources = async () => {
-    try {
-      const response = await axios.get("http://localhost:8081/source");
-      setSources(response.data.status === "success" ? response.data.data : []);
-    } catch (error) {
-      console.error("Error fetching sources:", error);
-    }
-  };
-
-  const fetchAdmins = async () => {
-    try {
-      const response = await axios.get("http://localhost:8081/admin");
-      setAdmins(response.data.status === "success" ? response.data.data : []);
-    } catch (error) {
-      console.error("Error fetching admins:", error);
-    }
-  };
-
+  // Validator for form fields
   const getTimedValidator = (field, message, extraCheck = null) => ({
     validator: async (_, value) => {
       if (!value || (extraCheck && !extraCheck(value))) {
@@ -72,6 +40,93 @@ const Quotations = () => {
     },
   });
 
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchData();
+    fetchCustomers();
+    fetchSources();
+    fetchAdmins();
+    generateNextQuotationNo(); // Generate the next quotation number on load
+  }, []);
+
+  // Fetch quotations data
+  const fetchData = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/quotation");
+      setData(res.data.status === "success" ? res.data.data : []);
+    } catch (error) {
+      console.error("Error fetching quotations:", error);
+      setData([]);
+    }
+  };
+
+  // Fetch customers data
+  const fetchCustomers = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/customer");
+      setCustomers(res.data.status === "success" ? res.data.data : []);
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+    }
+  };
+
+  // Fetch sources data
+  const fetchSources = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/source");
+      setSources(res.data.status === "success" ? res.data.data : []);
+    } catch (error) {
+      console.error("Error fetching sources:", error);
+    }
+  };
+
+  // Fetch admins data
+  const fetchAdmins = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/admin");
+      setAdmins(res.data.status === "success" ? res.data.data : []);
+    } catch (error) {
+      console.error("Error fetching admins:", error);
+    }
+  };
+
+  // Generate the next quotation number
+  const generateNextQuotationNo = async () => {
+    const today = new Date();
+    const datePart = today.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
+    const prefix = `QT${datePart}`;
+
+    try {
+      const res = await axios.get("http://localhost:8081/quotation");
+      const quotations = res.data.status === "success" ? res.data.data : [];
+
+      // Filter today's quotations
+      const todayQuotations = quotations.filter((quotation) =>
+        quotation.quotationno.startsWith(prefix)
+      );
+
+      // Extract numbers and find the highest
+      const maxNumber = todayQuotations.reduce((max, quotation) => {
+        const numPart = parseInt(quotation.quotationno.split("-")[1], 10);
+        return numPart > max ? numPart : max;
+      }, 0);
+
+      // Generate next number, padded to 3 digits
+      const nextNumber = String(maxNumber + 1).padStart(3, "0");
+      const nextQuotationNo = `${prefix}-${nextNumber}`;
+
+      setQtnoPreview(nextQuotationNo); // Update the preview
+      return nextQuotationNo;
+    } catch (error) {
+      console.error("Error generating quotation number:", error);
+      messageApi.error("Failed to generate quotation number.");
+      const fallbackQuotationNo = `${prefix}-001`;
+      setQtnoPreview(fallbackQuotationNo); // Fallback preview
+      return fallbackQuotationNo;
+    }
+  };
+
+  // Handle form submission
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
@@ -82,29 +137,33 @@ const Quotations = () => {
       }
 
       if (editingId) {
-        // Check if values are different from initialValues
         const isChanged = Object.keys(values).some(
-          (key) => values[key]?.toString().trim() !== initialValues?.[key]?.toString().trim()
+          (key) =>
+            values[key]?.toString().trim() !==
+            initialValues?.[key]?.toString().trim()
         );
 
         if (!isChanged) {
           messageApi.info("No changes made. Update not required.");
-          return; // Exit the function if no changes are made
+          return;
         }
 
-        // Proceed with the update if changes are detected
-        await axios.put(`http://localhost:8081/quotation/${editingId}`, values);
+        await axios.put(
+          `http://localhost:8081/quotation/${editingId}`,
+          values
+        );
         messageApi.success("Quotation updated successfully!");
         setEditingId(null);
         setInitialValues(null);
       } else {
-        // Add a new quotation
+        values.quotationno = await generateNextQuotationNo();
         await axios.post("http://localhost:8081/quotation", values);
         messageApi.success("Quotation added successfully!");
       }
 
       fetchData();
       form.resetFields();
+      generateNextQuotationNo(); // Generate the next quotation number for the next entry
     } catch (error) {
       console.error("Error submitting form:", error);
       const errorMsg =
@@ -113,17 +172,20 @@ const Quotations = () => {
     }
   };
 
+  // Handle edit action
   const handleEdit = (record) => {
-    // Convert date string to moment object for the form
     const formattedRecord = {
       ...record,
-      quotationdate: record.quotationdate ? moment(record.quotationdate) : null
+      quotationdate: record.quotationdate
+        ? moment(record.quotationdate)
+        : null,
     };
     form.setFieldsValue(formattedRecord);
     setEditingId(record._id);
     setInitialValues(formattedRecord);
   };
 
+  // Handle delete action
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:8081/quotation/${id}`);
@@ -135,29 +197,31 @@ const Quotations = () => {
     }
   };
 
+  // Clear form fields
   const clearForm = () => {
     form.resetFields();
     setEditingId(null);
     setInitialValues(null);
   };
 
+  // Table columns
   const columns = [
     { title: "Quotation No", dataIndex: "quotationno", key: "quotationno" },
-    { 
-      title: "Quotation Date", 
-      dataIndex: "quotationdate", 
+    {
+      title: "Quotation Date",
+      dataIndex: "quotationdate",
       key: "quotationdate",
-      render: (date) => date ? moment(date).format('YYYY-MM-DD') : '-'
+      render: (date) => (date ? moment(date).format("YYYY-MM-DD") : "-"),
     },
-    { 
-      title: "Customer", 
-      dataIndex: ["customerid", "name"], 
-      key: "customerid" 
+    {
+      title: "Customer",
+      dataIndex: ["customerid", "name"],
+      key: "customerid",
     },
-    { 
-      title: "Source", 
-      dataIndex: ["sourceid", "name"], 
-      key: "sourceid" 
+    {
+      title: "Source",
+      dataIndex: ["sourceid", "name"],
+      key: "sourceid",
     },
     { title: "Total Weight", dataIndex: "totalweight", key: "totalweight" },
     { title: "Subtotal", dataIndex: "subtotal", key: "subtotal" },
@@ -202,7 +266,9 @@ const Quotations = () => {
           <h1>Quotations</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item"><Link to="/">Dashboard</Link></li>
+              <li className="breadcrumb-item">
+                <Link to="/">Dashboard</Link>
+              </li>
               <li className="breadcrumb-item active">Quotations</li>
             </ol>
           </nav>
@@ -211,6 +277,18 @@ const Quotations = () => {
           <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
             <Form form={form} layout="vertical">
               <div className="row">
+                <div className="col-lg-6 p-1">
+                  <Form.Item label="Quotation No">
+                    <Input
+                      value={
+                        editingId
+                          ? form.getFieldValue("quotationno")
+                          : qtnoPreview
+                      }
+                      disabled
+                    />
+                  </Form.Item>
+                </div>
                 <div className="col-lg-6 p-1">
                   <Form.Item
                     name="customerid"
@@ -221,7 +299,7 @@ const Quotations = () => {
                   >
                     <Select
                       placeholder="Select Customer"
-                      options={customers.map(customer => ({
+                      options={customers.map((customer) => ({
                         value: customer._id,
                         label: customer.name,
                       }))}
@@ -239,7 +317,7 @@ const Quotations = () => {
                   >
                     <Select
                       placeholder="Select Source"
-                      options={sources.map(source => ({
+                      options={sources.map((source) => ({
                         value: source._id,
                         label: source.name,
                       }))}
@@ -257,7 +335,7 @@ const Quotations = () => {
                   >
                     <Select
                       placeholder="Select Admin"
-                      options={admins.map(admin => ({
+                      options={admins.map((admin) => ({
                         value: admin._id,
                         label: admin.name,
                       }))}
@@ -265,24 +343,30 @@ const Quotations = () => {
                   </Form.Item>
                 </div>
 
-                <div className="col-lg-6 p-1">
+                {/* <div className="col-lg-6 p-1">
                   <Form.Item
                     name="quotationno"
                     label="Quotation No"
                     rules={[
-                      getTimedValidator("quotationno", "Please enter quotation number!"),
+                      getTimedValidator(
+                        "quotationno",
+                        "Please enter quotation number!"
+                      ),
                     ]}
                   >
                     <Input placeholder="Quotation No" />
                   </Form.Item>
-                </div>
+                </div> */}
 
                 <div className="col-lg-6 p-1">
                   <Form.Item
                     name="quotationdate"
                     label="Quotation Date"
                     rules={[
-                      getTimedValidator("quotationdate", "Please select quotation date!"),
+                      getTimedValidator(
+                        "quotationdate",
+                        "Please select quotation date!"
+                      ),
                     ]}
                   >
                     <DatePicker className="w-100" />
@@ -294,7 +378,10 @@ const Quotations = () => {
                     name="baddress"
                     label="Billing Address"
                     rules={[
-                      getTimedValidator("baddress", "Please enter billing address!"),
+                      getTimedValidator(
+                        "baddress",
+                        "Please enter billing address!"
+                      ),
                     ]}
                   >
                     <Input placeholder="Billing Address" />
@@ -306,7 +393,10 @@ const Quotations = () => {
                     name="saddress"
                     label="Shipping Address"
                     rules={[
-                      getTimedValidator("saddress", "Please enter shipping address!"),
+                      getTimedValidator(
+                        "saddress",
+                        "Please enter shipping address!"
+                      ),
                     ]}
                   >
                     <Input placeholder="Shipping Address" />
@@ -318,7 +408,10 @@ const Quotations = () => {
                     name="totalweight"
                     label="Total Weight"
                     rules={[
-                      getTimedValidator("totalweight", "Please enter total weight!"),
+                      getTimedValidator(
+                        "totalweight",
+                        "Please enter total weight!"
+                      ),
                     ]}
                   >
                     <Input placeholder="Total Weight" />
@@ -366,7 +459,10 @@ const Quotations = () => {
                     name="quotationtype"
                     label="Quotation Type"
                     rules={[
-                      getTimedValidator("quotationtype", "Please enter quotation type!"),
+                      getTimedValidator(
+                        "quotationtype",
+                        "Please enter quotation type!"
+                      ),
                     ]}
                   >
                     <Input placeholder="Quotation Type" />
@@ -377,7 +473,11 @@ const Quotations = () => {
                   <Button type="primary" onClick={handleSubmit}>
                     {editingId ? "Update" : "Save"}
                   </Button>
-                  <Button type="default" onClick={clearForm} style={{ marginLeft: "10px" }}>
+                  <Button
+                    type="default"
+                    onClick={clearForm}
+                    style={{ marginLeft: "10px" }}
+                  >
                     {editingId ? "Cancel" : "Clear"}
                   </Button>
                 </div>

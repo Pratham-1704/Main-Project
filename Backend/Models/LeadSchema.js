@@ -1,19 +1,19 @@
 const mongoose = require("mongoose");
 
 const LeadSchema = new mongoose.Schema({
-    firmid: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "Firm", 
-        required: true 
-    },
+    // firmid: { 
+    //     type: mongoose.Schema.Types.ObjectId, 
+    //     ref: "Firm", 
+    //     required: true 
+    // },
     sourceid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Source", 
+        ref: "source", 
         required: true 
     },
     customerid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Customer", 
+        ref: "customer", 
         required: true 
     },
     leadno: { 
@@ -32,7 +32,7 @@ const LeadSchema = new mongoose.Schema({
     },
     adminid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Admin", 
+        ref: "admin", 
         required: true 
     }
 }, { timestamps: true });
