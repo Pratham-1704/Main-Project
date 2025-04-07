@@ -4,6 +4,8 @@ import { Button, Input, message, Table, Select, DatePicker, Popconfirm, Form } f
 import axios from "axios";
 import moment from "moment";
 import "../master/Css Files/style.css";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+
 
 function Orders() {
   const [form] = Form.useForm();
@@ -13,6 +15,7 @@ function Orders() {
   const [admins, setAdmins] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
+
 
   useEffect(() => {
     fetchOrders();
@@ -115,17 +118,27 @@ function Orders() {
       title: "Customer",
       dataIndex: "customerid",
       key: "customerid",
-      align: "center",
+      align: "start",
       render: (customerid) => {
         const customer = customers.find((c) => c._id === customerid);
         return customer ? customer.name : "N/A";
       },
     },
     {
-      title: "Quotation",
+      title: "Admin",
+      dataIndex: "adminid",
+      key: "adminid",
+      align: "start",
+      render: (adminid) => {
+        const admin = admins.find((c) => c._id === adminid);
+        return admin ? admin.name : "N/A";
+      },
+    },
+    {
+      title: "Quotation No",
       dataIndex: "quotationid",
       key: "quotationid",
-      align: "center",
+      align: "Center",
       render: (quotationid) => {
         const quotation = quotations.find((q) => q._id === quotationid);
         return quotation ? quotation.quotationno : "N/A";
@@ -143,20 +156,22 @@ function Orders() {
         <>
           <Button
             type="link"
+            icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
-            style={{ marginRight: "10px" }}
-          >
-            Edit
-          </Button>
+            className="action-button edit-button"
+          />
           <Popconfirm
-            title="Are you sure you want to delete this order?"
+            title="Are you sure you want to delete this admin?"
             onConfirm={() => handleDelete(record._id)}
             okText="Yes"
             cancelText="No"
           >
-            <Button type="link" danger>
-              Delete
-            </Button>
+            <Button
+              type="link"
+              icon={<DeleteOutlined />}
+              danger
+              className="action-button delete-button"
+            />
           </Popconfirm>
         </>
       ),
@@ -304,7 +319,7 @@ function Orders() {
                 </div>
                 <div className="col-lg-12 p-1">
                   <Button type="primary" onClick={handleSubmit} style={{ marginRight: "10px" }}>
-                    {editingId ? "Update Order" : "Save Order"}
+                    {editingId ? "Update" : "Save"}
                   </Button>
                   <Button onClick={clearForm} style={{ marginRight: "10px" }}>
                     Clear
