@@ -24,7 +24,7 @@ const Customers = () => {
 
   useEffect(() => {
     fetchCustomers();
-    fetchFirms();
+    // fetchFirms();
     fetchStates();
   }, []);
 
@@ -37,14 +37,14 @@ const Customers = () => {
     }
   };
 
-  const fetchFirms = async () => {
-    try {
-      const res = await axios.get("http://localhost:8081/firm");
-      setFirms(res.data.status === "success" ? res.data.data : []);
-    } catch (error) {
-      console.error("Error fetching firms:", error);
-    }
-  };
+  // const fetchFirms = async () => {
+  //   try {
+  //     const res = await axios.get("http://localhost:8081/firm");
+  //     setFirms(res.data.status === "success" ? res.data.data : []);
+  //   } catch (error) {
+  //     console.error("Error fetching firms:", error);
+  //   }
+  // };
 
   const fetchStates = async () => {
     try {
@@ -124,7 +124,7 @@ const Customers = () => {
 
   const columns = [
     { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Firm Name", dataIndex: "firmname", key: "firmname" },
+    // { title: "Firm Name", dataIndex: "firmname", key: "firmname" },
     { title: "Address", dataIndex: "address", key: "address" },
     { title: "City", dataIndex: "city", key: "city" },
     { title: "State", dataIndex: "state", key: "state" },
@@ -174,8 +174,8 @@ const Customers = () => {
           <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
             <Form form={form} layout="vertical">
               <div className="row">
-                <div className="col-lg-6 ">
-                  <Form.Item
+                {/* <div className="col-lg-6 "> */}
+                  {/* <Form.Item
                     name="firmid"
                     label="Firm"
                     rules={[getTimedValidator("firmid", "Please select a firm!")]}
@@ -190,15 +190,15 @@ const Customers = () => {
                         });
                       }}
                       disabled={!!editingId}
-                    >
-                      {firms.map((firm) => (
+                    > */}
+                      {/* {firms.map((firm) => (
                         <Select.Option key={firm._id} value={firm._id}>
                           {firm.name}
-                        </Select.Option>
-                      ))}
+                        </Select.Option> */}
+                      {/* ))}
                     </Select>
-                  </Form.Item>
-                </div>
+                  </Form.Item> */}
+                {/* </div> */}
 
                 <Form.Item name="firmname" hidden>
                   <Input />
