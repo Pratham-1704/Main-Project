@@ -1,111 +1,171 @@
-import React, { useEffect, useState } from "react";
-import {
-  Form,
-  Input,
-  DatePicker,
-  Button,
-  Table,
-  Popconfirm,
-  message,
-} from "antd";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Button, Input, message, Table, Popconfirm, Form, DatePicker } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
-import moment from "moment";
-import "./Css Files/style.css";
-import { Link } from "react-router-dom";
+import dayjs from "dayjs";
 
-const FinancialYear = () => {
+const FinancialYears = () => {
   const [form] = Form.useForm();
-  const [data, setData] = useState([]);
+  const [financialYears, setFinancialYears] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
+  const [initialValues, setInitialValues] = useState(null);
+
+  // Validator function
+  const getTimedValidator = (field, message, extraCheck = null) => ({
+    validator: async (_, value) => {
+      if (!value || (extraCheck && !extraCheck(value))) {
+        setTimeout(() => {
+          form.setFields([{ name: field, errors: [] }]);
+        }, 3000);
+        return Promise.reject(new Error(message));
+      }
+      return Promise.resolve();
+    },
+  });
 
   useEffect(() => {
-    fetchData();
+    fetchFinancialYears();
   }, []);
 
-  const fetchData = async () => {
+  const fetchFinancialYears = async () => {
     try {
-      const res = await axios.get("http://localhost:8081/financialyear");
-      setData(res.data.status === "success" ? res.data.data : []);
-    } catch (err) {
-      messageApi.error("Failed to fetch financial years.");
+      const response = await axios.get("http://localhost:8081/financialyear");
+      setFinancialYears(response.data.status === "success" ? response.data.data : []);
+    } catch (error) {
+      console.error("Error fetching financial years:", error);
+      setFinancialYears([]);
     }
   };
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      const payload = {
-        ...values,
-        startdate: values.startdate?.startOf("day").toISOString(),
-        enddate: values.enddate?.endOf("day").toISOString(),
-      };
+
+      // Validate startDate and endDate using dayjs
+      const startDate = dayjs(values.startDate);
+      const endDate = dayjs(values.endDate);
+
+      if (!startDate.isValid() || !endDate.isValid()) {
+        messageApi.error("Invalid date format. Please select valid dates.");
+        return;
+      }
+
+      if (endDate.isBefore(startDate)) {
+        messageApi.error("End date must be after start date.");
+        return;
+      }
 
       if (editingId) {
-        await axios.put(`http://localhost:8081/financialyear/${editingId}`, payload);
+        // Compare current form values with initial values
+        const isChanged = Object.keys(values).some((key) => {
+          const currentValue = values[key]?.toString().trim() || "";
+          const initialValue = initialValues?.[key]?.toString().trim() || "";
+          return currentValue !== initialValue;
+        });
+
+        if (!isChanged) {
+          messageApi.info("No changes made. Update not required.");
+          return;
+        }
+
+        // Proceed with the update if changes are detected
+        await axios.put(`http://localhost:8081/financialyear/${editingId}`, {
+          ...values,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+        });
         messageApi.success("Financial year updated successfully!");
         setEditingId(null);
+        setInitialValues(null);
       } else {
-        await axios.post("http://localhost:8081/financialyear", payload);
+        await axios.post("http://localhost:8081/financialyear", {
+          ...values,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+        });
         messageApi.success("Financial year added successfully!");
       }
 
-      fetchData();
+      fetchFinancialYears();
       form.resetFields();
-    } catch (err) {
-      messageApi.error(err.response?.data?.message || "Failed to save financial year.");
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      const errorMsg =
+        error.response?.data?.message || "An unexpected error occurred.";
+      messageApi.error(errorMsg);
     }
   };
 
   const handleEdit = (record) => {
-    form.setFieldsValue({
+    const formattedRecord = {
       ...record,
-      startdate: moment(record.startdate),
-      enddate: moment(record.enddate),
-    });
+      startDate: dayjs(record.startDate),
+      endDate: dayjs(record.endDate),
+    };
+    form.setFieldsValue(formattedRecord);
     setEditingId(record._id);
+    setInitialValues(formattedRecord); // Set initial values for comparison
   };
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:8081/financialyear/${id}`);
       messageApi.success("Financial year deleted successfully!");
-      fetchData();
-    } catch (err) {
-      messageApi.error("Failed to delete financial year.");
+      fetchFinancialYears();
+    } catch (error) {
+      messageApi.error("Failed to delete financial year!");
+      console.error("Error deleting financial year:", error);
     }
   };
 
+  const clearForm = () => {
+    form.resetFields();
+    setEditingId(null);
+    setInitialValues(null);
+  };
+
   const columns = [
-    {
-      title: "Name",
-      dataIndex: "name",
-    },
+    { title: "Name", dataIndex: "name", key: "name", align: "center" },
     {
       title: "Start Date",
-      dataIndex: "startdate",
-      render: (date) => moment(date).format("YYYY-MM-DD"),
+      dataIndex: "startDate",
+      key: "startDate",
+      align: "center",
+      render: (text) => (text ? dayjs(text).format("DD/MM/YYYY") : "-"),
     },
     {
       title: "End Date",
-      dataIndex: "enddate",
-      render: (date) => moment(date).format("YYYY-MM-DD"),
+      dataIndex: "endDate",
+      key: "endDate",
+      align: "center",
+      render: (text) => (text ? dayjs(text).format("DD/MM/YYYY") : "-"),
     },
     {
       title: "Actions",
-      render: (_, record) => (
+      key: "actions",
+      align: "center",
+      render: (text, record) => (
         <>
           <Button
             type="link"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
+            className="action-button edit-button"
           />
           <Popconfirm
-            title="Are you sure to delete this financial year?"
+            title="Are you sure you want to delete this financial year?"
             onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
           >
-            <Button type="link" danger icon={<DeleteOutlined />} />
+            <Button
+              type="link"
+              icon={<DeleteOutlined />}
+              danger
+              className="action-button delete-button"
+            />
           </Popconfirm>
         </>
       ),
@@ -127,66 +187,77 @@ const FinancialYear = () => {
             </ol>
           </nav>
         </div>
-
         <section className="section">
           <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
             <Form form={form} layout="vertical">
               <div className="row">
-                <div className="col-lg-4 p-1">
+                <div className="col-lg-6 p-1">
                   <Form.Item
                     name="name"
                     label="Name"
-                    rules={[{ required: true, message: "Please enter financial year name!" }]}
+                    rules={[
+                      getTimedValidator(
+                        "name",
+                        "Please enter financial year name!",
+                        (value) => value.length >= 3
+                      ),
+                    ]}
                   >
                     <Input placeholder="Financial Year Name" />
                   </Form.Item>
                 </div>
-                <div className="col-lg-4 p-1">
+                <div className="col-lg-6 p-1">
                   <Form.Item
-                    name="startdate"
+                    name="startDate"
                     label="Start Date"
-                    rules={[{ required: true, message: "Please select start date!" }]}
+                    rules={[
+                      getTimedValidator("startDate", "Please select a start date!"),
+                    ]}
                   >
-                    <DatePicker style={{ width: "100%" }} />
+                    <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
                   </Form.Item>
                 </div>
-                <div className="col-lg-4 p-1">
+                <div className="col-lg-6 p-1">
                   <Form.Item
-                    name="enddate"
+                    name="endDate"
                     label="End Date"
-                    dependencies={["startdate"]}
                     rules={[
-                      { required: true, message: "Please select end date!" },
+                      getTimedValidator("endDate", "Please select an end date!"),
                       ({ getFieldValue }) => ({
                         validator(_, value) {
-                          const start = getFieldValue("startdate");
-                          if (!value || !start || value.isAfter(start)) {
+                          const startDate = getFieldValue("startDate");
+                          if (!value || !startDate || dayjs(value).isAfter(dayjs(startDate))) {
                             return Promise.resolve();
                           }
-                          return Promise.reject(new Error("End date must be after start date!"));
+                          return Promise.reject(
+                            new Error("End date must be after start date!")
+                          );
                         },
                       }),
                     ]}
                   >
-                    <DatePicker style={{ width: "100%" }} />
+                    <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
                   </Form.Item>
                 </div>
                 <div className="col-lg-12 p-1">
                   <Button type="primary" onClick={handleSubmit}>
                     {editingId ? "Update" : "Save"}
                   </Button>
-                  <Button onClick={() => form.resetFields()} style={{ marginLeft: 10 }}>
+                  <Button
+                    type="default"
+                    onClick={clearForm}
+                    style={{ marginLeft: "10px" }}
+                  >
                     {editingId ? "Cancel" : "Clear"}
                   </Button>
                 </div>
               </div>
             </Form>
           </div>
-
           <div className="card p-3 custom-table">
             <Table
               columns={columns}
-              dataSource={data}
+              dataSource={financialYears}
               rowKey="_id"
               pagination={{ pageSize: 5, showSizeChanger: false }}
             />
@@ -197,4 +268,4 @@ const FinancialYear = () => {
   );
 };
 
-export default FinancialYear;
+export default FinancialYears;
