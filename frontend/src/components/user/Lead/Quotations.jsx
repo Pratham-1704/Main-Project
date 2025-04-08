@@ -375,7 +375,7 @@ const Quotations = () => {
                       ),
                     ]}
                   >
-                    <DatePicker className="w-100" />
+                    <DatePicker className="w-100" format={"DD-MM-YYYY"}/>
                   </Form.Item>
                 </div>
 

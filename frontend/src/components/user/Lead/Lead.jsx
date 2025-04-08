@@ -23,6 +23,11 @@ const Leads = () => {
     fetchSources();
     fetchAdmins();
     generateNextLeadNo(); // Generate the next lead number on load
+
+    // Set default value for createdon to today's date
+    form.setFieldsValue({
+      createdon: dayjs(), // Set today's date
+    });
   }, []);
 
   // Fetch leads data
@@ -193,6 +198,11 @@ const Leads = () => {
     setEditingId(null);
     setInitialValues(null);
     generateNextLeadNo(); // Reset lead number preview
+
+    // Reset createdon to today's date
+    form.setFieldsValue({
+      createdon: dayjs(), // Set today's date
+    });
   };
 
   // Table columns
