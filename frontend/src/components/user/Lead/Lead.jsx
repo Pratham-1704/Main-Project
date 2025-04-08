@@ -68,7 +68,7 @@ const Leads = () => {
   // Generate the next lead number
   const generateNextLeadNo = async () => {
     const today = new Date();
-    const datePart = today.toLocaleDateString("en-GB").replace(/\//g, "-"); // DD-MM-YYYY
+    const datePart = today.toLocaleDateString("en-GB").replace(/\//g, ""); // DD-MM-YYYY
     const prefix = `LD${datePart}`;
 
     try {
