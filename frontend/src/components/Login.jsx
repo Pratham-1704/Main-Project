@@ -19,9 +19,15 @@ function Login() {
       });
   
       if (res.data.status === "success") {
-        // Save user data to localStorage
-        //localStorage.setItem("user", JSON.stringify(res.data.user)); // assuming response includes a `user` object
-       // console.log(res.data.user);
+       
+        localStorage.setItem("role", res.data.data.role); // assuming response includes a `role`
+       
+        localStorage.setItem("name", res.data.data.name); // assuming response includes a `name`
+        
+        // localStorage.setItem("username", res.data.data.username);
+        // localStorage.setItem("mobileno", res.data.data.mobileno);
+        // localStorage.setItem("status", res.data.data.status);
+       
         navigate("/dashboard");
       } else {
         setError("Invalid credentials");

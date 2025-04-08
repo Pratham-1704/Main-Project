@@ -234,11 +234,12 @@ const Leads = () => {
       dataIndex: "leaddate",
       render: (date) => (date ? dayjs(date).format("DD-MM-YYYY") : "N/A"),
     },
-    {
-      title: "Created On",
-      dataIndex: "createdon",
-      render: (date) => (date ? dayjs(date).format("DD-MM-YYYY") : "N/A"),
-    },
+    
+    // {
+    //   title: "Created On",
+    //   dataIndex: "createdon",
+    //   render: (date) => (date ? dayjs(date).format("DD-MM-YYYY") : "N/A"),
+    // },
 
     {
       title: "Actions",
@@ -348,17 +349,17 @@ const Leads = () => {
                   </Form.Item>
                 </div>
 
-                <div className="col-lg-6 p-1">
+                {/* <div className="col-lg-6 p-1">
                   <Form.Item
                     name="createdon"
                     label="Created On"
                     rules={[
-                      getTimedValidator("createdon", "Select created on date!"),
+                      getTimedValidator("createdon", "Select created on date!")
                     ]}
                   >
-                    <DatePicker format="DD-MM-YYYY" className="w-100" />
+                    <DatePicker format="DD-MM-YYYY" className="w-100" disabled/>
                   </Form.Item>
-                </div>
+                </div> */}
 
                 <div className="col-lg-12 p-1">
                   <Button type="primary" onClick={handleSubmit}>

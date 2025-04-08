@@ -1,7 +1,18 @@
-import React from 'react'
-import { Link } from 'react-router'
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom"; // Use react-router-dom for navigation
 
 function Header() {
+  const [name, setName] = useState("");
+  const [role, setRole] = useState("");
+
+  // Retrieve name and role from localStorage on component mount
+  useEffect(() => {
+    const storedName = localStorage.getItem("name");
+    const storedRole = localStorage.getItem("role");
+    setName(storedName || "User"); // Default to "User" if no name is found
+    setRole(storedRole || "Role"); // Default to "Role" if no role is found
+  }, []);
+
   return (
     <>
       <header id="header" className="header fixed-top d-flex align-items-center">
@@ -14,19 +25,17 @@ function Header() {
         </div>
 
         <div className="search-bar">
-          <h5>Welcome Prathamesh</h5>
+          <h5>Welcome {name}</h5>
         </div>
 
         <nav className="header-nav ms-auto">
           <ul className="d-flex align-items-center">
-
             <li className="nav-item dropdown">
               <a className="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
                 <i className="bi bi-bell"></i>
                 <span className="badge bg-primary badge-number">4</span>
               </a>
             </li>
-
 
             <li className="nav-item dropdown pe-3">
               <a
@@ -40,27 +49,26 @@ function Header() {
                   className="rounded-circle"
                 />
                 <span className="d-none d-md-block dropdown-toggle ps-2">
-                  K. Anderson
+                  {name} 
+                  {/* ({role}) */}
                 </span>
               </a>
 
               <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                 <li className="dropdown-header">
-                  <h6>Kevin Anderson</h6>
-                  <span>Web Designer</span>
+                  <h6>{name}</h6>
+                  <span>{role}</span>
                 </li>
                 <li>
                   <hr className="dropdown-divider" />
                 </li>
 
                 <li>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="users-profile.html"
-                  >
+                  {/* Navigate to AdminProfile.jsx */}
+                  <Link to="/admin-profile" className="dropdown-item d-flex align-items-center">
                     <i className="bi bi-person"></i>
                     <span>My Profile</span>
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <hr className="dropdown-divider" />
@@ -94,10 +102,10 @@ function Header() {
 
                 <li>
                   <Link to={"/"}>
-                  <a className="dropdown-item d-flex align-items-center">
-                    <i className="bi bi-box-arrow-right"></i>
-                    <span>Sign Out</span>
-                  </a>
+                    <a className="dropdown-item d-flex align-items-center">
+                      <i className="bi bi-box-arrow-right"></i>
+                      <span>Sign Out</span>
+                    </a>
                   </Link>
                 </li>
               </ul>
@@ -106,7 +114,7 @@ function Header() {
         </nav>
       </header>
     </>
-  )
+  );
 }
 
-export default Header
+export default Header;

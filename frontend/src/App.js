@@ -15,6 +15,7 @@ import FinancialYear from './components/user/master/FinancialYear';
 import Lead from './components/user/Lead/Lead';
 import Quotations from './components/user/Lead/Quotations';
 import Order from './components/user/Lead/Order';
+import AdminProfile from './components/user/AdminProfile';
 
 function App() {
   return (
@@ -23,6 +24,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/forgot-password" element={<Forgotpassword />} />
+          <Route path="admin-profile" element={<AdminProfile />} />
+
+
 
           <Route path="dashboard" element={<Landing />}>
           <Route path="" element={<Dashboard />} />
@@ -48,6 +52,7 @@ function App() {
             <Route path="quotations" element={<Quotations />} />
             <Route path="order" element={<Order />} />
           </Route>
+
 
 
         </Routes>
