@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, Input, message, Table, Popconfirm, Form } from "antd";
+import { Button, Input, message, Table, Popconfirm, Form, Select } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./Css Files/style.css";
@@ -39,38 +39,37 @@ const Categories = () => {
   });
 
   const handleSubmit = async () => {
-  try {
-    const values = await form.validateFields();
+    try {
+      const values = await form.validateFields();
 
-    if (editingId) {
-      const isChanged = Object.keys(values).some(
-        (key) => values[key]?.toString().trim() !== initialValues?.[key]?.toString().trim()
-      );
+      if (editingId) {
+        const isChanged = Object.keys(values).some(
+          (key) => values[key]?.toString().trim() !== initialValues?.[key]?.toString().trim()
+        );
 
-      if (!isChanged) {
-        messageApi.info("No changes made. Update not required.");
-        return;
+        if (!isChanged) {
+          messageApi.info("No changes made. Update not required.");
+          return;
+        }
+
+        await axios.put(`http://localhost:8081/category/${editingId}`, values);
+        messageApi.success("Category updated successfully!");
+        setEditingId(null);
+        setInitialValues(null);
+      } else {
+        await axios.post("http://localhost:8081/category", values);
+        messageApi.success("Category added successfully!");
       }
 
-      await axios.put(`http://localhost:8081/category/${editingId}`, values);
-      messageApi.success("Category updated successfully!");
-      setEditingId(null);
-      setInitialValues(null);
-    } else {
-      await axios.post("http://localhost:8081/category", values);
-      messageApi.success("Category added successfully!");
+      fetchData();
+      form.resetFields();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      const errorMsg =
+        error.response?.data?.message || "Please fill the values correctly!";
+      messageApi.error(errorMsg);
     }
-
-    fetchData();
-    form.resetFields();
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    const errorMsg =
-      error.response?.data?.message || "Please fill the values correctly!";
-    messageApi.error(errorMsg);
-  }
-};
-
+  };
 
   const handleEdit = (record) => {
     form.setFieldsValue(record);
@@ -157,7 +156,7 @@ const Categories = () => {
                       ),
                     ]}
                   >
-                    <Input placeholder="Serial Number" disabled={!!editingId}/>
+                    <Input placeholder="Serial Number" disabled={!!editingId} />
                   </Form.Item>
                 </div>
 
@@ -188,9 +187,14 @@ const Categories = () => {
                   <Form.Item
                     name="billingIn"
                     label="Billing In"
-                    rules={[getTimedValidator("billingIn", "Please enter billing info!")]}
+                    rules={[getTimedValidator("billingIn", "Please select billing info!")]}
                   >
-                    <Input placeholder="Billing In" />
+                    <Select placeholder="Select Billing In">
+                      <Select.Option value="Kg">Kg</Select.Option>
+                      <Select.Option value="Meter">Meter</Select.Option>
+                      <Select.Option value="Feet">Feet</Select.Option>
+                      <Select.Option value="No's">No's</Select.Option>
+                    </Select>
                   </Form.Item>
                 </div>
 

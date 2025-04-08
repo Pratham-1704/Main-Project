@@ -70,14 +70,36 @@ function Orders() {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+
       if (editingId) {
+        // Find the original record being edited
+        const originalRecord = orders.find((order) => order._id === editingId);
+
+        // Compare current form values with the original record
+        const isChanged = Object.keys(values).some(
+          (key) => {
+            const originalValue = originalRecord?.[key]?.toString().trim() || "";
+            const currentValue = values[key]?.toString().trim() || "";
+            return originalValue !== currentValue;
+          }
+        );
+
+        if (!isChanged) {
+          // If no changes are detected, show an info message and return
+          messageApi.info("No changes made. Update not required.");
+          return;
+        }
+
+        // Update the order if changes are detected
         await axios.put(`http://localhost:8081/order/${editingId}`, values);
         messageApi.success("Order updated successfully!");
       } else {
+        // Create a new order
         await axios.post("http://localhost:8081/order", values);
         messageApi.success("Order saved successfully!");
       }
-      fetchOrders();
+
+      fetchOrders(); // Refresh the table
       clearForm();
     } catch (error) {
       const errorMsg = error.response?.data?.message || "Failed to save order!";
@@ -112,7 +134,7 @@ function Orders() {
       dataIndex: "orderdate",
       key: "orderdate",
       align: "center",
-      render: (text) => (text ? moment(text).format("YYYY-MM-DD") : "N/A"),
+      render: (text) => (text ? moment(text).format("DD-MM-YYYY") : "N/A"),
     },
     {
       title: "Customer",
@@ -244,7 +266,7 @@ function Orders() {
                     label="Order Date"
                     rules={[{ required: true, message: "Please select the order date!" }]}
                   >
-                    <DatePicker className="w-100" />
+                    <DatePicker className="w-100" format="DD-MM-YYYY" />
                   </Form.Item>
                 </div>
                 <div className="col-lg-6 p-1">

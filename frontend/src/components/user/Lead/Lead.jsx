@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Form,
-  Input,
-  Select,
-  Table,
-  message,
-  Popconfirm,
-  DatePicker,
-} from "antd";
+import { Button, Form, Input, Select, Table, message, Popconfirm, DatePicker } from "antd";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -77,7 +68,7 @@ const Leads = () => {
   // Generate the next lead number
   const generateNextLeadNo = async () => {
     const today = new Date();
-    const datePart = today.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
+    const datePart = today.toLocaleDateString("en-GB").replace(/\//g, "-"); // DD-MM-YYYY
     const prefix = `LD${datePart}`;
 
     try {
@@ -129,8 +120,8 @@ const Leads = () => {
       const values = await form.validateFields();
       const payload = {
         ...values,
-        leaddate: values.leaddate.format("YYYY-MM-DD"),
-        createdon: values.createdon.format("YYYY-MM-DD"),
+        leaddate: values.leaddate.format("DD-MM-YYYY"),
+        createdon: values.createdon.format("DD-MM-YYYY"),
       };
 
       if (editingId) {
@@ -138,7 +129,7 @@ const Leads = () => {
           (key) =>
             payload[key] !==
             (initialValues?.[key]?.format
-              ? initialValues[key].format("YYYY-MM-DD")
+              ? initialValues[key].format("DD-MM-YYYY")
               : initialValues?.[key])
         );
         if (!isChanged) {
@@ -221,19 +212,22 @@ const Leads = () => {
         sources.find((s) => s._id === id)?.name || "Unknown",
     },
     {
-      title: "Lead Date",
-      dataIndex: "leaddate",
-    },
-    {
-      title: "Created On",
-      dataIndex: "createdon",
-    },
-    {
       title: "Admin",
       dataIndex: "adminid",
       render: (id) =>
         admins.find((a) => a._id === id)?.name || "Unknown",
     },
+    {
+      title: "Lead Date",
+      dataIndex: "leaddate",
+      render: (date) => (date ? dayjs(date).format("DD-MM-YYYY") : "N/A"),
+    },
+    {
+      title: "Created On",
+      dataIndex: "createdon",
+      render: (date) => (date ? dayjs(date).format("DD-MM-YYYY") : "N/A"),
+    },
+
     {
       title: "Actions",
       render: (_, record) => (
@@ -318,28 +312,6 @@ const Leads = () => {
 
                 <div className="col-lg-6 p-1">
                   <Form.Item
-                    name="leaddate"
-                    label="Lead Date"
-                    rules={[getTimedValidator("leaddate", "Select a lead date!")]}
-                  >
-                    <DatePicker format="YYYY-MM-DD" className="w-100" />
-                  </Form.Item>
-                </div>
-
-                <div className="col-lg-6 p-1">
-                  <Form.Item
-                    name="createdon"
-                    label="Created On"
-                    rules={[
-                      getTimedValidator("createdon", "Select created on date!"),
-                    ]}
-                  >
-                    <DatePicker format="YYYY-MM-DD" className="w-100" />
-                  </Form.Item>
-                </div>
-
-                <div className="col-lg-6 p-1">
-                  <Form.Item
                     name="adminid"
                     label="Admin"
                     rules={[getTimedValidator("adminid", "Please select an admin!")]}
@@ -351,6 +323,28 @@ const Leads = () => {
                       }))}
                       placeholder="Select Admin"
                     />
+                  </Form.Item>
+                </div>
+
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="leaddate"
+                    label="Lead Date"
+                    rules={[getTimedValidator("leaddate", "Select a lead date!")]}
+                  >
+                    <DatePicker format={"DD-MM-YYYY"} className="w-100" />
+                  </Form.Item>
+                </div>
+
+                <div className="col-lg-6 p-1">
+                  <Form.Item
+                    name="createdon"
+                    label="Created On"
+                    rules={[
+                      getTimedValidator("createdon", "Select created on date!"),
+                    ]}
+                  >
+                    <DatePicker format="DD-MM-YYYY" className="w-100" />
                   </Form.Item>
                 </div>
 

@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-
-import {
-  Button,
-  Input,
-  message,
-  Table,
-  Select,
-  DatePicker,
-  Form,
-  Popconfirm,
-} from "antd";
+import { Button, Input, message, Table, Select, DatePicker, Form, Popconfirm, } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import moment from "moment";
@@ -93,7 +83,7 @@ const Quotations = () => {
   // Generate the next quotation number
   const generateNextQuotationNo = async () => {
     const today = new Date();
-    const datePart = today.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
+    const datePart = today.toLocaleDateString("en-GB").replace(/\//g, ""); // DD-MM-YYYY
     const prefix = `QT${datePart}`;
 
     try {
@@ -211,7 +201,7 @@ const Quotations = () => {
       title: "Quotation Date",
       dataIndex: "quotationdate",
       key: "quotationdate",
-      render: (date) => (date ? moment(date).format("YYYY-MM-DD") : "-"),
+      render: (date) => (date ? moment(date).format("DD-MM-YYYY") : "-"),
     },
     {
       title: "Customer",
@@ -369,7 +359,7 @@ const Quotations = () => {
                       ),
                     ]}
                   >
-                    <DatePicker className="w-100" />
+                    <DatePicker className="w-100" format={"DD-MM-YYYY"} />
                   </Form.Item>
                 </div>
 
