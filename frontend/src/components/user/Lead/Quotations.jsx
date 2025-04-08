@@ -209,7 +209,7 @@ const Quotations = () => {
       title: "Quotation Date",
       dataIndex: "quotationdate",
       key: "quotationdate",
-      render: (date) => (date ? moment(date).format("YYYY-MM-DD") : "-"),
+      render: (date) => (date ? moment(date).format("DD-MM-YYYY") : "-"),
     },
     {
       title: "Customer",
@@ -273,7 +273,7 @@ const Quotations = () => {
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
-                <Link to="/">Dashboard</Link>
+                <Link to="">Dashboard</Link>
               </li>
               <li className="breadcrumb-item active">Quotations</li>
             </ol>

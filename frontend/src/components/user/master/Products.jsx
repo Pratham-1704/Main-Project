@@ -169,7 +169,7 @@ const Products = () => {
           <h1>Products</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item"><Link to="/">Dashboard</Link></li>
+              <li className="breadcrumb-item"><Link to="">Dashboard</Link></li>
               <li className="breadcrumb-item active">Products</li>
             </ol>
           </nav>
