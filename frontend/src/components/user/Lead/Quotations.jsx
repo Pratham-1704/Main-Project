@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, Input, message, Table, Select, DatePicker, Form, Popconfirm, } from "antd";
+import {
+  Button,
+  Input,
+  message,
+  Table,
+  Select,
+  DatePicker,
+  Form,
+  Popconfirm,
+} from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import moment from "moment";
@@ -13,7 +22,7 @@ const Quotations = () => {
   const [sources, setSources] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [editingId, setEditingId] = useState(null);
-  const [qtnoPreview, setQtnoPreview] = useState(""); // For showing the next quotation number
+  const [quotationNoPreview, setQuotationNoPreview] = useState(""); // For showing the next quotation number
   const [messageApi, contextHolder] = message.useMessage();
   const [initialValues, setInitialValues] = useState(null);
 
@@ -32,7 +41,7 @@ const Quotations = () => {
 
   // Fetch data on component mount
   useEffect(() => {
-    fetchData();
+    fetchQuotations();
     fetchCustomers();
     fetchSources();
     fetchAdmins();
@@ -40,13 +49,12 @@ const Quotations = () => {
   }, []);
 
   // Fetch quotations data
-  const fetchData = async () => {
+  const fetchQuotations = async () => {
     try {
       const res = await axios.get("http://localhost:8081/quotation");
       setData(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
-      console.error("Error fetching quotations:", error);
-      setData([]);
+      messageApi.error("Failed to fetch quotations.");
     }
   };
 
@@ -56,7 +64,7 @@ const Quotations = () => {
       const res = await axios.get("http://localhost:8081/customer");
       setCustomers(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
-      console.error("Error fetching customers:", error);
+      messageApi.error("Failed to fetch customers.");
     }
   };
 
@@ -66,7 +74,7 @@ const Quotations = () => {
       const res = await axios.get("http://localhost:8081/source");
       setSources(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
-      console.error("Error fetching sources:", error);
+      messageApi.error("Failed to fetch sources.");
     }
   };
 
@@ -76,14 +84,14 @@ const Quotations = () => {
       const res = await axios.get("http://localhost:8081/admin");
       setAdmins(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
-      console.error("Error fetching admins:", error);
+      messageApi.error("Failed to fetch admins.");
     }
   };
 
   // Generate the next quotation number
   const generateNextQuotationNo = async () => {
     const today = new Date();
-    const datePart = today.toLocaleDateString("en-GB").replace(/\//g, ""); // DD-MM-YYYY
+    const datePart = today.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
     const prefix = `QT${datePart}`;
 
     try {
@@ -105,13 +113,12 @@ const Quotations = () => {
       const nextNumber = String(maxNumber + 1).padStart(3, "0");
       const nextQuotationNo = `${prefix}-${nextNumber}`;
 
-      setQtnoPreview(nextQuotationNo); // Update the preview
+      setQuotationNoPreview(nextQuotationNo); // Update the preview
       return nextQuotationNo;
     } catch (error) {
-      console.error("Error generating quotation number:", error);
       messageApi.error("Failed to generate quotation number.");
       const fallbackQuotationNo = `${prefix}-001`;
-      setQtnoPreview(fallbackQuotationNo); // Fallback preview
+      setQuotationNoPreview(fallbackQuotationNo); // Fallback preview
       return fallbackQuotationNo;
     }
   };
@@ -122,36 +129,39 @@ const Quotations = () => {
       const values = await form.validateFields();
 
       // Convert date fields to ISO string
-      if (values.quotationdate) {
-        values.quotationdate = values.quotationdate.toISOString();
-      }
+      const payload = {
+        ...values,
+        quotationdate: values.quotationdate?.toISOString(),
+      };
 
       if (editingId) {
-        const isChanged = Object.keys(values).some(
-          (key) =>
-            values[key]?.toString().trim() !==
-            initialValues?.[key]?.toString().trim()
-        );
+        // Compare current form values with initial values
+        const isChanged = Object.keys(payload).some((key) => {
+          const currentValue = payload[key]?.toString().trim() || "";
+          const initialValue = initialValues?.[key]?.toISOString
+            ? initialValues[key].toISOString()
+            : initialValues?.[key]?.toString().trim() || "";
+          return currentValue !== initialValue;
+        });
 
         if (!isChanged) {
           messageApi.info("No changes made. Update not required.");
           return;
         }
 
-        await axios.put(
-          `http://localhost:8081/quotation/${editingId}`,
-          values
-        );
+        // Proceed with the update if changes are detected
+        await axios.put(`http://localhost:8081/quotation/${editingId}`, payload);
         messageApi.success("Quotation updated successfully!");
         setEditingId(null);
         setInitialValues(null);
       } else {
-        values.quotationno = await generateNextQuotationNo();
-        await axios.post("http://localhost:8081/quotation", values);
+        // Generate quotation number for new quotations
+        payload.quotationno = await generateNextQuotationNo();
+        await axios.post("http://localhost:8081/quotation", payload);
         messageApi.success("Quotation added successfully!");
       }
 
-      fetchData();
+      fetchQuotations();
       form.resetFields();
       generateNextQuotationNo(); // Generate the next quotation number for the next entry
     } catch (error) {
@@ -166,13 +176,11 @@ const Quotations = () => {
   const handleEdit = (record) => {
     const formattedRecord = {
       ...record,
-      quotationdate: record.quotationdate
-        ? moment(record.quotationdate)
-        : null,
+      quotationdate: record.quotationdate ? moment(record.quotationdate) : null,
     };
     form.setFieldsValue(formattedRecord);
     setEditingId(record._id);
-    setInitialValues(formattedRecord);
+    setInitialValues(formattedRecord); // Set initial values for comparison
   };
 
   // Handle delete action
@@ -180,7 +188,7 @@ const Quotations = () => {
     try {
       await axios.delete(`http://localhost:8081/quotation/${id}`);
       messageApi.success("Quotation deleted successfully!");
-      fetchData();
+      fetchQuotations();
     } catch (error) {
       console.error("Error deleting quotation:", error);
       messageApi.error("Failed to delete quotation!");
@@ -201,17 +209,25 @@ const Quotations = () => {
       title: "Quotation Date",
       dataIndex: "quotationdate",
       key: "quotationdate",
-      render: (date) => (date ? moment(date).format("DD-MM-YYYY") : "-"),
+      render: (date) => (date ? moment(date).format("YYYY-MM-DD") : "-"),
     },
     {
       title: "Customer",
-      dataIndex: ["customerid", "name"],
+      dataIndex: "customerid",
       key: "customerid",
+      render: (id) => customers.find((c) => c._id === id)?.name || "Unknown",
     },
     {
       title: "Source",
-      dataIndex: ["sourceid", "name"],
+      dataIndex: "sourceid",
       key: "sourceid",
+      render: (id) => sources.find((s) => s._id === id)?.name || "Unknown",
+    },
+    {
+      title: "Admin",
+      dataIndex: "adminid",
+      key: "adminid",
+      render: (id) => admins.find((a) => a._id === id)?.name || "Unknown",
     },
     { title: "Total Weight", dataIndex: "totalweight", key: "totalweight" },
     { title: "Subtotal", dataIndex: "subtotal", key: "subtotal" },
@@ -273,7 +289,7 @@ const Quotations = () => {
                       value={
                         editingId
                           ? form.getFieldValue("quotationno")
-                          : qtnoPreview
+                          : quotationNoPreview
                       }
                       disabled
                     />
@@ -359,7 +375,7 @@ const Quotations = () => {
                       ),
                     ]}
                   >
-                    <DatePicker className="w-100" format={"DD-MM-YYYY"} />
+                    <DatePicker className="w-100" />
                   </Form.Item>
                 </div>
 

@@ -118,18 +118,20 @@ const Leads = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+
+      // Convert date fields to ISO format
       const payload = {
         ...values,
-        leaddate: values.leaddate.format("DD-MM-YYYY"),
-        createdon: values.createdon.format("DD-MM-YYYY"),
+        leaddate: values.leaddate?.toISOString(), // Convert to ISO format
+        createdon: values.createdon?.toISOString(), // Convert to ISO format
       };
 
       if (editingId) {
         const isChanged = Object.keys(payload).some(
           (key) =>
             payload[key] !==
-            (initialValues?.[key]?.format
-              ? initialValues[key].format("DD-MM-YYYY")
+            (initialValues?.[key]?.toISOString
+              ? initialValues[key].toISOString()
               : initialValues?.[key])
         );
         if (!isChanged) {
