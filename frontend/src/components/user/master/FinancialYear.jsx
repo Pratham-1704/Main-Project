@@ -181,7 +181,7 @@ const FinancialYears = () => {
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
-                <Link to="/">Dashboard</Link>
+                <Link to="">Dashboard</Link>
               </li>
               <li className="breadcrumb-item active">Financial Years</li>
             </ol>

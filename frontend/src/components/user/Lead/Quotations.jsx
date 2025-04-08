@@ -273,7 +273,7 @@ const Quotations = () => {
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
-                <Link to="/">Dashboard</Link>
+                <Link to="">Dashboard</Link>
               </li>
               <li className="breadcrumb-item active">Quotations</li>
             </ol>

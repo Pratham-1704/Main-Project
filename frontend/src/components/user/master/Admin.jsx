@@ -173,7 +173,7 @@ const getTimedValidator = (field, message, extraCheck = null) => ({
           <h1>Admins</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item"><Link to="/">Dashboard</Link></li>
+              <li className="breadcrumb-item"><Link to="">Dashboard</Link></li>
               <li className="breadcrumb-item active">Admin</li>
             </ol>
           </nav>

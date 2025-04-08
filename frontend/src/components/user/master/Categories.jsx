@@ -137,7 +137,7 @@ const Categories = () => {
           <h1>Categories</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item"><Link to="/">Dashboard</Link></li>
+              <li className="breadcrumb-item"><Link to="">Dashboard</Link></li>
               <li className="breadcrumb-item active">Categories</li>
             </ol>
           </nav>

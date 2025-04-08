@@ -164,7 +164,7 @@ const Customers = () => {
           <h1>Customers</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item"><Link to="/">Dashboard</Link></li>
+              <li className="breadcrumb-item"><Link to="">Dashboard</Link></li>
               <li className="breadcrumb-item active">Customers</li>
             </ol>
           </nav>
