@@ -1,84 +1,139 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, Input, message, Table, Select, DatePicker, Popconfirm, Form } from "antd";
+import {
+  Button,
+  Input,
+  message,
+  Table,
+  Select,
+  DatePicker,
+  Form,
+  Popconfirm,
+} from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import moment from "moment";
-import "../master/Css Files/style.css";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
-
-function Orders() {
+const Orders = () => {
   const [form] = Form.useForm();
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [quotations, setQuotations] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [ordernoPreview, setOrdernoPreview] = useState(""); // For showing the next order number
   const [messageApi, contextHolder] = message.useMessage();
 
-
+  // Fetch data on component mount
   useEffect(() => {
     fetchOrders();
     fetchCustomers();
     fetchQuotations();
     fetchAdmins();
-    clearForm();
+    generateNextOrderNo(); // Generate the next order number on load
   }, []);
 
-  const clearForm = () => {
-    form.resetFields();
-    setEditingId(null);
-  };
-
+  // Fetch orders data
   const fetchOrders = async () => {
     try {
-      const response = await axios.get("http://localhost:8081/order");
-      setOrders(response.data.status === "success" ? response.data.data : []);
+      const res = await axios.get("http://localhost:8081/order");
+      setOrders(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
       console.error("Error fetching orders:", error);
       setOrders([]);
     }
   };
 
+  // Fetch customers data
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get("http://localhost:8081/customer");
-      setCustomers(response.data.status === "success" ? response.data.data : []);
+      const res = await axios.get("http://localhost:8081/customer");
+      setCustomers(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
       console.error("Error fetching customers:", error);
     }
   };
 
+  // Fetch quotations data
   const fetchQuotations = async () => {
     try {
-      const response = await axios.get("http://localhost:8081/quotation");
-      setQuotations(response.data.status === "success" ? response.data.data : []);
+      const res = await axios.get("http://localhost:8081/quotation");
+      setQuotations(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
       console.error("Error fetching quotations:", error);
     }
   };
 
+  // Fetch admins data
   const fetchAdmins = async () => {
     try {
-      const response = await axios.get("http://localhost:8081/admin");
-      setAdmins(response.data.status === "success" ? response.data.data : []);
+      const res = await axios.get("http://localhost:8081/admin");
+      setAdmins(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
       console.error("Error fetching admins:", error);
     }
   };
 
+  // Generate the next order number
+  const generateNextOrderNo = async () => {
+    const today = new Date();
+    const datePart = today.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
+    const prefix = `OD${datePart}`;
+
+    try {
+      const res = await axios.get("http://localhost:8081/order");
+      const orders = res.data.status === "success" ? res.data.data : [];
+
+      // Filter today's orders
+      const todayOrders = orders.filter((order) =>
+        order.orderno.startsWith(prefix)
+      );
+
+      // Extract numbers and find the highest
+      const maxNumber = todayOrders.reduce((max, order) => {
+        const numPart = parseInt(order.orderno.split("-")[1], 10);
+        return numPart > max ? numPart : max;
+      }, 0);
+
+      // Generate next number, padded to 3 digits
+      const nextNumber = String(maxNumber + 1).padStart(3, "0");
+      const nextOrderNo = `${prefix}-${nextNumber}`;
+
+      setOrdernoPreview(nextOrderNo); // Update the preview
+      return nextOrderNo;
+    } catch (error) {
+      console.error("Error generating order number:", error);
+      messageApi.error("Failed to generate order number.");
+      const fallbackOrderNo = `${prefix}-001`;
+      setOrdernoPreview(fallbackOrderNo); // Fallback preview
+      return fallbackOrderNo;
+    }
+  };
+
+  // Handle form submission
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+
+      // Convert date fields to ISO string
+      if (values.orderdate) {
+        values.orderdate = values.orderdate.toISOString();
+      }
+
       if (editingId) {
         await axios.put(`http://localhost:8081/order/${editingId}`, values);
         messageApi.success("Order updated successfully!");
+        setEditingId(null);
       } else {
+        // Generate order number for new orders
+        values.orderno = await generateNextOrderNo();
         await axios.post("http://localhost:8081/order", values);
         messageApi.success("Order saved successfully!");
       }
+
       fetchOrders();
-      clearForm();
+      form.resetFields();
+      generateNextOrderNo(); // Generate the next order number for the next entry
     } catch (error) {
       const errorMsg = error.response?.data?.message || "Failed to save order!";
       console.error("Error saving order:", error);
@@ -86,6 +141,7 @@ function Orders() {
     }
   };
 
+  // Handle edit action
   const handleEdit = (record) => {
     form.setFieldsValue({
       ...record,
@@ -94,17 +150,27 @@ function Orders() {
     setEditingId(record._id);
   };
 
+  // Handle delete action
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:8081/order/${id}`);
       messageApi.success("Order deleted successfully!");
       fetchOrders();
+      generateNextOrderNo(); // Update order number preview after deletion
     } catch (error) {
       messageApi.error("Failed to delete order!");
       console.error("Error deleting order:", error);
     }
   };
 
+  // Clear form fields
+  const clearForm = () => {
+    form.resetFields();
+    setEditingId(null);
+    generateNextOrderNo(); // Reset order number preview
+  };
+
+  // Table columns
   const columns = [
     { title: "Order No", dataIndex: "orderno", key: "orderno", align: "center" },
     {
@@ -138,7 +204,7 @@ function Orders() {
       title: "Quotation No",
       dataIndex: "quotationid",
       key: "quotationid",
-      align: "Center",
+      align: "center",
       render: (quotationid) => {
         const quotation = quotations.find((q) => q._id === quotationid);
         return quotation ? quotation.quotationno : "N/A";
@@ -161,7 +227,7 @@ function Orders() {
             className="action-button edit-button"
           />
           <Popconfirm
-            title="Are you sure you want to delete this admin?"
+            title="Are you sure you want to delete this order?"
             onConfirm={() => handleDelete(record._id)}
             okText="Yes"
             cancelText="No"
@@ -187,7 +253,7 @@ function Orders() {
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
-                <Link to={"/"}>Dashboard</Link>
+                <Link to="/">Dashboard</Link>
               </li>
               <li className="breadcrumb-item active">Orders</li>
             </ol>
@@ -197,6 +263,11 @@ function Orders() {
           <div className="card p-3">
             <Form form={form} layout="vertical">
               <div className="row">
+                <div className="col-lg-6 p-1">
+                  <Form.Item label="Order No">
+                    <Input value={editingId ? form.getFieldValue("orderno") : ordernoPreview} disabled />
+                  </Form.Item>
+                </div>
                 <div className="col-lg-6 p-1">
                   <Form.Item
                     name="customerid"
@@ -227,15 +298,6 @@ function Orders() {
                         label: quotation.quotationno,
                       }))}
                     />
-                  </Form.Item>
-                </div>
-                <div className="col-lg-6 p-1">
-                  <Form.Item
-                    name="orderno"
-                    label="Order No"
-                    rules={[{ required: true, message: "Please enter the order number!" }]}
-                  >
-                    <Input placeholder="Order No" />
                   </Form.Item>
                 </div>
                 <div className="col-lg-6 p-1">
@@ -341,6 +403,6 @@ function Orders() {
       </main>
     </>
   );
-}
+};
 
 export default Orders;
