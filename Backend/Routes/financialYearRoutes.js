@@ -1,85 +1,51 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const router = express.Router();
 const FinancialYear = require("../Models/FinancialYearSchema");
 
-// Middleware to validate ObjectID
-const validateObjectId = (req, res, next) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({ status: "error", message: "Invalid ID format" });
-  }
-  next();
-};
-
-// ➤ Create a new financial year
-router.post("/", async (req, res) => {
-  try {
-    const newFinancialYear = new FinancialYear(req.body);
-    const savedFinancialYear = await newFinancialYear.save();
-    res.status(201).json({ status: "success", data: savedFinancialYear });
-  } catch (err) {
-    if (err.code === 11000) {
-      return res.status(400).json({ status: "error", message: "Financial year name must be unique" });
-    }
-    if (err.name === "ValidationError") {
-      const errors = Object.values(err.errors).map((e) => e.message);
-      return res.status(400).json({ status: "error", message: errors.join(", ") });
-    }
-    res.status(500).json({ status: "error", message: err.message });
-  }
-});
-
-// ➤ Get all financial years with pagination
+// Fetch all financial years
 router.get("/", async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
-    const financialYears = await FinancialYear.find()
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
-    const total = await FinancialYear.countDocuments();
-    res.json({ status: "success", data: financialYears, total, page: parseInt(page), limit: parseInt(limit) });
-  } catch (err) {
-    res.status(500).json({ status: "error", message: err.message });
+    const financialYears = await FinancialYear.find();
+    res.status(200).json({ status: "success", data: financialYears });
+  } catch (error) {
+    console.error("Error fetching financial years:", error);
+    res.status(500).json({ status: "error", message: "Failed to fetch financial years." });
   }
 });
 
-// ➤ Get a single financial year by ID
-router.get("/:id", validateObjectId, async (req, res) => {
+// Add a new financial year
+router.post("/", async (req, res) => {
   try {
-    const financialYear = await FinancialYear.findById(req.params.id);
-    if (!financialYear) return res.status(404).json({ status: "error", message: "Financial year not found" });
-    res.json({ status: "success", data: financialYear });
-  } catch (err) {
-    res.status(500).json({ status: "error", message: err.message });
+    const { name, startDate, endDate } = req.body;
+    const financialYear = new FinancialYear({ name, startDate, endDate });
+    await financialYear.save();
+    res.status(201).json({ status: "success", message: "Financial year added successfully!" });
+  } catch (error) {
+    console.error("Error adding financial year:", error);
+    res.status(500).json({ status: "error", message: "Failed to add financial year." });
   }
 });
 
-// ➤ Update a financial year by ID
-router.put("/:id", validateObjectId, async (req, res) => {
+// Update an existing financial year
+router.put("/:id", async (req, res) => {
   try {
-    const updatedFinancialYear = await FinancialYear.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!updatedFinancialYear) return res.status(404).json({ status: "error", message: "Financial year not found" });
-    res.json({ status: "success", data: updatedFinancialYear });
-  } catch (err) {
-    if (err.name === "ValidationError") {
-      const errors = Object.values(err.errors).map((e) => e.message);
-      return res.status(400).json({ status: "error", message: errors.join(", ") });
-    }
-    res.status(500).json({ status: "error", message: err.message });
+    const { name, startDate, endDate } = req.body;
+    const financialYear = await FinancialYear.findByIdAndUpdate(req.params.id, { name, startDate, endDate }, { new: true });
+    res.status(200).json({ status: "success", message: "Financial year updated successfully!", data: financialYear });
+  } catch (error) {
+    console.error("Error updating financial year:", error);
+    res.status(500).json({ status: "error", message: "Failed to update financial year." });
   }
 });
 
-// ➤ Delete a financial year by ID
-router.delete("/:id", validateObjectId, async (req, res) => {
+// Delete a financial year
+router.delete("/:id", async (req, res) => {
   try {
-    const deletedFinancialYear = await FinancialYear.findByIdAndDelete(req.params.id);
-    if (!deletedFinancialYear) return res.status(404).json({ status: "error", message: "Financial year not found" });
-    res.json({ status: "success", message: "Financial year deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ status: "error", message: err.message });
+    await FinancialYear.findByIdAndDelete(req.params.id);
+    res.status(200).json({ status: "success", message: "Financial year deleted successfully!" });
+  } catch (error) {
+    console.error("Error deleting financial year:", error);
+    res.status(500).json({ status: "error", message: "Failed to delete financial year." });
   }
 });
 
