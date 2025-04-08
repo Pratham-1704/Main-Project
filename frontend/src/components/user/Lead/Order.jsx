@@ -115,14 +115,11 @@ const Orders = () => {
     try {
       const values = await form.validateFields();
 
-<<<<<<< HEAD
-=======
       // Convert date fields to ISO string
       if (values.orderdate) {
         values.orderdate = values.orderdate.toISOString();
       }
 
->>>>>>> 9baae0623f75025d07b656f7e648f459c2b96167
       if (editingId) {
         // Find the original record being edited
         const originalRecord = orders.find((order) => order._id === editingId);
@@ -147,24 +144,15 @@ const Orders = () => {
         messageApi.success("Order updated successfully!");
         setEditingId(null);
       } else {
-<<<<<<< HEAD
-        // Create a new order
-=======
         // Generate order number for new orders
         values.orderno = await generateNextOrderNo();
->>>>>>> 9baae0623f75025d07b656f7e648f459c2b96167
         await axios.post("http://localhost:8081/order", values);
         messageApi.success("Order saved successfully!");
       }
 
-<<<<<<< HEAD
-      fetchOrders(); // Refresh the table
-      clearForm();
-=======
       fetchOrders();
       form.resetFields();
       generateNextOrderNo(); // Generate the next order number for the next entry
->>>>>>> 9baae0623f75025d07b656f7e648f459c2b96167
     } catch (error) {
       const errorMsg = error.response?.data?.message || "Failed to save order!";
       console.error("Error saving order:", error);
