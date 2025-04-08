@@ -209,7 +209,7 @@ const Quotations = () => {
       title: "Quotation Date",
       dataIndex: "quotationdate",
       key: "quotationdate",
-      render: (date) => (date ? moment(date).format("YYYY-MM-DD") : "-"),
+      render: (date) => (date ? moment(date).format("DD-MM-YYYY") : "-"),
     },
     {
       title: "Customer",
@@ -375,7 +375,7 @@ const Quotations = () => {
                       ),
                     ]}
                   >
-                    <DatePicker className="w-100" />
+                    <DatePicker className="w-100" format={"DD-MM-YYYY"} />
                   </Form.Item>
                 </div>
 
