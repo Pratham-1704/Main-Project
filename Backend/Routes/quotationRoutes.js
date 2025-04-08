@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
 // ➤ Get all quotations
 router.get("/", async (req, res) => {
     try {
-        const quotations = await Quotation.find().populate("sourceid","name").populate("customerid","name");
+        const quotations = await Quotation.find();
         res.json({ status: "success", data: quotations });
     } catch (err) {
         res.status(500).json({ status: "error", message: err.message });
