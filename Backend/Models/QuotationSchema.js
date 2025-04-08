@@ -62,7 +62,7 @@ const QuotationSchema = new mongoose.Schema({
     },
     quotationtype: { 
         type: String, 
-        enum: ["retail", "wholesale"], 
+        // enum: ["retail", "wholesale"], 
         required: [true, "Quotation Type is required"] 
     }
 }, { timestamps: true });
