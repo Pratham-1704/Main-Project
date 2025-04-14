@@ -143,7 +143,7 @@ const Leads = () => {
 
       console.log("Lead Details Payload:", leadDetailsPayload);
 
-      // Save the `leaddetails` data ab
+      // Save the `leaddetails` data
       await axios.post("http://localhost:8081/leaddetail", leadDetailsPayload);
 
       messageApi.success("Leads saved successfully!");
@@ -253,7 +253,7 @@ const Leads = () => {
   return (
     <>
       {contextHolder}
-      <main className="main">
+      <main id="main" className="main">
         <div className="pagetitle">
           <h1>Leads</h1>
           <nav>
