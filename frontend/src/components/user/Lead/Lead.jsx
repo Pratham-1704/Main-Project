@@ -98,15 +98,10 @@ const Leads = () => {
       const values = await form.validateFields();
       const leadno = await generateNextLeadNo();
 
-      // Retrieve admin ID and name from localStorage
-      //const adminId = localStorage.getItem("adminId");
-      const adminName = localStorage.getItem("name");
-
       const payload = rows.map((row) => ({
         leadno,
         customerid: values.customerid,
-        //adminid: adminId, // Add admin ID
-        adminname: adminName, // Add admin name
+        adminid: values.adminid,
         leaddate: values.leaddate?.toISOString(),
         createdon: values.createdon?.toISOString(),
         categoryid: row.category,
@@ -223,7 +218,7 @@ const Leads = () => {
   return (
     <>
       {contextHolder}
-      <main id="main" className="main">
+      <main className="main">
         <div className="pagetitle">
           <h1>Leads</h1>
           <nav>
@@ -236,7 +231,7 @@ const Leads = () => {
           </nav>
         </div>
 
-        <section className="section" >
+        <section className="section" style={{ paddingLeft: '20rem', paddingRight: '1rem' }}>
           <div className="card p-3">
             <Form form={form} layout="vertical">
               <div className="row">
