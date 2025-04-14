@@ -68,11 +68,11 @@ router.delete("/:id", async (req, res) => {
 });
 
 // ➤ Admin login
-// ➤ Simple Admin login (no password hash)
 router.post("/login", async (req, res) => {
     try {
         const { username, password } = req.body;
 
+        // Find admin by username and password
         const admin = await Admin.findOne({ username, password });
 
         if (!admin) {
@@ -83,12 +83,19 @@ router.post("/login", async (req, res) => {
             return res.status(403).json({ status: "error", message: "Admin account is inactive" });
         }
 
-        res.json({ status: "success", message: "Login successful", data: admin });
+        // Return admin details including the `adminid`
+        res.json({
+            status: "success",
+            message: "Login successful",
+            data: {
+                adminid: admin._id, // Include the MongoDB `_id` as `adminid`
+                name: admin.name,
+                role: admin.role,
+            },
+        });
     } catch (err) {
         res.status(500).json({ status: "error", message: "Server error" });
     }
 });
-
-
 
 module.exports = router;
