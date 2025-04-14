@@ -566,13 +566,27 @@ const Leads = () => {
         {/* Hidden Printable Area */}
         {selectedLead && (
           <div id="printable-area">
-            <h2>Lead Details</h2>
-            <p><strong>Lead No:</strong> {selectedLead.leadno}</p>
-            <p><strong>Lead Date:</strong> {dayjs(selectedLead.leaddate).format("DD-MM-YYYY")}</p>
-            <p><strong>Customer:</strong> {selectedLead.customerName}</p>
-            <p><strong>Source:</strong> {selectedLead.sourceName}</p>
-            <p><strong>Admin:</strong> {selectedLead.adminName}</p> {/* Display admin name here */}
+            {/* Header Section */}
+            <div style={{ textAlign: "center", marginBottom: "20px" }}>
+              <h1 style={{ margin: 0, fontSize: "24px", color: "#333" }}>Company Name</h1>
+              <p style={{ margin: 0, fontSize: "14px", color: "#555" }}>
+                Address Line 1, Address Line 2, City, State, ZIP
+              </p>
+              <p style={{ margin: 0, fontSize: "14px", color: "#555" }}>Phone: (123) 456-7890 | Email: info@company.com</p>
+              <hr style={{ margin: "20px 0", border: "1px solid #ddd" }} />
+            </div>
 
+            {/* Lead Details Section */}
+            <div>
+              <h2 style={{ textAlign: "center", marginBottom: "20px", color: "#333" }}>Lead Details</h2>
+              <p><strong>Lead No:</strong> {selectedLead.leadno}</p>
+              <p><strong>Lead Date:</strong> {dayjs(selectedLead.leaddate).format("DD-MM-YYYY")}</p>
+              <p><strong>Customer:</strong> {selectedLead.customerName}</p>
+              <p><strong>Source:</strong> {selectedLead.sourceName}</p>
+              <p><strong>Admin:</strong> {selectedLead.adminName}</p>
+            </div>
+
+            {/* Items Table Section */}
             {selectedLead.items && selectedLead.items.length > 0 ? (
               <table
                 border="1"
@@ -582,10 +596,11 @@ const Leads = () => {
                   borderCollapse: "collapse",
                   marginTop: "20px",
                   textAlign: "left",
+                  fontSize: "14px",
                 }}
               >
                 <thead>
-                  <tr>
+                  <tr style={{ backgroundColor: "#f5f5f5", color: "#333" }}>
                     <th>Category</th>
                     <th>Product</th>
                     <th>Estimation Unit</th>
@@ -608,6 +623,13 @@ const Leads = () => {
             ) : (
               <p>No items available for this lead.</p>
             )}
+
+            {/* Footer Section */}
+            <div style={{ marginTop: "40px", textAlign: "center", color: "#555", fontSize: "12px" }}>
+              <hr style={{ margin: "20px 0", border: "1px solid #ddd" }} />
+              <p>Thank you for choosing our services!</p>
+              <p>Company Name | www.iGAP.com</p>
+            </div>
           </div>
         )}
       </main>
@@ -625,6 +647,13 @@ const Leads = () => {
               left: 0;
               top: 0;
               width: 100%;
+            }
+            table {
+              page-break-inside: auto;
+            }
+            tr {
+              page-break-inside: avoid;
+              page-break-after: auto;
             }
           }
         `}
