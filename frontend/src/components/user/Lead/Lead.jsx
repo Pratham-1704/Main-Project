@@ -98,10 +98,15 @@ const Leads = () => {
       const values = await form.validateFields();
       const leadno = await generateNextLeadNo();
 
+      // Retrieve admin ID and name from localStorage
+      //const adminId = localStorage.getItem("adminId");
+      const adminName = localStorage.getItem("name");
+
       const payload = rows.map((row) => ({
         leadno,
         customerid: values.customerid,
-        adminid: values.adminid,
+        //adminid: adminId, // Add admin ID
+        adminname: adminName, // Add admin name
         leaddate: values.leaddate?.toISOString(),
         createdon: values.createdon?.toISOString(),
         categoryid: row.category,
