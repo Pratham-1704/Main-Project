@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import {
   Form,
@@ -17,7 +17,10 @@ import {
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { Link } from "react-router-dom";
-
+import { useReactToPrint } from "react-to-print";
+import PrintableLeadDetails from "./PrintableLeadDetails";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const Leads = () => {
   const [form] = Form.useForm();
@@ -29,7 +32,9 @@ const Leads = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [leadnoPreview, setLeadnoPreview] = useState("");
   const [leadRecords, setLeadRecords] = useState([]);
-  const [showItemsTable, setShowItemsTable] = useState(false); // <-- NEW
+  const [showItemsTable, setShowItemsTable] = useState(false);
+  const printRef = useRef(); // Ref for the printable component
+  const [selectedLead, setSelectedLead] = useState(null); // State to store the selected lead for printing
 
   useEffect(() => {
     fetchInitials();
@@ -265,6 +270,90 @@ const Leads = () => {
     setShowItemsTable(true); // show table on edit
   };
 
+  const handlePrint = useReactToPrint({
+    content: () => {
+      console.log("printRef:", printRef.current); // Debugging
+      if (!printRef.current) {
+        messageApi.error("There is nothing to print");
+        return null;
+      }
+      return printRef.current;
+    },
+  });
+
+  const handlePrintByLeadId = async (leadid) => {
+    try {
+      const res = await axios.get(`http://localhost:8081/lead/${leadid}`);
+      const lead = res.data.data;
+
+      if (!lead) {
+        messageApi.error("Failed to fetch lead details for printing");
+        return;
+      }
+
+      // Map categoryName and productName for each item
+      const updatedItems = lead.items.map((item) => ({
+        ...item,
+        categoryName: categories.find((cat) => cat._id === item.categoryid)?.name || "N/A",
+        productName: products.find((prod) => prod._id === item.productid)?.name || "N/A",
+      }));
+
+      setSelectedLead({
+        ...lead,
+        items: updatedItems,
+      });
+
+      handlePrint();
+    } catch (err) {
+      console.error("Error fetching lead details:", err);
+      messageApi.error("Failed to fetch lead details for printing");
+    }
+  };
+
+  const handleExportToPDF = async (lead) => {
+    if (!lead) {
+      messageApi.error("No lead details available to export.");
+      return;
+    }
+
+    try {
+      // Map categoryName and productName for each item
+      const updatedItems = lead.items.map((item) => ({
+        ...item,
+        categoryName: categories.find((cat) => cat._id === item.categoryid)?.name || "N/A",
+        productName: products.find((prod) => prod._id === item.productid)?.name || "N/A",
+      }));
+
+      setSelectedLead({
+        ...lead,
+        items: updatedItems,
+      });
+
+      // Delay to ensure rendering before exporting
+      setTimeout(() => {
+        const element = document.getElementById("printable-area");
+        if (!element) {
+          messageApi.error("Printable area not found.");
+          return;
+        }
+
+        html2canvas(element, { scale: 2, useCORS: true }).then((canvas) => {
+          const imgData = canvas.toDataURL("image/png");
+          const pdf = new jsPDF("p", "mm", "a4");
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+          pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+          pdf.save(`Lead-${lead.leadno}.pdf`);
+          messageApi.success("PDF exported successfully!");
+        });
+      }, 500);
+    } catch (err) {
+      console.error("Error exporting PDF:", err);
+      messageApi.error("Failed to export PDF.");
+    }
+  };
+
   const leadColumns = [
     {
       title: "Lead No",
@@ -292,22 +381,81 @@ const Leads = () => {
     {
       title: "Action",
       key: "action",
+      align: "center",
       render: (_, record) => (
-        <>
-          <Button icon={<EditOutlined />} onClick={() => handleUpdate(record)} style={{ marginRight: 8 }}>
-            Update
-          </Button>
+        <div style={{ display: "flex", justifyContent: "center", gap: "8px" }}>
+          <Button
+            icon={<EditOutlined />}
+            size="small"
+            type="primary"
+            onClick={() => handleUpdate(record)}
+          />
           <Popconfirm
             title="Are you sure you want to delete this lead?"
             onConfirm={() => handleDelete(record._id)}
             okText="Yes"
             cancelText="No"
           >
-            <Button danger icon={<DeleteOutlined />}>
-              Delete
-            </Button>
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              size="small"
+            />
           </Popconfirm>
-        </>
+          <Button
+            icon={<PlusCircleOutlined />}
+            size="small"
+            onClick={async () => {
+              try {
+                // Fetch the lead details by ID
+                const res = await axios.get(`http://localhost:8081/lead/${record._id}`);
+                const lead = res.data.data;
+          
+                if (!lead) {
+                  messageApi.error("Failed to fetch lead details for printing");
+                  return;
+                }
+          
+                // Map categoryName and productName for each item
+                const updatedItems = lead.items.map((item) => ({
+                  ...item,
+                  categoryName: categories.find((cat) => cat._id === item.categoryid)?.name || "N/A",
+                  productName: products.find((prod) => prod._id === item.productid)?.name || "N/A",
+                }));
+          
+                // Fetch admin name from local storage
+                const adminName = localStorage.getItem("adminname") || "N/A";
+          
+                // Set the selected lead with all details
+                setSelectedLead({
+                  ...lead,
+                  items: updatedItems,
+                  customerName: customers.find((c) => c._id === lead.customerid)?.name || "N/A",
+                  sourceName: source.find((s) => s._id === lead.sourceid)?.name || "N/A",
+                  adminName, // Add admin name here
+                });
+          
+                // Delay to ensure the DOM updates before printing
+                setTimeout(() => window.print(), 0);
+              } catch (err) {
+                console.error("Error fetching lead details:", err);
+                messageApi.error("Failed to fetch lead details for printing");
+              }
+            }}
+          >
+            Print
+          </Button>
+          {/* <Button
+            icon={<PlusCircleOutlined />}
+            size="small"
+            onClick={() => {
+              setSelectedLead(record); // Set the selected lead
+              setTimeout(() => handleExportToPDF(record), 0); // Delay to ensure rendering
+            }}
+          >
+            Export to PDF
+          </Button> */}
+        </div>
       ),
     },
   ];
@@ -400,7 +548,83 @@ const Leads = () => {
             <Table dataSource={leadRecords} columns={leadColumns} rowKey="_id" pagination={false} />
           </div>
         </section>
+
+        {/* Hidden Printable Component */}
+        {selectedLead && (
+          <div style={{ display: "none" }}>
+            <PrintableLeadDetails
+              ref={printRef}
+              lead={selectedLead}
+            />
+          </div>
+        )}
+
+        {/* Hidden Printable Area */}
+        {selectedLead && (
+          <div id="printable-area">
+            <h2>Lead Details</h2>
+            <p><strong>Lead No:</strong> {selectedLead.leadno}</p>
+            <p><strong>Lead Date:</strong> {dayjs(selectedLead.leaddate).format("DD-MM-YYYY")}</p>
+            <p><strong>Customer:</strong> {selectedLead.customerName}</p>
+            <p><strong>Source:</strong> {selectedLead.sourceName}</p>
+            <p><strong>Admin:</strong> {selectedLead.adminName}</p> {/* Display admin name here */}
+
+            {selectedLead.items && selectedLead.items.length > 0 ? (
+              <table
+                border="1"
+                cellPadding="10"
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  marginTop: "20px",
+                  textAlign: "left",
+                }}
+              >
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Product</th>
+                    <th>Estimation Unit</th>
+                    <th>Quantity</th>
+                    <th>Narration</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedLead.items.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.categoryName || "N/A"}</td>
+                      <td>{item.productName || "N/A"}</td>
+                      <td>{item.estimationin || "N/A"}</td>
+                      <td>{item.quantity || "0"}</td>
+                      <td>{item.narration || "N/A"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p>No items available for this lead.</p>
+            )}
+          </div>
+        )}
       </main>
+      <style>
+        {`
+          @media print {
+            body * {
+              visibility: hidden;
+            }
+            #printable-area, #printable-area * {
+              visibility: visible;
+            }
+            #printable-area {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+            }
+          }
+        `}
+      </style>
     </>
   );
 };
