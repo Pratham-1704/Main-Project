@@ -19,8 +19,7 @@ import dayjs from "dayjs";
 import { Link } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import PrintableLeadDetails from "./PrintableLeadDetails";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+
 
 const Leads = () => {
   const [form] = Form.useForm();
