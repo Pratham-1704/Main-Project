@@ -223,7 +223,7 @@ const Leads = () => {
   return (
     <>
       {contextHolder}
-      <main className="main">
+      <main id="main" className="main">
         <div className="pagetitle">
           <h1>Leads</h1>
           <nav>
@@ -236,7 +236,7 @@ const Leads = () => {
           </nav>
         </div>
 
-        <section className="section" style={{ paddingLeft: '20rem', paddingRight: '1rem' }}>
+        <section className="section" >
           <div className="card p-3">
             <Form form={form} layout="vertical">
               <div className="row">
