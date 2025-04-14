@@ -143,7 +143,7 @@ const Leads = () => {
 
       console.log("Lead Details Payload:", leadDetailsPayload);
 
-      // Save the `leaddetails` data
+      // Save the `leaddetails` data ab
       await axios.post("http://localhost:8081/leaddetail", leadDetailsPayload);
 
       messageApi.success("Leads saved successfully!");
