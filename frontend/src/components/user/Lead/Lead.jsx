@@ -270,17 +270,17 @@ const Leads = () => {
           <div className="card p-3">
             <Form form={form} layout="vertical">
               <div className="row">
-                <div className="col-md-6">
+                <div className="col-md-3">
                   <Form.Item name="leaddate" label="Lead Date" rules={[{ required: true }]}>
                     <DatePicker className="w-100" format="DD-MM-YYYY" />
                   </Form.Item>
                 </div>
-                <div className="col-md-6">
+                <div className="col-md-2">
                   <Form.Item label="Lead No">
                     <Input value={leadnoPreview} disabled />
                   </Form.Item>
                 </div>
-                <div className="col-md-6">
+                <div className="col-md-4">
                   <Form.Item name="customerid" label="Customer" rules={[{ required: true }]}>
                     <Select
                       placeholder="Select Customer"
@@ -288,7 +288,7 @@ const Leads = () => {
                     />
                   </Form.Item>
                 </div>
-                <div className="col-md-6">
+                <div className="col-md-3">
                   <Form.Item name="sourceid" label="Source" rules={[{ required: true }]}>
                     <Select
                       placeholder="Select Source"
