@@ -266,11 +266,7 @@ const Leads = () => {
           </nav>
         </div>
 
-<<<<<<< HEAD
-        <section className="section" style={{ paddingLeft: '20rem', paddingRight: '1rem' }}>
-=======
         <section className="section">
->>>>>>> 6edc33b3270e931f9235460801993ec6711377d8
           <div className="card p-3">
             <Form form={form} layout="vertical">
               <div className="row">
