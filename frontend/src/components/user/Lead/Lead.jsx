@@ -211,7 +211,7 @@ const Leads = () => {
     {
       title: "Narration",
       dataIndex: "narration",
-    
+
       render: (_, record) => (
         <Input
           value={record.narration}
@@ -346,10 +346,10 @@ const Leads = () => {
   //         const pdfWidth = pdf.internal.pageSize.getWidth();
   //         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-        //   pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-        //   pdf.save(`Lead-${lead.leadno}.pdf`);
-        //   messageApi.success("PDF exported successfully!");
-        // });
+  //   pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+  //   pdf.save(`Lead-${lead.leadno}.pdf`);
+  //   messageApi.success("PDF exported successfully!");
+  // });
   //     }, 500);
   //   } catch (err) {
   //     console.error("Error exporting PDF:", err);
@@ -413,22 +413,22 @@ const Leads = () => {
                 // Fetch the lead details by ID
                 const res = await axios.get(`http://localhost:8081/lead/${record._id}`);
                 const lead = res.data.data;
-          
+
                 if (!lead) {
                   messageApi.error("Failed to fetch lead details for printing");
                   return;
                 }
-          
+
                 // Map categoryName and productName for each item
                 const updatedItems = lead.items.map((item) => ({
                   ...item,
                   categoryName: categories.find((cat) => cat._id === item.categoryid)?.name || "N/A",
                   productName: products.find((prod) => prod._id === item.productid)?.name || "N/A",
                 }));
-          
+
                 // Fetch admin name from local storage
                 const adminName = localStorage.getItem("adminname") || "N/A";
-          
+
                 // Set the selected lead with all details
                 setSelectedLead({
                   ...lead,
@@ -437,7 +437,7 @@ const Leads = () => {
                   sourceName: source.find((s) => s._id === lead.sourceid)?.name || "N/A",
                   adminName, // Add admin name here
                 });
-          
+
                 // Delay to ensure the DOM updates before printing
                 setTimeout(() => window.print(), 0);
               } catch (err) {
