@@ -144,6 +144,7 @@ const Leads = () => {
           style={{ width: 150 }}
           value={record.category}
           onChange={(val) => handleRowChange(record.key, "category", val)}
+          placeholder="Select Category"
           options={categories.map((cat) => ({ label: cat.name, value: cat._id }))}
         />
       ),
@@ -161,6 +162,7 @@ const Leads = () => {
             value={record.product}
             onChange={(val) => handleRowChange(record.key, "product", val)}
             options={filteredProducts.map((p) => ({ label: p.name, value: p._id }))}
+            placeholder="Select Product"
             disabled={!record.category}
           />
         );
@@ -180,6 +182,7 @@ const Leads = () => {
             { label: "METER", value: "meter" },
             { label: "NOS", value: "nos" },
           ]}
+          placeholder="Select Unit"
         />
       ),
     },
@@ -201,6 +204,7 @@ const Leads = () => {
     {
       title: "Narration",
       dataIndex: "narration",
+    
       render: (_, record) => (
         <Input
           value={record.narration}
@@ -280,7 +284,7 @@ const Leads = () => {
 
             </div>
             <Table dataSource={rows} columns={columns} rowKey="key" pagination={false} />
-            <div style={{ marginLeft: "905px", boxSizing: "border-box" }}>
+            <div style={{ marginLeft: "1025px", boxSizing: "border-box" }}>
               <Button
               type="dashed"
                 icon={<PlusCircleOutlined />}
