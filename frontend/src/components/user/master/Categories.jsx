@@ -42,9 +42,17 @@ const Categories = () => {
     try {
       const values = await form.validateFields();
 
+      // Assign the next serial number if not editing
+      if (!editingId) {
+        values.srno = data.length + 1; // Auto-increment srno
+        form.setFieldsValue({ srno: values.srno });
+      }
+
       if (editingId) {
         const isChanged = Object.keys(values).some(
-          (key) => values[key]?.toString().trim() !== initialValues?.[key]?.toString().trim()
+          (key) =>
+            values[key]?.toString().trim() !==
+            initialValues?.[key]?.toString().trim()
         );
 
         if (!isChanged) {
