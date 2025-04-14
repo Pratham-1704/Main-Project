@@ -202,7 +202,14 @@ const Leads = () => {
     {
       title: "Action",
       render: (_, record) => (
-        <Button danger icon={<DeleteOutlined />} onClick={() => removeRow(record.key)} />
+        <Popconfirm
+          title="Are you sure you want to delete this row?"
+          onConfirm={() => removeRow(record.key)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button danger icon={<DeleteOutlined />} />
+        </Popconfirm>
       ),
     },
   ];
@@ -223,7 +230,7 @@ const Leads = () => {
           </nav>
         </div>
 
-        <section className="section"  style={{ paddingLeft: '20rem', paddingRight: '1rem' }}>
+        <section className="section" style={{ paddingLeft: '20rem', paddingRight: '1rem' }}>
           <div className="card p-3">
             <Form form={form} layout="vertical">
               <div className="row">
@@ -234,7 +241,7 @@ const Leads = () => {
                 </div>
 
                 <div className="col-md-6">
-                  <Form.Item name="customerid" label="Customer" rules={[{ required: true }]}> 
+                  <Form.Item name="customerid" label="Customer" rules={[{ required: true }]}>
                     <Select
                       placeholder="Select Customer"
                       options={customers.map((c) => ({ label: c.name, value: c._id }))}
@@ -243,7 +250,7 @@ const Leads = () => {
                 </div>
 
                 <div className="col-md-6">
-                  <Form.Item name="sourceid" label="Source" rules={[{ required: true }]}> 
+                  <Form.Item name="sourceid" label="Source" rules={[{ required: true }]}>
                     <Select
                       placeholder="Select Source"
                       options={sources.map((s) => ({ label: s.name, value: s._id }))}
@@ -252,7 +259,7 @@ const Leads = () => {
                 </div>
 
                 <div className="col-md-6">
-                  <Form.Item name="adminid" label="Admin" rules={[{ required: true }]}> 
+                  <Form.Item name="adminid" label="Admin" rules={[{ required: true }]}>
                     <Select
                       placeholder="Select Admin"
                       options={admins.map((a) => ({ label: a.name, value: a._id }))}
@@ -261,7 +268,7 @@ const Leads = () => {
                 </div>
 
                 <div className="col-md-6">
-                  <Form.Item name="leaddate" label="Lead Date" rules={[{ required: true }]}> 
+                  <Form.Item name="leaddate" label="Lead Date" rules={[{ required: true }]}>
                     <DatePicker className="w-100" format="DD-MM-YYYY" />
                   </Form.Item>
                 </div>
