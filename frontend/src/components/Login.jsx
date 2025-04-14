@@ -11,32 +11,28 @@ function Login() {
 
   const login = async (e) => {
     e.preventDefault();
-  
+
     try {
-      const res = await axios.post("http://localhost:8081/admin/login", {
-        username,
-        password,
-      });
-  
-      if (res.data.status === "success") {
-       
-        localStorage.setItem("role", res.data.data.role); // assuming response includes a `role`
-       
-        localStorage.setItem("name", res.data.data.name); // assuming response includes a `name`
-        
-        // localStorage.setItem("username", res.data.data.username);
-        // localStorage.setItem("mobileno", res.data.data.mobileno);
-        // localStorage.setItem("status", res.data.data.status);
-       
-        navigate("/dashboard");
-      } else {
-        setError("Invalid credentials");
-      }
+        const res = await axios.post("http://localhost:8081/admin/login", {
+            username,
+            password,
+        });
+
+        if (res.data.status === "success") {
+            // Store admin details in localStorage
+            localStorage.setItem("adminid", res.data.data.adminid); // Store admin ID
+            localStorage.setItem("name", res.data.data.name); // Store admin name
+            localStorage.setItem("role", res.data.data.role); // Store admin role
+
+            // Navigate to the dashboard
+            navigate("/dashboard");
+        } else {
+            setError("Invalid credentials");
+        }
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+        setError(err.response?.data?.message || "Login failed");
     }
-  };
-  
+};
 
   return (
     <main>

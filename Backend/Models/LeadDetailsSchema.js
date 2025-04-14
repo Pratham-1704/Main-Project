@@ -1,35 +1,15 @@
 const mongoose = require("mongoose");
 
 const LeadDetailsSchema = new mongoose.Schema({
-    leadon: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "lead", 
-        required: true 
-    },
-    categoryid: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "category", 
-        required: true 
-    },
-    productid: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "product", 
-        required: true 
-    },
-    estimationin: { 
-        type: String, 
-        required: true, 
-        trim: true 
-    },
-    quantity: { 
-        type: Number, 
-        required: true, 
-        min: [1, "Quantity must be at least 1"]
-    },
-    narration: { 
-        type: String, 
-        trim: true 
-    }
-}, { timestamps: true });
+  leadid: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    required: true, 
+    ref: "lead" },
+  categoryid: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "category" },
+  productid: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "product" },
+  estimationin: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  narration: { type: String },
+});
 
-module.exports = mongoose.model("leadDetails", LeadDetailsSchema);
+module.exports = mongoose.model("leaddetail", LeadDetailsSchema);
