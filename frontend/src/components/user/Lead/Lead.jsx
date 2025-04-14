@@ -273,16 +273,16 @@ const Leads = () => {
     setShowItemsTable(true); // show table on edit
   };
 
-  const handlePrint = useReactToPrint({
-    content: () => {
-      console.log("printRef:", printRef.current); // Debugging
-      if (!printRef.current) {
-        messageApi.error("There is nothing to print");
-        return null;
-      }
-      return printRef.current;
-    },
-  });
+  // const handlePrint = useReactToPrint({
+  //   content: () => {
+  //     console.log("printRef:", printRef.current); // Debugging
+  //     if (!printRef.current) {
+  //       messageApi.error("There is nothing to print");
+  //       return null;
+  //     }
+  //     return printRef.current;
+  //   },
+  // });
 
   // const handlePrintByLeadId = async (leadid) => {
   //   try {
@@ -552,7 +552,7 @@ const Leads = () => {
           </div>
         </section>
 
-        {/* Hidden Printable Component */}
+        {/* Hidden Printable Component
         {selectedLead && (
           <div style={{ display: "none" }}>
             <PrintableLeadDetails
@@ -560,11 +560,11 @@ const Leads = () => {
               lead={selectedLead}
             />
           </div>
-        )}
+        )} */}
 
         {/* Hidden Printable Area */}
         {selectedLead && (
-          <div id="printable-area">
+          <div id="printable-area" style={{ visibility: "hidden", position: "absolute" }}>
             {/* Header Section */}
             <div style={{ textAlign: "center", marginBottom: "20px" }}>
               <h1 style={{ margin: 0, fontSize: "24px", color: "#333" }}>Company Name</h1>
