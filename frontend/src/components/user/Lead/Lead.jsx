@@ -100,51 +100,25 @@ const Leads = () => {
 
       // Prepare the payload for the `lead` table
       const leadPayload = {
-        sourceid: values.sourceid,
-        customerid: values.customerid,
         leadno,
         leaddate: values.leaddate?.toISOString(),
         createdon: values.createdon?.toISOString(),
+        sourceid: values.sourceid,
+        customerid: values.customerid,
         adminid: adminId,
+        items: rows.map((row) => ({
+          categoryid: row.category,
+          productid: row.product,
+          estimationin: row.in,
+          quantity: row.quantity,
+          narration: row.narration || "", // Default value for optional field
+        })),
       };
 
       console.log("Lead Payload:", leadPayload);
 
       // Save the `lead` data
-      const leadResponse = await axios.post("http://localhost:8081/lead", leadPayload);
-
-      // Get the `leadid` from the response
-      const leadId = leadResponse.data.data._id;
-
-      // Prepare the payload for the `leaddetails` table
-      const leadDetailsPayload = rows.map((row) => ({
-        leadid: leadId, // Associate with the lead ID
-        categoryid: row.category,
-        productid: row.product,
-        estimationin: row.in,
-        quantity: row.quantity,
-        narration: row.narration || "", // Default value for optional field
-      }));
-
-      // Validate the payload
-      const isValid = leadDetailsPayload.every(
-        (detail) =>
-          detail.categoryid &&
-          detail.productid &&
-          detail.estimationin &&
-          detail.quantity !== null &&
-          detail.quantity !== undefined
-      );
-
-      if (!isValid) {
-        messageApi.error("Please fill in all required fields in the lead details.");
-        return;
-      }
-
-      console.log("Lead Details Payload:", leadDetailsPayload);
-
-      // Save the `leaddetails` data
-      await axios.post("http://localhost:8081/leaddetail", leadDetailsPayload);
+      await axios.post("http://localhost:8081/lead", leadPayload);
 
       messageApi.success("Leads saved successfully!");
       setRows([{ key: 0, category: null, product: null, in: null, quantity: '', narration: '' }]);
@@ -302,13 +276,24 @@ const Leads = () => {
 
           <div className="card p-3 mt-3">
             <div className="d-flex justify-content-between mb-2">
-              <h5>Lead Items</h5>
-              <Button icon={<PlusCircleOutlined />} onClick={addRow}>
+              {/* <h5>Lead Items</h5> */}
+
+            </div>
+            <Table dataSource={rows} columns={columns} rowKey="key" pagination={false} />
+            <div style={{ marginLeft: "905px", boxSizing: "border-box" }}>
+              <Button
+              type="dashed"
+                icon={<PlusCircleOutlined />}
+                onClick={addRow}
+                size="small"
+                style={{ height: '30px', fontSize: '12px', padding: '0 8px' }}
+              >
                 Add Row
               </Button>
             </div>
-            <Table dataSource={rows} columns={columns} rowKey="key" pagination={false} />
+
             <div className="mt-3 text-end">
+
               <Button type="primary" onClick={handleSubmit}>
                 Save
               </Button>

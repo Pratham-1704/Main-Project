@@ -16,23 +16,37 @@ import Lead from './components/user/Lead/Lead';
 import Quotations from './components/user/Lead/Quotations';
 import Order from './components/user/Lead/Order';
 import AdminProfile from './components/user/AdminProfile';
+import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 
 function App() {
   return (
     <>
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Login />} />
           <Route path="/forgot-password" element={<Forgotpassword />} />
-          <Route path="admin-profile" element={<AdminProfile />} />
 
-
-
-          <Route path="dashboard" element={<Landing />}>
-          <Route path="" element={<Dashboard />} />
+          {/* Protected Routes */}
+          <Route
+            path="dashboard"
+            element={
+              <ProtectedRoute>
+                <Landing />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="" element={<Dashboard />} />
           </Route>
 
-          <Route path="master" element={<Landing />}>
+          <Route
+            path="master"
+            element={
+              <ProtectedRoute>
+                <Landing />
+              </ProtectedRoute>
+            }
+          >
             <Route path="admin" element={<Admin />} />
             <Route path="categories" element={<Categories />} />
             <Route path="products" element={<Products />} />
@@ -41,20 +55,23 @@ function App() {
             <Route path="brandproduct" element={<BrandProducts />} />
             <Route path="customers" element={<Customers />} />
             <Route path="financialyear" element={<FinancialYear />} />
-            <Route path='leads' element={<Lead />} />
-            <Route path="Order" element={<Order />} />
-            <Route path="quotations" element={<Quotations />} />
             <Route path="leads" element={<Lead />} />
+            <Route path="order" element={<Order />} />
+            <Route path="quotations" element={<Quotations />} />
           </Route>
-          
-          <Route path="lead" element={<Landing />}> 
+
+          <Route
+            path="lead"
+            element={
+              <ProtectedRoute>
+                <Landing />
+              </ProtectedRoute>
+            }
+          >
             <Route path="lead" element={<Lead />} />
             <Route path="quotations" element={<Quotations />} />
             <Route path="order" element={<Order />} />
           </Route>
-
-
-
         </Routes>
       </BrowserRouter>
     </>

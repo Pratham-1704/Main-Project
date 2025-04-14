@@ -5,6 +5,9 @@ import axios from 'axios';
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  // const [mobileno, setMobileno] = useState("");
+  // const [role, setRole] = useState("");
+  // const [name, setName] = useState("");
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
@@ -23,6 +26,8 @@ function Login() {
             localStorage.setItem("adminid", res.data.data.adminid); // Store admin ID
             localStorage.setItem("name", res.data.data.name); // Store admin name
             localStorage.setItem("role", res.data.data.role); // Store admin role
+            localStorage.setItem("username", res.data.data.username); 
+            localStorage.setItem("mobileno", res.data.data.mobileno); 
 
             // Navigate to the dashboard
             navigate("/dashboard");
