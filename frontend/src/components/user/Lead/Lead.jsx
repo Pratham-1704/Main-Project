@@ -346,10 +346,10 @@ const Leads = () => {
   //         const pdfWidth = pdf.internal.pageSize.getWidth();
   //         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-  //         pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-  //         pdf.save(`Lead-${lead.leadno}.pdf`);
-  //         messageApi.success("PDF exported successfully!");
-  //       });
+        //   pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+        //   pdf.save(`Lead-${lead.leadno}.pdf`);
+        //   messageApi.success("PDF exported successfully!");
+        // });
   //     }, 500);
   //   } catch (err) {
   //     console.error("Error exporting PDF:", err);
