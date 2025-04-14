@@ -401,36 +401,7 @@ const Leads = () => {
           )}
 
           <div className="card p-3 mt-3">
-<<<<<<< HEAD
-            <div className="d-flex justify-content-between mb-2">
-              {/* <h5>Lead Items</h5> */}
-
-            </div>
-            <Table dataSource={rows} columns={columns} rowKey="key" pagination={false} />
-            <div style={{ marginLeft: "1025px", boxSizing: "border-box" }}>
-              <Button
-              type="dashed"
-                icon={<PlusCircleOutlined />}
-                onClick={addRow}
-                size="small"
-                style={{ height: '30px', fontSize: '12px', padding: '0 8px' }}
-              >
-                Add Row
-              </Button>
-            </div>
-
-            <div className="mt-3 text-end">
-
-              <Button type="primary" onClick={handleSubmit}>
-                Save
-              </Button>
-              <Button onClick={() => setRows([{ key: 0, category: null, product: null, in: null, quantity: '', narration: '' }])} className="ms-2">
-                Cancel
-              </Button>
-            </div>
-=======
             <Table dataSource={leadRecords} columns={leadColumns} rowKey="_id" pagination={false} />
->>>>>>> 64d8bc45887f5db77e2797834969b724f19c5bfa
           </div>
         </section>
       </main>
