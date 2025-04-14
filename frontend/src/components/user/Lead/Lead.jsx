@@ -285,78 +285,78 @@ const Leads = () => {
     },
   });
 
-  const handlePrintByLeadId = async (leadid) => {
-    try {
-      const res = await axios.get(`http://localhost:8081/lead/${leadid}`);
-      const lead = res.data.data;
+  // const handlePrintByLeadId = async (leadid) => {
+  //   try {
+  //     const res = await axios.get(`http://localhost:8081/lead/${leadid}`);
+  //     const lead = res.data.data;
 
-      if (!lead) {
-        messageApi.error("Failed to fetch lead details for printing");
-        return;
-      }
+  //     if (!lead) {
+  //       messageApi.error("Failed to fetch lead details for printing");
+  //       return;
+  //     }
 
-      // Map categoryName and productName for each item
-      const updatedItems = lead.items.map((item) => ({
-        ...item,
-        categoryName: categories.find((cat) => cat._id === item.categoryid)?.name || "N/A",
-        productName: products.find((prod) => prod._id === item.productid)?.name || "N/A",
-      }));
+  //     // Map categoryName and productName for each item
+  //     const updatedItems = lead.items.map((item) => ({
+  //       ...item,
+  //       categoryName: categories.find((cat) => cat._id === item.categoryid)?.name || "N/A",
+  //       productName: products.find((prod) => prod._id === item.productid)?.name || "N/A",
+  //     }));
 
-      setSelectedLead({
-        ...lead,
-        items: updatedItems,
-      });
+  //     setSelectedLead({
+  //       ...lead,
+  //       items: updatedItems,
+  //     });
 
-      handlePrint();
-    } catch (err) {
-      console.error("Error fetching lead details:", err);
-      messageApi.error("Failed to fetch lead details for printing");
-    }
-  };
+  //     handlePrint();
+  //   } catch (err) {
+  //     console.error("Error fetching lead details:", err);
+  //     messageApi.error("Failed to fetch lead details for printing");
+  //   }
+  // };
 
-  const handleExportToPDF = async (lead) => {
-    if (!lead) {
-      messageApi.error("No lead details available to export.");
-      return;
-    }
+  // const handleExportToPDF = async (lead) => {
+  //   if (!lead) {
+  //     messageApi.error("No lead details available to export.");
+  //     return;
+  //   }
 
-    try {
-      // Map categoryName and productName for each item
-      const updatedItems = lead.items.map((item) => ({
-        ...item,
-        categoryName: categories.find((cat) => cat._id === item.categoryid)?.name || "N/A",
-        productName: products.find((prod) => prod._id === item.productid)?.name || "N/A",
-      }));
+  //   try {
+  //     // Map categoryName and productName for each item
+  //     const updatedItems = lead.items.map((item) => ({
+  //       ...item,
+  //       categoryName: categories.find((cat) => cat._id === item.categoryid)?.name || "N/A",
+  //       productName: products.find((prod) => prod._id === item.productid)?.name || "N/A",
+  //     }));
 
-      setSelectedLead({
-        ...lead,
-        items: updatedItems,
-      });
+  //     setSelectedLead({
+  //       ...lead,
+  //       items: updatedItems,
+  //     });
 
-      // Delay to ensure rendering before exporting
-      setTimeout(() => {
-        const element = document.getElementById("printable-area");
-        if (!element) {
-          messageApi.error("Printable area not found.");
-          return;
-        }
+  //     // Delay to ensure rendering before exporting
+  //     setTimeout(() => {
+  //       const element = document.getElementById("printable-area");
+  //       if (!element) {
+  //         messageApi.error("Printable area not found.");
+  //         return;
+  //       }
 
-        html2canvas(element, { scale: 2, useCORS: true }).then((canvas) => {
-          const imgData = canvas.toDataURL("image/png");
-          const pdf = new jsPDF("p", "mm", "a4");
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  //       html2canvas(element, { scale: 2, useCORS: true }).then((canvas) => {
+  //         const imgData = canvas.toDataURL("image/png");
+  //         const pdf = new jsPDF("p", "mm", "a4");
+  //         const pdfWidth = pdf.internal.pageSize.getWidth();
+  //         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-          pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-          pdf.save(`Lead-${lead.leadno}.pdf`);
-          messageApi.success("PDF exported successfully!");
-        });
-      }, 500);
-    } catch (err) {
-      console.error("Error exporting PDF:", err);
-      messageApi.error("Failed to export PDF.");
-    }
-  };
+  //         pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+  //         pdf.save(`Lead-${lead.leadno}.pdf`);
+  //         messageApi.success("PDF exported successfully!");
+  //       });
+  //     }, 500);
+  //   } catch (err) {
+  //     console.error("Error exporting PDF:", err);
+  //     messageApi.error("Failed to export PDF.");
+  //   }
+  // };
 
   const leadColumns = [
     {
