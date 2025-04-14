@@ -6,26 +6,20 @@ import {
   Select,
   Table,
   message,
-  Popconfirm,
   DatePicker,
 } from "antd";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  PlusCircleOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
 
 const Leads = () => {
   const [form] = Form.useForm();
-  const [data, setData] = useState([]);
   const [customers, setCustomers] = useState([]);
-  const [sources, setSources] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
+  const [source, setSources] = useState([]);
   const [rows, setRows] = useState([{ key: 0, category: null, product: null, in: null, quantity: '', narration: '' }]);
   const [messageApi, contextHolder] = message.useMessage();
   const [leadnoPreview, setLeadnoPreview] = useState("");
@@ -36,20 +30,19 @@ const Leads = () => {
 
   const fetchInitials = async () => {
     try {
-      const [cust, src, adm, cat, prod, inData] = await Promise.all([
+      const [cust, adm, cat, prod, src] = await Promise.all([
         axios.get("http://localhost:8081/customer"),
-        axios.get("http://localhost:8081/source"),
         axios.get("http://localhost:8081/admin"),
         axios.get("http://localhost:8081/category"),
         axios.get("http://localhost:8081/product"),
-        axios.get("http://localhost:8081/in")
+        axios.get("http://localhost:8081/source"),
       ]);
 
       setCustomers(cust.data.data || []);
-      setSources(src.data.data || []);
       setAdmins(adm.data.data || []);
       setCategories(cat.data.data || []);
       setProducts(prod.data.data || []);
+      setSources(src.data.data || []);
 
       generateNextLeadNo();
       form.setFieldsValue({ createdon: dayjs() });
@@ -107,7 +100,6 @@ const Leads = () => {
       const payload = rows.map((row) => ({
         leadno,
         customerid: values.customerid,
-        sourceid: values.sourceid,
         adminid: values.adminid,
         leaddate: values.leaddate?.toISOString(),
         createdon: values.createdon?.toISOString(),
@@ -172,7 +164,12 @@ const Leads = () => {
           style={{ width: 120 }}
           value={record.in}
           onChange={(val) => handleRowChange(record.key, "in", val)}
-          options={sources.map((s) => ({ label: s.name, value: s._id }))}
+          options={[
+            { label: "KG", value: "kg" },
+            { label: "FEET", value: "feet" },
+            { label: "METER", value: "meter" },
+            { label: "NOS", value: "nos" },
+          ]}
         />
       ),
     },
@@ -184,7 +181,10 @@ const Leads = () => {
           value={record.quantity}
           type="number"
           style={{ width: 100 }}
-          onChange={(e) => handleRowChange(record.key, "quantity", e.target.value)}
+          onChange={(e) => {
+            const value = parseInt(e.target.value, 10);
+            handleRowChange(record.key, "quantity", value >= 0 ? value : 0); // Ensure quantity is non-negative
+          }}
         />
       ),
     },
@@ -223,48 +223,53 @@ const Leads = () => {
           </nav>
         </div>
 
-        <section className="section"  style={{ paddingLeft: '20rem', paddingRight: '1rem' }}>
+        <section className="section" style={{ paddingLeft: '20rem', paddingRight: '1rem' }}>
           <div className="card p-3">
             <Form form={form} layout="vertical">
               <div className="row">
+
+              <div className="col-md-6">
+                  <Form.Item name="leaddate" label="Lead Date" rules={[{ required: true }]}>
+                    <DatePicker className="w-100" format="DD-MM-YYYY" />
+                  </Form.Item>
+                </div>
                 <div className="col-md-6">
                   <Form.Item label="Lead No">
                     <Input value={leadnoPreview} disabled />
                   </Form.Item>
                 </div>
-
-                <div className="col-md-6">
-                  <Form.Item name="customerid" label="Customer" rules={[{ required: true }]}> 
+              <div className="col-md-6">
+                  <Form.Item name="customerid" label="Customer" rules={[{ required: true }]}>
                     <Select
                       placeholder="Select Customer"
                       options={customers.map((c) => ({ label: c.name, value: c._id }))}
                     />
                   </Form.Item>
                 </div>
-
                 <div className="col-md-6">
-                  <Form.Item name="sourceid" label="Source" rules={[{ required: true }]}> 
+                  <Form.Item name="sourceid" label="Source" rules={[{ required: true }]}>
                     <Select
                       placeholder="Select Source"
-                      options={sources.map((s) => ({ label: s.name, value: s._id }))}
+                      options={source.map((s) => ({ label: s.name, value: s._id }))}
                     />
                   </Form.Item>
                 </div>
+                
+                
 
-                <div className="col-md-6">
-                  <Form.Item name="adminid" label="Admin" rules={[{ required: true }]}> 
+              
+
+                {/* <div className="col-md-6">
+                  <Form.Item name="adminid" label="Admin" rules={[{ required: true }]}>
                     <Select
                       placeholder="Select Admin"
                       options={admins.map((a) => ({ label: a.name, value: a._id }))}
                     />
                   </Form.Item>
-                </div>
+                </div> */}
 
-                <div className="col-md-6">
-                  <Form.Item name="leaddate" label="Lead Date" rules={[{ required: true }]}> 
-                    <DatePicker className="w-100" format="DD-MM-YYYY" />
-                  </Form.Item>
-                </div>
+               
+
               </div>
             </Form>
           </div>
