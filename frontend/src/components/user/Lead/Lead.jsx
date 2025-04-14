@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
-  Button,
   Form,
   Input,
   Select,
-  Table,
-  message,
+  Button,
   DatePicker,
+  Table,
   Popconfirm,
+  message,
 } from "antd";
-import { Link } from "react-router-dom";
-import axios from "axios";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusCircleOutlined,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
-import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
+
 
 const Leads = () => {
   const [form] = Form.useForm();
@@ -23,9 +28,12 @@ const Leads = () => {
   const [rows, setRows] = useState([{ key: 0, category: null, product: null, in: null, quantity: '', narration: '' }]);
   const [messageApi, contextHolder] = message.useMessage();
   const [leadnoPreview, setLeadnoPreview] = useState("");
+  const [leadRecords, setLeadRecords] = useState([]);
+  const [showItemsTable, setShowItemsTable] = useState(false); // <-- NEW
 
   useEffect(() => {
     fetchInitials();
+    fetchLeadRecords();
   }, []);
 
   const fetchInitials = async () => {
@@ -41,7 +49,6 @@ const Leads = () => {
       setCategories(cat.data.data || []);
       setProducts(prod.data.data || []);
       setSources(src.data.data || []);
-
       generateNextLeadNo();
       form.setFieldsValue({ createdon: dayjs() });
     } catch (err) {
@@ -94,11 +101,8 @@ const Leads = () => {
     try {
       const values = await form.validateFields();
       const leadno = await generateNextLeadNo();
-
-      // Retrieve admin ID from localStorage
       const adminId = localStorage.getItem("adminid");
 
-      // Prepare the payload for the `lead` table
       const leadPayload = {
         leadno,
         leaddate: values.leaddate?.toISOString(),
@@ -111,13 +115,10 @@ const Leads = () => {
           productid: row.product,
           estimationin: row.in,
           quantity: row.quantity,
-          narration: row.narration || "", // Default value for optional field
+          narration: row.narration || "",
         })),
       };
 
-      console.log("Lead Payload:", leadPayload);
-
-      // Save the `lead` data
       await axios.post("http://localhost:8081/lead", leadPayload);
 
       messageApi.success("Leads saved successfully!");
@@ -125,6 +126,8 @@ const Leads = () => {
       form.resetFields();
       form.setFieldsValue({ createdon: dayjs() });
       generateNextLeadNo();
+      setShowItemsTable(false);
+      fetchLeadRecords();
     } catch (err) {
       console.error("Error saving leads:", err.response?.data || err.message);
       messageApi.error("Failed to save leads.");
@@ -193,7 +196,7 @@ const Leads = () => {
           style={{ width: 100 }}
           onChange={(e) => {
             const value = parseInt(e.target.value, 10);
-            handleRowChange(record.key, "quantity", value >= 0 ? value : 0); // Ensure quantity is non-negative
+            handleRowChange(record.key, "quantity", value >= 0 ? value : 0);
           }}
         />
       ),
@@ -224,6 +227,91 @@ const Leads = () => {
     },
   ];
 
+  const fetchLeadRecords = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/lead");
+      setLeadRecords(res.data.data || []);
+    } catch (err) {
+      messageApi.error("Failed to fetch lead records");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8081/lead/${id}`);
+      messageApi.success("Lead deleted successfully");
+      fetchLeadRecords();
+    } catch (err) {
+      messageApi.error("Failed to delete lead");
+    }
+  };
+
+  const handleUpdate = (record) => {
+    form.setFieldsValue({
+      leaddate: dayjs(record.leaddate),
+      customerid: record.customerid,
+      sourceid: record.sourceid,
+    });
+    setLeadnoPreview(record.leadno);
+    const updatedRows = record.items.map((item, index) => ({
+      key: index,
+      category: item.categoryid,
+      product: item.productid,
+      in: item.estimationin,
+      quantity: item.quantity,
+      narration: item.narration || "",
+    }));
+    setRows(updatedRows);
+    setShowItemsTable(true); // show table on edit
+  };
+
+  const leadColumns = [
+    {
+      title: "Lead No",
+      dataIndex: "leadno",
+      key: "leadno",
+    },
+    {
+      title: "Lead Date",
+      dataIndex: "leaddate",
+      key: "leaddate",
+      render: (text) => dayjs(text).format("DD-MM-YYYY"),
+    },
+    {
+      title: "Customer",
+      dataIndex: "customerid",
+      key: "customerid",
+      render: (text) => customers.find((c) => c._id === text)?.name || "N/A",
+    },
+    {
+      title: "Source",
+      dataIndex: "sourceid",
+      key: "sourceid",
+      render: (text) => source.find((s) => s._id === text)?.name || "N/A",
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <>
+          <Button icon={<EditOutlined />} onClick={() => handleUpdate(record)} style={{ marginRight: 8 }}>
+            Update
+          </Button>
+          <Popconfirm
+            title="Are you sure you want to delete this lead?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button danger icon={<DeleteOutlined />}>
+              Delete
+            </Button>
+          </Popconfirm>
+        </>
+      ),
+    },
+  ];
+
   return (
     <>
       {contextHolder}
@@ -232,9 +320,7 @@ const Leads = () => {
           <h1>Leads</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="">Dashboard</Link>
-              </li>
+              <li className="breadcrumb-item"><Link to="">Dashboard</Link></li>
               <li className="breadcrumb-item active">Leads</li>
             </ol>
           </nav>
@@ -271,36 +357,47 @@ const Leads = () => {
                   </Form.Item>
                 </div>
               </div>
+
+              <div className="text-end">
+                <Button type="primary" onClick={() => setShowItemsTable(true)}>
+                  Add New
+                </Button>
+              </div>
             </Form>
           </div>
 
+          {showItemsTable && (
+            <div className="card p-3 mt-3">
+              <Table dataSource={rows} columns={columns} rowKey="key" pagination={false} />
+              <div className="text-end mt-2">
+                <Button
+                  type="dashed"
+                  icon={<PlusCircleOutlined />}
+                  onClick={addRow}
+                  size="small"
+                >
+                  Add Row
+                </Button>
+              </div>
+              <div className="mt-3 text-end">
+                <Button type="primary" onClick={handleSubmit}>
+                  Save
+                </Button>
+                <Button
+                  className="ms-2"
+                  onClick={() => {
+                    setShowItemsTable(false);
+                    setRows([{ key: 0, category: null, product: null, in: null, quantity: '', narration: '' }]);
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+
           <div className="card p-3 mt-3">
-            <div className="d-flex justify-content-between mb-2">
-              {/* <h5>Lead Items</h5> */}
-
-            </div>
-            <Table dataSource={rows} columns={columns} rowKey="key" pagination={false} />
-            <div style={{ marginLeft: "905px", boxSizing: "border-box" }}>
-              <Button
-              type="dashed"
-                icon={<PlusCircleOutlined />}
-                onClick={addRow}
-                size="small"
-                style={{ height: '30px', fontSize: '12px', padding: '0 8px' }}
-              >
-                Add Row
-              </Button>
-            </div>
-
-            <div className="mt-3 text-end">
-
-              <Button type="primary" onClick={handleSubmit}>
-                Save
-              </Button>
-              <Button onClick={() => setRows([{ key: 0, category: null, product: null, in: null, quantity: '', narration: '' }])} className="ms-2">
-                Cancel
-              </Button>
-            </div>
+            <Table dataSource={leadRecords} columns={leadColumns} rowKey="_id" pagination={false} />
           </div>
         </section>
       </main>
