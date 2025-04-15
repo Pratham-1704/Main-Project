@@ -169,7 +169,17 @@ const Leads = () => {
         })),
       };
 
+      // Check if there are any changes
       if (isEditMode) {
+        const originalPayload = location.state?.record;
+        const isUnchanged =
+          JSON.stringify(leadPayload) === JSON.stringify(originalPayload);
+
+        if (isUnchanged) {
+          message.info("No changes made.");
+          return;
+        }
+
         // Update existing lead
         await axios.put(`http://localhost:8081/lead/${location.state?.record?._id}`, leadPayload);
         message.success("Lead updated successfully!");
@@ -191,6 +201,10 @@ const Leads = () => {
       console.error("Error saving/updating lead:", err);
       message.error("Failed to save/update lead.");
     }
+  };
+
+  const handleCancel = () => {
+    navigate("/lead/lead-record"); // Redirect to LeadRecord page
   };
 
   const columns = [
@@ -370,20 +384,30 @@ const Leads = () => {
               pagination={false}
             />
             <div className="text-end mt-0">
-              
               <Button
                 type="default"
                 icon={<PlusCircleOutlined />}
                 onClick={addRow}
                 size="small"
               >
+                Add Row
               </Button>
               <br />
-              <Button type="primary" 
-              style={{ marginTop: "8px" }}
-              onClick={handleSaveOrUpdate}>
-                  {isEditMode ? "Update" : "Save"}
-                </Button>
+              <Button
+                type="primary"
+                style={{ marginTop: "8px", marginRight: "8px" }}
+                onClick={handleSaveOrUpdate}
+              >
+                {isEditMode ? "Update" : "Save"}
+              </Button>
+              <Button
+                type="default"
+                danger
+                style={{ marginTop: "8px" }}
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
             </div>
           </div>
         </section>
