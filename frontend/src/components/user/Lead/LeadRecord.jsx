@@ -208,7 +208,7 @@ const LeadRecord = () => {
             type="primary"
             onClick={() => handleUpdate(record)} // Call handleUpdate
           >
-            Update
+            
           </Button>
           <Popconfirm
             title="Are you sure you want to delete this lead?"
