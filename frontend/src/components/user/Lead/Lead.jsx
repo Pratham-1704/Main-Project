@@ -357,9 +357,7 @@ const Leads = () => {
                   </Form.Item>
                 </div>
               </div>
-
               <div className="text-end">
-               
               </div>
             </Form>
           </div>
@@ -378,7 +376,6 @@ const Leads = () => {
                 icon={<PlusCircleOutlined />}
                 onClick={addRow}
                 size="small"
-               
               >
               </Button>
               <br />
