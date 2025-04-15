@@ -274,11 +274,17 @@ const Leads = () => {
       title: "Action",
       key: "action",
       render: (_, record) => (
-        <Button
-          danger
-          icon={<DeleteOutlined />}
-          onClick={() => removeRow(record.key)}
-        />
+        <Popconfirm
+          title="Are you sure you want to delete this row?"
+          onConfirm={() => removeRow(record.key)} // Call removeRow if confirmed
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button
+            danger
+            icon={<DeleteOutlined />}
+          />
+        </Popconfirm>
       ),
     },
   ];
