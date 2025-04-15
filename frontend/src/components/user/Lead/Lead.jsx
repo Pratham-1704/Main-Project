@@ -29,14 +29,7 @@ const Leads = () => {
   const [rows, setRows] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
   const [leadnoPreview, setLeadnoPreview] = useState("");
-<<<<<<< HEAD
-  const [showItemsTable, setShowItemsTable] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [fetchLeadRecords, setFetchLeadRecords] = useState(false);
-  //Popconfirm.defaultProps.okText = "Yes";
-=======
   const [isEditMode, setIsEditMode] = useState(false);
->>>>>>> 798b80da74bfc859371b4fdcf68ab9ea8f4caa39
 
   useEffect(() => {
     fetchInitials();
@@ -115,11 +108,6 @@ const Leads = () => {
       narration: item.narration || "",
     }));
     setRows(updatedRows);
-<<<<<<< HEAD
-    setEditingId(record._id); // Set the editing ID for update
-    setShowItemsTable(true);
-=======
->>>>>>> 798b80da74bfc859371b4fdcf68ab9ea8f4caa39
   };
 
   const handleRowChange = (key, field, value) => {
@@ -168,11 +156,7 @@ const Leads = () => {
       }
 
       const leadPayload = {
-<<<<<<< HEAD
-        leadno: leadnoPreview,
-=======
         adminid, // Include adminid in the payload
->>>>>>> 798b80da74bfc859371b4fdcf68ab9ea8f4caa39
         leaddate: values.leaddate?.toISOString(),
         customerid: values.customerid,
         sourceid: values.sourceid,
@@ -185,28 +169,6 @@ const Leads = () => {
         })),
       };
 
-<<<<<<< HEAD
-      if (editingId) {
-        // Update existing lead
-        await axios.put(`http://localhost:8081/lead/${editingId}`, leadPayload);
-        message.success("Lead updated successfully!"); // Success message
-        setEditingId(null); // Clear editing state
-      } else {
-        // Create new lead
-        await axios.post("http://localhost:8081/lead", leadPayload);
-        message.success("Lead created successfully!"); // Success message
-      }
-
-      // Reset form and rows
-      form.resetFields();
-      setRows([{ key: 0, category: null, product: null, in: null, quantity: "", narration: "" }]);
-      setShowItemsTable(false);
-      generateNextLeadNo();
-      fetchLeadRecords(); // Refresh lead records
-    } catch (err) {
-      console.error("Error saving lead:", err.response?.data || err.message);
-      message.error("Failed to save lead."); // Error message
-=======
       if (isEditMode) {
         // Update existing lead
         await axios.put(`http://localhost:8081/lead/${location.state?.record?._id}`, leadPayload);
@@ -228,7 +190,6 @@ const Leads = () => {
     } catch (err) {
       console.error("Error saving/updating lead:", err);
       message.error("Failed to save/update lead.");
->>>>>>> 798b80da74bfc859371b4fdcf68ab9ea8f4caa39
     }
   };
   const columns = [
@@ -397,13 +358,8 @@ const Leads = () => {
               </div>
 
               <div className="text-end">
-<<<<<<< HEAD
-                <Button type="primary" onClick={handleSubmit}>
-                  {editingId ? "Update" : "Save"}
-=======
                 <Button type="primary" onClick={handleSaveOrUpdate}>
                   {isEditMode ? "Update" : "Save"}
->>>>>>> 798b80da74bfc859371b4fdcf68ab9ea8f4caa39
                 </Button>
               </div>
             </Form>
