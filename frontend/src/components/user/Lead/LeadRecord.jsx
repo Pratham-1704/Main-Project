@@ -88,6 +88,21 @@ const LeadRecord = () => {
       title: "Lead No",
       dataIndex: "leadno",
       key: "leadno",
+      render: (text) => (
+        <Link
+          to={`/lead/leadDetails/`}
+          style={{
+            color: 'black',
+            textDecoration: 'none',
+            cursor: 'revert-layer',
+          }}
+          onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
+          onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
+        >
+          {text}
+        </Link>
+
+      ),
     },
     {
       title: "Lead Date",
@@ -118,9 +133,7 @@ const LeadRecord = () => {
             size="small"
             type="primary"
             onClick={() => handleUpdate(record)} // Call handleUpdate
-          >
-            
-          </Button>
+          />
           <Popconfirm
             title="Are you sure you want to delete this lead?"
             onConfirm={() => handleDelete(record._id)}
@@ -149,16 +162,16 @@ const LeadRecord = () => {
             </ol>
           </nav>
         </div>
-       
+
         <section className="section">
           <div className="card p-3 mt-3">
-          <Button
-            type="primary"
-            style={{ marginLeft:"900px",marginBottom:"5px",width:"100px" }}
-            onClick={() => navigate("/lead/new-lead")} // Navigate to the Lead page
-          >
-            Add New Lead
-          </Button>
+            <Button
+              type="primary"
+              style={{ marginLeft: "900px", marginBottom: "5px", width: "100px" }}
+              onClick={() => navigate("/lead/new-lead")} // Navigate to the Lead page
+            >
+              Add New Lead
+            </Button>
             <Table
               dataSource={leadRecords}
               columns={leadColumns}

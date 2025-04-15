@@ -18,6 +18,7 @@ import Order from './components/user/Lead/Order';
 import AdminProfile from './components/user/AdminProfile';
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 import LeadRecord from './components/user/Lead/LeadRecord';
+import LeadDetails from './components/user/Lead/LeadDetails';
 
 function App() {
   return (
@@ -73,6 +74,8 @@ function App() {
             <Route path="quotations" element={<Quotations />} />
             <Route path="order" element={<Order />} />
             <Route path="lead-record" element={<LeadRecord />} />
+            <Route path="/lead/leadDetails/" element={<LeadDetails />} />
+
           </Route>
         </Routes>
       </BrowserRouter>

@@ -372,12 +372,9 @@ const Leads = () => {
                 </div>
               </div>
               <div className="text-end">
-<<<<<<< HEAD
-                <Button type="primary" onClick={handleSaveOrUpdate}>
+                {/* <Button type="primary" onClick={handleSaveOrUpdate}>
                   {isEditMode ? "Update" : "Save"}
-                </Button>
-=======
->>>>>>> e7b3124ed1719b31089d2e8a5d716ea715b03876
+                </Button> */}
               </div>
             </Form>
           </div>
