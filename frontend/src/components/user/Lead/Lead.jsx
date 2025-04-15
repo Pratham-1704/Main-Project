@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
   Form,
@@ -15,10 +15,11 @@ import {
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Leads = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const [customers, setCustomers] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -27,12 +28,18 @@ const Leads = () => {
   const [rows, setRows] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
   const [leadnoPreview, setLeadnoPreview] = useState("");
-  const [showItemsTable, setShowItemsTable] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
     fetchInitials();
+
     if (location.state?.record) {
+      setIsEditMode(true);
       prefillForm(location.state.record);
+    } else {
+      setIsEditMode(false);
+      generateNextLeadNo();
+      addRow(); // Add a default row
     }
   }, [location.state]);
 
@@ -49,7 +56,6 @@ const Leads = () => {
       setCategories(cat.data.data || []);
       setProducts(prod.data.data || []);
       setSources(src.data.data || []);
-      generateNextLeadNo();
       form.setFieldsValue({ createdon: dayjs() });
     } catch (err) {
       messageApi.error("Failed to load initial data");
@@ -89,6 +95,9 @@ const Leads = () => {
       sourceid: record.sourceid,
     });
 
+    // Set the lead number for the Lead No field
+    setLeadnoPreview(record.leadno);
+
     const updatedRows = record.items.map((item, index) => ({
       key: index,
       category: item.categoryid,
@@ -98,7 +107,6 @@ const Leads = () => {
       narration: item.narration || "",
     }));
     setRows(updatedRows);
-    setShowItemsTable(true);
   };
 
   const handleRowChange = (key, field, value) => {
@@ -109,25 +117,49 @@ const Leads = () => {
   };
 
   const addRow = () => {
-    setRows((prev) => [...prev, { key: Date.now(), category: null, product: null, in: null, quantity: "", narration: "" }]);
+    setRows((prev) => [
+      ...prev,
+      {
+        key: Date.now(),
+        category: null,
+        product: null,
+        in: null,
+        quantity: "",
+        narration: "",
+      },
+    ]);
   };
 
   const removeRow = (key) => {
     setRows((prev) => prev.filter((row) => row.key !== key));
   };
 
-  const handleSave = () => {
-    message.success("Changes saved locally!");
-  };
-
-  const handleSubmit = async () => {
+  const handleSaveOrUpdate = async () => {
     try {
       const values = await form.validateFields();
+      const adminid = localStorage.getItem("adminid"); // Retrieve adminid from localStorage
+
+      // Validate rows
+      const validRows = rows.filter(
+        (row) =>
+          row.category &&
+          row.product &&
+          row.in &&
+          row.quantity &&
+          row.quantity > 0 // Ensure quantity is greater than 0
+      );
+
+      if (validRows.length === 0) {
+        message.error("Please fill in all required fields in the table.");
+        return;
+      }
+
       const leadPayload = {
+        adminid, // Include adminid in the payload
         leaddate: values.leaddate?.toISOString(),
         customerid: values.customerid,
         sourceid: values.sourceid,
-        items: rows.map((row) => ({
+        items: validRows.map((row) => ({
           categoryid: row.category,
           productid: row.product,
           estimationin: row.in,
@@ -136,11 +168,27 @@ const Leads = () => {
         })),
       };
 
-      await axios.put(`http://localhost:8081/lead/${location.state.record._id}`, leadPayload);
-      message.success("Lead updated successfully!");
+      if (isEditMode) {
+        // Update existing lead
+        await axios.put(`http://localhost:8081/lead/${location.state?.record?._id}`, leadPayload);
+        message.success("Lead updated successfully!");
+      } else {
+        // Add new lead
+        leadPayload.leadno = leadnoPreview; // Add lead number for new leads
+        await axios.post("http://localhost:8081/lead", leadPayload);
+        message.success("Lead added successfully!");
+      }
+
+      // Clear the form and rows
+      form.resetFields();
+      setRows([]);
+      setLeadnoPreview(""); // Reset lead number
+
+      // Redirect to LeadRecord page
+      navigate("/lead/lead-record");
     } catch (err) {
-      console.error("Error updating lead:", err);
-      message.error("Failed to update lead.");
+      console.error("Error saving/updating lead:", err);
+      message.error("Failed to save/update lead.");
     }
   };
 
@@ -154,7 +202,10 @@ const Leads = () => {
           placeholder="Select Category"
           value={record.category}
           onChange={(value) => handleRowChange(record.key, "category", value)}
-          options={categories.map((cat) => ({ label: cat.name, value: cat._id }))}
+          options={categories.map((cat) => ({
+            label: cat.name,
+            value: cat._id,
+          }))}
         />
       ),
     },
@@ -169,7 +220,10 @@ const Leads = () => {
           onChange={(value) => handleRowChange(record.key, "product", value)}
           options={products
             .filter((prod) => prod.categoryid === record.category)
-            .map((prod) => ({ label: prod.name, value: prod._id }))}
+            .map((prod) => ({
+              label: prod.name,
+              value: prod._id,
+            }))}
         />
       ),
     },
@@ -234,11 +288,15 @@ const Leads = () => {
       {contextHolder}
       <main id="main" className="main">
         <div className="pagetitle">
-          <h1>Leads</h1>
+          <h1>{isEditMode ? "Edit Lead" : "Add New Lead"}</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item"><Link to="">Dashboard</Link></li>
-              <li className="breadcrumb-item active">Leads</li>
+              <li className="breadcrumb-item">
+                <Link to="">Dashboard</Link>
+              </li>
+              <li className="breadcrumb-item active">
+                {isEditMode ? "Edit Lead" : "Add New Lead"}
+              </li>
             </ol>
           </nav>
         </div>
@@ -248,7 +306,11 @@ const Leads = () => {
             <Form form={form} layout="vertical">
               <div className="row">
                 <div className="col-md-3">
-                  <Form.Item name="leaddate" label="Lead Date" rules={[{ required: true }]}>
+                  <Form.Item
+                    name="leaddate"
+                    label="Lead Date"
+                    rules={[{ required: true }]}
+                  >
                     <DatePicker className="w-100" format="DD-MM-YYYY" />
                   </Form.Item>
                 </div>
@@ -258,65 +320,63 @@ const Leads = () => {
                   </Form.Item>
                 </div>
                 <div className="col-md-4">
-                  <Form.Item name="customerid" label="Customer" rules={[{ required: true }]}>
+                  <Form.Item
+                    name="customerid"
+                    label="Customer"
+                    rules={[{ required: true }]}
+                  >
                     <Select
                       placeholder="Select Customer"
-                      options={customers.map((c) => ({ label: c.name, value: c._id }))}
+                      options={customers.map((c) => ({
+                        label: c.name,
+                        value: c._id,
+                      }))}
                     />
                   </Form.Item>
                 </div>
                 <div className="col-md-3">
-                  <Form.Item name="sourceid" label="Source" rules={[{ required: true }]}>
+                  <Form.Item
+                    name="sourceid"
+                    label="Source"
+                    rules={[{ required: true }]}
+                  >
                     <Select
                       placeholder="Select Source"
-                      options={source.map((s) => ({ label: s.name, value: s._id }))}
+                      options={source.map((s) => ({
+                        label: s.name,
+                        value: s._id,
+                      }))}
                     />
                   </Form.Item>
                 </div>
               </div>
 
               <div className="text-end">
-                <Button type="primary" onClick={handleSubmit}>
-                  Update
+                <Button type="primary" onClick={handleSaveOrUpdate}>
+                  {isEditMode ? "Update" : "Save"}
                 </Button>
               </div>
             </Form>
           </div>
 
-          {showItemsTable && (
-            <div className="card p-3 mt-3">
-              <Table
-                dataSource={rows}
-                columns={columns}
-                rowKey="key"
-                pagination={false}
-              />
-              <div className="text-end mt-2">
-                <Button
-                  type="dashed"
-                  icon={<PlusCircleOutlined />}
-                  onClick={addRow}
-                  size="small"
-                >
-                  Add Row
-                </Button>
-              </div>
-              <div className="mt-3 text-end">
-                <Button type="primary" onClick={handleSave}>
-                  Save
-                </Button>
-                <Button
-                  className="ms-2"
-                  onClick={() => {
-                    setShowItemsTable(false);
-                    setRows([{ key: 0, category: null, product: null, in: null, quantity: "", narration: "" }]);
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
+          <div className="card p-3 mt-3">
+            <Table
+              dataSource={rows}
+              columns={columns}
+              rowKey="key"
+              pagination={false}
+            />
+            <div className="text-end mt-2">
+              <Button
+                type="dashed"
+                icon={<PlusCircleOutlined />}
+                onClick={addRow}
+                size="small"
+              >
+                Add Row
+              </Button>
             </div>
-          )}
+          </div>
         </section>
       </main>
     </>
