@@ -9,6 +9,7 @@ import {
   Table,
   message,
   InputNumber,
+  Popconfirm,
 } from "antd";
 import {
   DeleteOutlined,
@@ -28,6 +29,9 @@ const Leads = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [leadnoPreview, setLeadnoPreview] = useState("");
   const [showItemsTable, setShowItemsTable] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [fetchLeadRecords, setFetchLeadRecords] = useState(false);
+  //Popconfirm.defaultProps.okText = "Yes";
 
   useEffect(() => {
     fetchInitials();
@@ -98,6 +102,7 @@ const Leads = () => {
       narration: item.narration || "",
     }));
     setRows(updatedRows);
+    setEditingId(record._id); // Set the editing ID for update
     setShowItemsTable(true);
   };
 
@@ -124,6 +129,7 @@ const Leads = () => {
     try {
       const values = await form.validateFields();
       const leadPayload = {
+        leadno: leadnoPreview,
         leaddate: values.leaddate?.toISOString(),
         customerid: values.customerid,
         sourceid: values.sourceid,
@@ -136,14 +142,28 @@ const Leads = () => {
         })),
       };
 
-      await axios.put(`http://localhost:8081/lead/${location.state.record._id}`, leadPayload);
-      message.success("Lead updated successfully!");
+      if (editingId) {
+        // Update existing lead
+        await axios.put(`http://localhost:8081/lead/${editingId}`, leadPayload);
+        message.success("Lead updated successfully!"); // Success message
+        setEditingId(null); // Clear editing state
+      } else {
+        // Create new lead
+        await axios.post("http://localhost:8081/lead", leadPayload);
+        message.success("Lead created successfully!"); // Success message
+      }
+
+      // Reset form and rows
+      form.resetFields();
+      setRows([{ key: 0, category: null, product: null, in: null, quantity: "", narration: "" }]);
+      setShowItemsTable(false);
+      generateNextLeadNo();
+      fetchLeadRecords(); // Refresh lead records
     } catch (err) {
-      console.error("Error updating lead:", err);
-      message.error("Failed to update lead.");
+      console.error("Error saving lead:", err.response?.data || err.message);
+      message.error("Failed to save lead."); // Error message
     }
   };
-
   const columns = [
     {
       title: "Category",
@@ -223,7 +243,7 @@ const Leads = () => {
         <Popconfirm
           title="Are you sure you want to delete this row?"
           onConfirm={() => removeRow(record.key)} // Call removeRow if confirmed
-          okText="Yes"
+          //okText="Yes"
           cancelText="No"
         >
           <Button
@@ -283,7 +303,7 @@ const Leads = () => {
 
               <div className="text-end">
                 <Button type="primary" onClick={handleSubmit}>
-                  Update
+                  {editingId ? "Update" : "Save"}
                 </Button>
               </div>
             </Form>
