@@ -9,6 +9,7 @@ import {
   Table,
   message,
   InputNumber,
+  Popconfirm,
 } from "antd";
 import {
   DeleteOutlined,
@@ -358,9 +359,7 @@ const Leads = () => {
               </div>
 
               <div className="text-end">
-                <Button type="primary" onClick={handleSaveOrUpdate}>
-                  {isEditMode ? "Update" : "Save"}
-                </Button>
+               
               </div>
             </Form>
           </div>
@@ -372,15 +371,22 @@ const Leads = () => {
               rowKey="key"
               pagination={false}
             />
-            <div className="text-end mt-2">
+            <div className="text-end mt-0">
+              
               <Button
-                type="dashed"
+                type="default"
                 icon={<PlusCircleOutlined />}
                 onClick={addRow}
                 size="small"
+               
               >
-                Add Row
               </Button>
+              <br />
+              <Button type="primary" 
+              style={{ marginTop: "8px" }}
+              onClick={handleSaveOrUpdate}>
+                  {isEditMode ? "Update" : "Save"}
+                </Button>
             </div>
           </div>
         </section>
