@@ -74,7 +74,7 @@ function App() {
             <Route path="quotations" element={<Quotations />} />
             <Route path="order" element={<Order />} />
             <Route path="lead-record" element={<LeadRecord />} />
-            <Route path="/lead/leadDetails/" element={<LeadDetails />} />
+            <Route path="/lead/lead-details/:leadid" element={<LeadDetails />} />
 
           </Route>
         </Routes>

@@ -1,11 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  Form,
-  Input,
-  Select,
   Button,
-  DatePicker,
   Table,
   Popconfirm,
   message,
@@ -13,16 +9,12 @@ import {
 import {
   DeleteOutlined,
   EditOutlined,
-  PlusCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { Link, useNavigate } from "react-router-dom";
 
 const LeadRecord = () => {
-  const [form] = Form.useForm();
   const [customers, setCustomers] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
   const [source, setSources] = useState([]);
   const [leadRecords, setLeadRecords] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -36,16 +28,11 @@ const LeadRecord = () => {
 
   const fetchInitials = async () => {
     try {
-      const [cust, cat, prod, src] = await Promise.all([
+      const [cust, src] = await Promise.all([
         axios.get("http://localhost:8081/customer"),
-        axios.get("http://localhost:8081/category"),
-        axios.get("http://localhost:8081/product"),
         axios.get("http://localhost:8081/source"),
       ]);
-
       setCustomers(cust.data.data || []);
-      setCategories(cat.data.data || []);
-      setProducts(prod.data.data || []);
       setSources(src.data.data || []);
     } catch (err) {
       messageApi.error("Failed to load initial data");
@@ -65,7 +52,7 @@ const LeadRecord = () => {
   };
 
   const handleUpdate = (record) => {
-    navigate("/lead/new-lead", { state: { record } }); // Navigate to the Lead page with the record
+    navigate("/lead/new-lead", { state: { record } });
   };
 
   const handleDelete = async (id) => {
@@ -82,26 +69,26 @@ const LeadRecord = () => {
     {
       title: "Sr No",
       key: "srno",
-      render: (_, __, index) => index + 1, // Serial number
+      render: (_, __, index) => index + 1,
     },
     {
       title: "Lead No",
       dataIndex: "leadno",
       key: "leadno",
-      render: (text) => (
+      render: (_, record) => (
         <Link
-          to={`/lead/leadDetails/`}
+          to={`/lead/lead-details/${record._id}`}
+          onClick={() => localStorage.setItem("selectedLeadId", record._id)}
           style={{
-            color: 'black',
-            textDecoration: 'none',
-            cursor: 'revert-layer',
+            color: "black",
+            textDecoration: "none",
+            cursor: "pointer",
           }}
-          onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
-          onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
+          onMouseEnter={(e) => (e.target.style.textDecoration = "underline")}
+          onMouseLeave={(e) => (e.target.style.textDecoration = "none")}
         >
-          {text}
+          {record.leadno}
         </Link>
-
       ),
     },
     {
@@ -132,7 +119,7 @@ const LeadRecord = () => {
             icon={<EditOutlined />}
             size="small"
             type="primary"
-            onClick={() => handleUpdate(record)} // Call handleUpdate
+            onClick={() => handleUpdate(record)}
           />
           <Popconfirm
             title="Are you sure you want to delete this lead?"
@@ -167,8 +154,8 @@ const LeadRecord = () => {
           <div className="card p-3 mt-3">
             <Button
               type="primary"
-              style={{ marginLeft: "995px", marginBottom: "5px", width: "100px" }}
-              onClick={() => navigate("/lead/new-lead")} // Navigate to the Lead page
+              style={{ marginLeft: "900px", marginBottom: "5px", width: "100px" }}
+              onClick={() => navigate("/lead/new-lead")}
             >
               Add New Lead
             </Button>
