@@ -111,7 +111,7 @@ function Sidebar() {
             data-bs-parent="#sidebar-nav"
           >
             <li>
-              <Link to={"/lead/lead"}>
+              <Link to={"/lead/lead-record"}>
                 <i class="bi bi-circle"></i>
                 <span>Lead</span>
               </Link>
