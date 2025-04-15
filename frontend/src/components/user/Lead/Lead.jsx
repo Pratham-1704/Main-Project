@@ -7,19 +7,15 @@ import {
   Button,
   DatePicker,
   Table,
-  Popconfirm,
   message,
   InputNumber,
 } from "antd";
 import {
   DeleteOutlined,
-  EditOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { Link, useLocation } from "react-router-dom";
-import { useReactToPrint } from "react-to-print";
-import PrintableLeadDetails from "./PrintableLeadDetails";
 
 const Leads = () => {
   const location = useLocation();
@@ -31,39 +27,12 @@ const Leads = () => {
   const [rows, setRows] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
   const [leadnoPreview, setLeadnoPreview] = useState("");
-  const [leadRecords, setLeadRecords] = useState([]);
   const [showItemsTable, setShowItemsTable] = useState(false);
-  const printRef = useRef(); // Ref for the printable component
-  const [selectedLead, setSelectedLead] = useState(null); // State to store the selected lead for printing
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchInitials();
-    fetchLeadRecords();
-  }, []);
-
-  useEffect(() => {
     if (location.state?.record) {
-      const record = location.state.record;
-
-      // Pre-fill the form fields
-      form.setFieldsValue({
-        leaddate: dayjs(record.leaddate),
-        customerid: record.customerid,
-        sourceid: record.sourceid,
-      });
-
-      // Pre-fill the rows for the items table
-      const updatedRows = record.items.map((item, index) => ({
-        key: index,
-        category: item.categoryid,
-        product: item.productid,
-        in: item.estimationin,
-        quantity: item.quantity,
-        narration: item.narration || "",
-      }));
-      setRows(updatedRows);
-      setShowItemsTable(true); // Show the items table when editing
+      prefillForm(location.state.record);
     }
   }, [location.state]);
 
@@ -113,19 +82,42 @@ const Leads = () => {
     }
   };
 
+  const prefillForm = (record) => {
+    form.setFieldsValue({
+      leaddate: dayjs(record.leaddate),
+      customerid: record.customerid,
+      sourceid: record.sourceid,
+    });
+
+    const updatedRows = record.items.map((item, index) => ({
+      key: index,
+      category: item.categoryid,
+      product: item.productid,
+      in: item.estimationin,
+      quantity: item.quantity,
+      narration: item.narration || "",
+    }));
+    setRows(updatedRows);
+    setShowItemsTable(true);
+  };
+
   const handleRowChange = (key, field, value) => {
     const updated = rows.map((row) =>
-      row.key === key ? { ...row, [field]: value, ...(field === 'category' ? { product: null } : {}) } : row
+      row.key === key ? { ...row, [field]: value, ...(field === "category" ? { product: null } : {}) } : row
     );
     setRows(updated);
   };
 
   const addRow = () => {
-    setRows((prev) => [...prev, { key: Date.now(), category: null, product: null, in: null, quantity: '', narration: '' }]);
+    setRows((prev) => [...prev, { key: Date.now(), category: null, product: null, in: null, quantity: "", narration: "" }]);
   };
 
   const removeRow = (key) => {
     setRows((prev) => prev.filter((row) => row.key !== key));
+  };
+
+  const handleSave = () => {
+    message.success("Changes saved locally!");
   };
 
   const handleSubmit = async () => {
@@ -144,54 +136,12 @@ const Leads = () => {
         })),
       };
 
-      // Update the lead record
       await axios.put(`http://localhost:8081/lead/${location.state.record._id}`, leadPayload);
       message.success("Lead updated successfully!");
     } catch (err) {
       console.error("Error updating lead:", err);
       message.error("Failed to update lead.");
     }
-  };
-
-  const fetchLeadRecords = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get("http://localhost:8081/lead");
-      setLeadRecords(res.data.data || []);
-    } catch (err) {
-      messageApi.error("Failed to fetch lead records");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:8081/lead/${id}`);
-      messageApi.success("Lead deleted successfully");
-      fetchLeadRecords();
-    } catch (err) {
-      messageApi.error("Failed to delete lead");
-    }
-  };
-
-  const handleUpdate = (record) => {
-    form.setFieldsValue({
-      leaddate: dayjs(record.leaddate),
-      customerid: record.customerid,
-      sourceid: record.sourceid,
-    });
-    setLeadnoPreview(record.leadno);
-    const updatedRows = record.items.map((item, index) => ({
-      key: index,
-      category: item.categoryid,
-      product: item.productid,
-      in: item.estimationin,
-      quantity: item.quantity,
-      narration: item.narration || "",
-    }));
-    setRows(updatedRows);
-    setShowItemsTable(true); // show table on edit
   };
 
   const columns = [
@@ -218,8 +168,8 @@ const Leads = () => {
           value={record.product}
           onChange={(value) => handleRowChange(record.key, "product", value)}
           options={products
-            .filter((prod) => prod.categoryid === record.category) // Filter products by selected category
-            .map((prod) => ({ label: prod.name, value: prod._id }))} // Map filtered products to dropdown options
+            .filter((prod) => prod.categoryid === record.category)
+            .map((prod) => ({ label: prod.name, value: prod._id }))}
         />
       ),
     },
@@ -237,7 +187,6 @@ const Leads = () => {
             { label: "Foot", value: "Foot" },
             { label: "Nos", value: "Nos" },
             { label: "Meter", value: "Meter" },
-            
           ]}
         />
       ),
@@ -300,7 +249,7 @@ const Leads = () => {
           </nav>
         </div>
 
-        { <section className="section">
+        <section className="section">
           <div className="card p-3">
             <Form form={form} layout="vertical">
               <div className="row">
@@ -359,14 +308,14 @@ const Leads = () => {
                 </Button>
               </div>
               <div className="mt-3 text-end">
-                <Button type="primary" onClick={handleSubmit}>
+                <Button type="primary" onClick={handleSave}>
                   Save
                 </Button>
                 <Button
                   className="ms-2"
                   onClick={() => {
                     setShowItemsTable(false);
-                    setRows([{ key: 0, category: null, product: null, in: null, quantity: '', narration: '' }]);
+                    setRows([{ key: 0, category: null, product: null, in: null, quantity: "", narration: "" }]);
                   }}
                 >
                   Cancel
@@ -374,35 +323,8 @@ const Leads = () => {
               </div>
             </div>
           )}
-
-        </section> }
-
+        </section>
       </main>
-      <style>
-        {`
-          @media print {
-            body * {
-              visibility: hidden;
-            }
-            #printable-area, #printable-area * {
-              visibility: visible;
-            }
-            #printable-area {
-              position: absolute;
-              left: 0;
-              top: 0;
-              width: 100%;
-            }
-            table {
-              page-break-inside: auto;
-            }
-            tr {
-              page-break-inside: avoid;
-              page-break-after: auto;
-            }
-          }
-        `}
-      </style>
     </>
   );
 };
