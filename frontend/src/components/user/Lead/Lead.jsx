@@ -192,6 +192,7 @@ const Leads = () => {
       message.error("Failed to save/update lead.");
     }
   };
+
   const columns = [
     {
       title: "Category",
@@ -277,7 +278,7 @@ const Leads = () => {
         <Popconfirm
           title="Are you sure you want to delete this row?"
           onConfirm={() => removeRow(record.key)} // Call removeRow if confirmed
-          //okText="Yes"
+          okText="Yes"
           cancelText="No"
         >
           <Button
@@ -356,11 +357,13 @@ const Leads = () => {
                   </Form.Item>
                 </div>
               </div>
-
               <div className="text-end">
+<<<<<<< HEAD
                 <Button type="primary" onClick={handleSaveOrUpdate}>
                   {isEditMode ? "Update" : "Save"}
                 </Button>
+=======
+>>>>>>> e7b3124ed1719b31089d2e8a5d716ea715b03876
               </div>
             </Form>
           </div>
@@ -372,15 +375,21 @@ const Leads = () => {
               rowKey="key"
               pagination={false}
             />
-            <div className="text-end mt-2">
+            <div className="text-end mt-0">
+              
               <Button
-                type="dashed"
+                type="default"
                 icon={<PlusCircleOutlined />}
                 onClick={addRow}
                 size="small"
               >
-                Add Row
               </Button>
+              <br />
+              <Button type="primary" 
+              style={{ marginTop: "8px" }}
+              onClick={handleSaveOrUpdate}>
+                  {isEditMode ? "Update" : "Save"}
+                </Button>
             </div>
           </div>
         </section>
