@@ -144,7 +144,7 @@ const LeadDetails = () => {
           {contextHolder}
 
           {/* Header */}
-          <Row justify="center" align="middle" gutter={16}>
+          <Row justify="center" align="middle" style={{marginLeft:"100px"}} gutter={16}>
             <Col span={6}>
               <img
                 src="https://th.bing.com/th/id/OIP.nOL8HH_1fafIVupyd9raegAAAA?rs=1&pid=ImgDetMain"
