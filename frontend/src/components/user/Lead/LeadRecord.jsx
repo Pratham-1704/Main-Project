@@ -151,6 +151,7 @@ const LeadRecord = () => {
         </div>
 
         <section className="section">
+<<<<<<< HEAD
           <div className="card p-3 mt-3">
             <Button
               type="primary"
@@ -168,6 +169,28 @@ const LeadRecord = () => {
             />
           </div>
         </section>
+=======
+  <div className="card p-3 mt-3">
+    <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "10px" }}>
+      <Button
+        type="primary"
+        style={{ width: "150px" }}
+        onClick={() => navigate("/lead/new-lead")}
+      >
+        Add New Lead
+      </Button>
+    </div>
+    <Table
+      dataSource={leadRecords}
+      columns={leadColumns}
+      rowKey="_id"
+      pagination={false}
+      loading={loading}
+    />
+  </div>
+</section>
+
+>>>>>>> 815609752c66c98259ba6f01e44fc23129765bc9
       </main>
     </>
   );
