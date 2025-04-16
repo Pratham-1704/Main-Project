@@ -11,8 +11,8 @@ const Products = () => {
   const [categories, setCategories] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
-    const [initialValues, setInitialValues] = useState(null);
-  
+  const [initialValues, setInitialValues] = useState(null);
+  const [nextSerialNumber, setNextSerialNumber] = useState(1); // Default serial number for new entries
 
   useEffect(() => {
     fetchData();
@@ -22,7 +22,19 @@ const Products = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get("http://localhost:8081/product");
-      setData(response.data.status === "success" ? response.data.data : []);
+      const fetchedData = response.data.status === "success" ? response.data.data : [];
+
+      // Reassign serial numbers to ensure they are sequential
+      const updatedData = fetchedData.map((item, index) => ({
+        ...item,
+        srno: index + 1, // Reassign serial numbers sequentially
+      }));
+
+      setData(updatedData);
+
+      // Calculate the next serial number for new entries
+      setNextSerialNumber(updatedData.length + 1); // Increment by 1
+      form.setFieldsValue({ srno: updatedData.length + 1 }); // Set the default value in the form
     } catch (error) {
       console.error("Error fetching products:", error);
       setData([]);
@@ -39,83 +51,69 @@ const Products = () => {
     }
   };
 
-  const getTimedValidator = (field, message, extraCheck = null) => ({
-    validator: async (_, value) => {
-      if (!value || (extraCheck && !extraCheck(value))) {
-        setTimeout(() => {
-          form.setFields([{ name: field, errors: [] }]);
-        }, 3000);
-        return Promise.reject(new Error(message));
-      }
-      return Promise.resolve();
-    },
-  });
-
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-  
+
       if (editingId) {
         // Check if values are different
         const isChanged = Object.keys(values).some(
-          (key) => values[key] !== initialValues?.[key]
+          (key) =>
+            values[key]?.toString().trim() !==
+            initialValues?.[key]?.toString().trim()
         );
-  
+
         if (!isChanged) {
-          messageApi.info("No changes made.");
+          messageApi.info("No changes made. Update not required.");
           return;
         }
-  
+
         await axios.put(`http://localhost:8081/product/${editingId}`, values);
-        messageApi.success("Brand updated successfully!");
+        messageApi.success("Product updated successfully!");
         setEditingId(null);
         setInitialValues(null);
       } else {
-        await axios.post("http://localhost:8081/product", values);
-        messageApi.success("Brand added successfully!");
+        // Add the new product with the next serial number
+        const newProduct = { ...values, srno: nextSerialNumber };
+        await axios.post("http://localhost:8081/product", newProduct);
+        messageApi.success("Product added successfully!");
+        setNextSerialNumber(nextSerialNumber + 1); // Increment for the next entry
       }
-  
+
       fetchData();
       form.resetFields();
     } catch (error) {
       console.error("Error submitting form:", error);
       const errorMsg =
-        error.response?.data?.message || "All Fields are Required!";
+        error.response?.data?.message || "Please fill the values correctly!";
       messageApi.error(errorMsg);
     }
+  };
+
+  const handleEdit = (record) => {
+    form.setFieldsValue(record);
+    setEditingId(record._id);
+    setInitialValues(record);
   };
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:8081/product/${id}`);
       messageApi.success("Product deleted successfully!");
+
+      // Re-fetch data and reassign serial numbers
       fetchData();
     } catch (error) {
       console.error("Error deleting product:", error);
-      messageApi.error("Failed to delete product. Please try again!");
+      messageApi.error("Failed to delete product!");
     }
   };
-
-  // const handleEdit = (record) => {
-  //   form.setFieldsValue(record);
-  //   setEditingId(record._id);
-  // };
-
-  const handleEdit = (record) => {
-    form.setFieldsValue(record);
-    setEditingId(record._id);
-    setInitialValues(record); // Save original data
-  };
-
-  // const clearForm = () => {
-  //   form.resetFields();
-  //   setEditingId(null);
-  // };
 
   const clearForm = () => {
     form.resetFields();
     setEditingId(null);
     setInitialValues(null);
+    form.setFieldsValue({ srno: nextSerialNumber }); // Reset the serial number to the next value
   };
 
   const columns = [
@@ -178,20 +176,20 @@ const Products = () => {
           <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
             <Form form={form} layout="vertical">
               <div className="row">
-              <div className="col-lg-6 p-1">
+                <div className="col-lg-6 p-1">
                   <Form.Item
                     name="srno"
                     label="Serial No"
-                    rules={[getTimedValidator("srno", "Please enter the serial number!")]}
+                    rules={[{ required: true, message: "Please enter serial number!" }]}
                   >
-                    <Input placeholder="Serial Number" disabled={!!editingId} />
+                    <Input placeholder="Serial Number" disabled />
                   </Form.Item>
                 </div>
                 <div className="col-lg-6 p-1">
                   <Form.Item
                     name="categoryid"
                     label="Category"
-                    rules={[getTimedValidator("categoryid", "Please select a category!")]}
+                    rules={[{ required: true, message: "Please select a category!" }]}
                   >
                     <Select
                       className="w-100"
@@ -205,8 +203,8 @@ const Products = () => {
                     name="name"
                     label="Name"
                     rules={[
-                      getTimedValidator("name", "Please enter the product name!"),
-                      getTimedValidator("name", "Product name must be at least 2 characters!", (val) => val.length >= 2)
+                      { required: true, message: "Please enter the product name!" },
+                      { min: 2, message: "Product name must be at least 2 characters!" },
                     ]}
                   >
                     <Input placeholder="Product Name" />
@@ -223,12 +221,11 @@ const Products = () => {
                         </Tooltip>
                       </span>
                     }
-                    rules={[getTimedValidator("weight", "Please enter the product weight!")]}
+                    rules={[{ required: true, message: "Please enter the product weight!" }]}
                   >
                     <Input placeholder="Weight" />
                   </Form.Item>
                 </div>
-                
                 <div className="col-lg-12 p-1">
                   <Button type="primary" onClick={handleSubmit}>
                     {editingId ? "Update" : "Save"}

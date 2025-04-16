@@ -188,7 +188,7 @@ const LeadDetails = () => {
                   GROUND, A-9, ZARINA TOWER, TALIGAO ROAD, ST INEZ PANAJI, North Goa, Goa, 403001
                 </Text>
                 <Text>
-                  <b>GST No.:</b> 30AAFFV2278N1ZW
+                   <b>GST No.:</b> {lead.customer?.GSTno || "N/A"}
                 </Text>
               </>
             ) : (

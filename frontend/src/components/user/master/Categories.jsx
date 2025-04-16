@@ -11,6 +11,7 @@ const Categories = () => {
   const [editingId, setEditingId] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [initialValues, setInitialValues] = useState(null);
+  const [nextSerialNumber, setNextSerialNumber] = useState(1); // Default serial number for new entries
 
   useEffect(() => {
     fetchData();
@@ -19,36 +20,31 @@ const Categories = () => {
   const fetchData = async () => {
     try {
       const res = await axios.get("http://localhost:8081/category");
-      setData(res.data.status === "success" ? res.data.data : []);
+      const fetchedData = res.data.status === "success" ? res.data.data : [];
+
+      // Reassign serial numbers to ensure they are sequential
+      const updatedData = fetchedData.map((item, index) => ({
+        ...item,
+        srno: index + 1, // Reassign serial numbers sequentially
+      }));
+
+      setData(updatedData);
+
+      // Calculate the next serial number for new entries
+      setNextSerialNumber(updatedData.length + 1); // Increment by 1
+      form.setFieldsValue({ srno: updatedData.length + 1 }); // Set the default value in the form
     } catch (error) {
       console.error("Error fetching categories:", error);
       setData([]);
     }
   };
 
-  const getTimedValidator = (field, message, extraCheck = null) => ({
-    validator: async (_, value) => {
-      if (!value || (extraCheck && !extraCheck(value))) {
-        setTimeout(() => {
-          form.setFields([{ name: field, errors: [] }]);
-        }, 3000);
-        return Promise.reject(new Error(message));
-      }
-      return Promise.resolve();
-    },
-  });
-
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
 
-      // Assign the next serial number if not editing
-      if (!editingId) {
-        values.srno = data.length + 1; // Auto-increment srno
-        form.setFieldsValue({ srno: values.srno });
-      }
-
       if (editingId) {
+        // Check if values are different
         const isChanged = Object.keys(values).some(
           (key) =>
             values[key]?.toString().trim() !==
@@ -65,8 +61,11 @@ const Categories = () => {
         setEditingId(null);
         setInitialValues(null);
       } else {
-        await axios.post("http://localhost:8081/category", values);
+        // Add the new category with the next serial number
+        const newCategory = { ...values, srno: nextSerialNumber };
+        await axios.post("http://localhost:8081/category", newCategory);
         messageApi.success("Category added successfully!");
+        setNextSerialNumber(nextSerialNumber + 1); // Increment for the next entry
       }
 
       fetchData();
@@ -89,6 +88,8 @@ const Categories = () => {
     try {
       await axios.delete(`http://localhost:8081/category/${id}`);
       messageApi.success("Category deleted successfully!");
+
+      // Re-fetch data and reassign serial numbers
       fetchData();
     } catch (error) {
       console.error("Error deleting category:", error);
@@ -100,6 +101,7 @@ const Categories = () => {
     form.resetFields();
     setEditingId(null);
     setInitialValues(null);
+    form.setFieldsValue({ srno: nextSerialNumber }); // Reset the serial number to the next value
   };
 
   const columns = [
@@ -159,12 +161,10 @@ const Categories = () => {
                     name="srno"
                     label="Serial No"
                     rules={[
-                      getTimedValidator("srno", "Please enter serial number!", (val) =>
-                        isNaN(val) ? false : true
-                      ),
+                      { required: true, message: "Please enter serial number!" },
                     ]}
                   >
-                    <Input placeholder="Serial Number" disabled={!!editingId} />
+                    <Input placeholder="Serial Number" disabled />
                   </Form.Item>
                 </div>
 
@@ -173,8 +173,8 @@ const Categories = () => {
                     name="name"
                     label="Name"
                     rules={[
-                      getTimedValidator("name", "Please enter category name!"),
-                      getTimedValidator("name", "Name must be at least 2 characters!", (val) => val.length >= 2),
+                      { required: true, message: "Please enter category name!" },
+                      { min: 2, message: "Name must be at least 2 characters!" },
                     ]}
                   >
                     <Input placeholder="Category Name" />
@@ -185,7 +185,7 @@ const Categories = () => {
                   <Form.Item
                     name="type"
                     label="Type"
-                    rules={[getTimedValidator("type", "Please enter type!")]}
+                    rules={[{ required: true, message: "Please enter type!" }]}
                   >
                     <Input placeholder="Type" />
                   </Form.Item>
@@ -195,7 +195,7 @@ const Categories = () => {
                   <Form.Item
                     name="billingIn"
                     label="Billing In"
-                    rules={[getTimedValidator("billingIn", "Please select billing info!")]}
+                    rules={[{ required: true, message: "Please select billing info!" }]}
                   >
                     <Select placeholder="Select Billing In">
                       <Select.Option value="Kg">Kg</Select.Option>

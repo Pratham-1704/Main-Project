@@ -80,7 +80,7 @@ const LeadRecord = () => {
           to={`/lead/lead-details/${record._id}`}
           onClick={() => localStorage.setItem("selectedLeadId", record._id)}
           style={{
-            color: "black",
+            color: "blue",
             textDecoration: "none",
             cursor: "pointer",
           }}
@@ -154,7 +154,7 @@ const LeadRecord = () => {
           <div className="card p-3 mt-3">
             <Button
               type="primary"
-              style={{ marginLeft: "900px", marginBottom: "5px", width: "100px" }}
+              style={{ marginLeft: "995px", marginBottom: "5px", width: "100px" }}
               onClick={() => navigate("/lead/new-lead")}
             >
               Add New Lead

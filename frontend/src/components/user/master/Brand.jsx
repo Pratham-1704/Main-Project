@@ -18,6 +18,7 @@ const Brand = () => {
   const [editingId, setEditingId] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [initialValues, setInitialValues] = useState(null);
+  const [nextSerialNumber, setNextSerialNumber] = useState(1); // Default serial number for new entries
 
   useEffect(() => {
     fetchBrands();
@@ -26,7 +27,19 @@ const Brand = () => {
   const fetchBrands = async () => {
     try {
       const response = await axios.get("http://localhost:8081/brand");
-      setBrands(response.data.status === "success" ? response.data.data : []);
+      const fetchedBrands = response.data.status === "success" ? response.data.data : [];
+
+      // Reassign serial numbers to ensure they are sequential
+      const updatedBrands = fetchedBrands.map((brand, index) => ({
+        ...brand,
+        srno: index + 1, // Reassign serial numbers sequentially
+      }));
+
+      setBrands(updatedBrands);
+
+      // Calculate the next serial number for new entries
+      setNextSerialNumber(updatedBrands.length + 1); // Increment by 1
+      form.setFieldsValue({ srno: updatedBrands.length + 1 }); // Set the default value in the form
     } catch (error) {
       console.error("Error fetching brands:", error);
       setBrands([]);
@@ -36,27 +49,30 @@ const Brand = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-  
+
       if (editingId) {
         // Check if values are different
         const isChanged = Object.keys(values).some(
           (key) => values[key] !== initialValues?.[key]
         );
-  
+
         if (!isChanged) {
           messageApi.info("No changes made.");
           return;
         }
-  
+
         await axios.put(`http://localhost:8081/brand/${editingId}`, values);
         messageApi.success("Brand updated successfully!");
         setEditingId(null);
         setInitialValues(null);
       } else {
-        await axios.post("http://localhost:8081/brand", values);
+        // Add the new brand with the next serial number
+        const newBrand = { ...values, srno: nextSerialNumber };
+        await axios.post("http://localhost:8081/brand", newBrand);
         messageApi.success("Brand added successfully!");
+        setNextSerialNumber(nextSerialNumber + 1); // Increment for the next entry
       }
-  
+
       fetchBrands();
       form.resetFields();
     } catch (error) {
@@ -66,19 +82,19 @@ const Brand = () => {
       messageApi.error(errorMsg);
     }
   };
-  
 
   const handleEdit = (record) => {
-    form.setFieldsValue(record);
+    form.setFieldsValue({ name: record.name }); // Only set the editable fields
     setEditingId(record._id);
     setInitialValues(record); // Save original data
   };
-  
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:8081/brand/${id}`);
       messageApi.success("Brand deleted successfully!");
+
+      // Re-fetch brands and reassign serial numbers
       fetchBrands();
     } catch (error) {
       messageApi.error("Failed to delete brand!");
@@ -90,8 +106,8 @@ const Brand = () => {
     form.resetFields();
     setEditingId(null);
     setInitialValues(null);
+    form.setFieldsValue({ srno: nextSerialNumber }); // Reset the serial number to the next value
   };
-  
 
   const columns = [
     { title: "Serial No", dataIndex: "srno", key: "srno", align: "center" },
@@ -129,7 +145,6 @@ const Brand = () => {
     <>
       {contextHolder}
       <main id="main" className="main">
-        
         <div className="pagetitle">
           <h1>Brands</h1>
           <nav>
@@ -145,36 +160,33 @@ const Brand = () => {
           <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
             <Form form={form} layout="vertical">
               <div className="row">
-
-              <div className="col-lg-6 p-1">
+                <div className="col-lg-6 p-1">
                   <Form.Item
                     name="srno"
                     label="Serial No"
                     rules={[
                       { required: true, message: "Please enter serial number!" },
-                      {
-                        validator: (_, value) =>
-                          isNaN(value)
-                            ? Promise.reject("Serial No must be a number!")
-                            : Promise.resolve(),
-                      },
                     ]}
                   >
-                    <Input placeholder="Serial Number" disabled={!!editingId} />
+                    <Input
+                      placeholder="Serial Number"
+                      disabled
+                    />
                   </Form.Item>
-
                 </div>
-                
+
                 <div className="col-lg-6 p-1">
                   <Form.Item
                     name="name"
                     label="Name"
-                    rules={[{ required: true, message: "Please enter brand name!" }]}
+                    rules={[
+                      { required: true, message: "Please enter brand name!" },
+                    ]}
                   >
                     <Input placeholder="Brand Name" />
                   </Form.Item>
                 </div>
-               
+
                 <div className="col-lg-12 p-1">
                   <Button type="primary" onClick={handleSubmit}>
                     {editingId ? "Update" : "Save"}
