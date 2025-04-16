@@ -1,183 +1,193 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import {
   Button,
-  Input,
   Select,
-  message,
   Table,
-  Popconfirm,
+  Input,
   Form,
+  message,
+  Space,
+  InputNumber,
 } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import axios from "axios";
-import "./Css Files/style.css";
+import { Link } from "react-router-dom";
+
+const { Option } = Select;
 
 const BrandProduct = () => {
   const [form] = Form.useForm();
-  const [data, setData] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [editingId, setEditingId] = useState(null);
-  const [initialValues, setInitialValues] = useState(null);
+  const [selectedBrand, setSelectedBrand] = useState(null);
+  const [tableData, setTableData] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
-    fetchAll();
+    fetchInitialData();
   }, []);
 
-  const fetchAll = () => {
-    fetchBrandProducts();
-    fetchBrands();
-    fetchProducts();
-  };
-
-  const fetchBrandProducts = async () => {
+  const fetchInitialData = async () => {
     try {
-      const res = await axios.get("http://localhost:8081/brandproduct");
-      setData(res.data.status === "success" ? res.data.data : []);
-    } catch (error) {
-      console.error("Error fetching brand products:", error);
-      setData([]);
+      const [brandsRes, categoriesRes, productsRes] = await Promise.all([
+        axios.get("http://localhost:8081/brand"),
+        axios.get("http://localhost:8081/category"),
+        axios.get("http://localhost:8081/product"),
+      ]);
+
+      if (brandsRes.data.status === "success") setBrands(brandsRes.data.data);
+      if (categoriesRes.data.status === "success")
+        setCategories(categoriesRes.data.data);
+      if (productsRes.data.status === "success")
+        setProducts(productsRes.data.data);
+    } catch (err) {
+      messageApi.error("Failed to fetch initial data");
     }
   };
 
-  const fetchBrands = async () => {
+  const handleAddRow = () => {
+    setTableData([
+      ...tableData,
+      {
+        key: Date.now(),
+        category: null,
+        product: [],
+        parity: "",
+        rate: null,
+        billingrate: null,
+      },
+    ]);
+  };
+
+  const handleRemoveRow = (key) => {
+    setTableData(tableData.filter((row) => row.key !== key));
+  };
+
+  const handleChange = (key, field, value) => {
+    setTableData((prev) =>
+      prev.map((row) =>
+        row.key === key ? { ...row, [field]: value } : row
+      )
+    );
+  };
+
+  const handleSave = async () => {
+    if (!selectedBrand) {
+      messageApi.warning("Please select a brand before saving.");
+      return;
+    }
+
+    const payload = tableData.flatMap((row) =>
+      row.product.map((pid) => ({
+        brandid: selectedBrand,
+        productid: pid,
+        parity: row.parity,
+        rate: row.rate,
+        billingrate: row.billingrate,
+      }))
+    );
+
     try {
-      const res = await axios.get("http://localhost:8081/brand");
-      setBrands(res.data.status === "success" ? res.data.data : []);
+      await axios.post("http://localhost:8081/brandproduct", payload);
+      messageApi.success("Brand products saved successfully!");
+      setTableData([]);
+      setSelectedBrand(null);
     } catch (error) {
-      console.error("Error fetching brands:", error);
-      setBrands([]);
+      messageApi.error("Failed to save brand products.");
     }
   };
 
-  const fetchProducts = async () => {
-    try {
-      const res = await axios.get("http://localhost:8081/product");
-      setProducts(res.data.status === "success" ? res.data.data : []);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      setProducts([]);
-    }
-  };
-
-  const getTimedValidator = (field, msg, extraCheck = null) => ({
-    validator: async (_, value) => {
-      if (!value || (extraCheck && !extraCheck(value))) {
-        setTimeout(() => {
-          form.setFields([{ name: field, errors: [] }]);
-        }, 3000);
-        return Promise.reject(new Error(msg));
-      }
-      return Promise.resolve();
-    },
-  });
-
-  const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields();
-
-      if (editingId) {
-        const isChanged = Object.keys(values).some(
-          (key) =>
-            values[key]?.toString().trim() !==
-            initialValues?.[key]?.toString().trim()
-        );
-
-        if (!isChanged) {
-          messageApi.info("No changes made. Update not required.");
-          return;
-        }
-
-        await axios.put(
-          `http://localhost:8081/brandproduct/${editingId}`,
-          values
-        );
-        messageApi.success("Brand product updated successfully!");
-        setEditingId(null);
-        setInitialValues(null);
-      } else {
-        await axios.post("http://localhost:8081/brandproduct", values);
-        messageApi.success("Brand product added successfully!");
-      }
-
-      fetchBrandProducts();
-      form.resetFields();
-    } catch (error) {
-      console.error("Error:", error);
-      const errMsg =
-        error.response?.data?.message ||
-        "Please fill all values correctly!";
-      messageApi.error(errMsg);
-    }
-  };
-
-  const handleEdit = (record) => {
-    form.setFieldsValue(record);
-    setEditingId(record._id);
-    setInitialValues(record);
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:8081/brandproduct/${id}`);
-      messageApi.success("Brand product deleted successfully!");
-      fetchBrandProducts();
-    } catch (error) {
-      console.error("Error deleting brand product:", error);
-      messageApi.error("Failed to delete brand product!");
-    }
-  };
-
-  const clearForm = () => {
-    form.resetFields();
-    setEditingId(null);
-    setInitialValues(null);
+  const handleCancel = () => {
+    setSelectedBrand(null);
+    setTableData([]);
   };
 
   const columns = [
     {
-      title: "Brand",
-      dataIndex: "brandid",
-      key: "brandid",
-      render: (id) => brands.find((b) => b._id === id)?.name || "Unknown",
+      title: "Sr. No",
+      render: (_, __, index) => index + 1,
     },
     {
-      title: "Product",
-      dataIndex: "productid",
-      key: "productid",
-      render: (id) => products.find((p) => p._id === id)?.name || "Unknown",
+      title: "Category",
+      dataIndex: "category",
+      render: (_, record) => (
+        <Select
+          style={{ width: 150 }}
+          value={record.category}
+          onChange={(value) => handleChange(record.key, "category", value)}
+        >
+          {categories.map((cat) => (
+            <Option key={cat._id} value={cat._id}>
+              {cat.name}
+            </Option>
+          ))}
+        </Select>
+      ),
     },
-    { title: "Parity", dataIndex: "parity", key: "parity" },
-    { title: "Rate", dataIndex: "rate", key: "rate" },
-    { title: "Billing Rate", dataIndex: "billingrate", key: "billingrate" },
+    {
+      title: "Products",
+      dataIndex: "product",
+      render: (_, record) => {
+        const filteredProducts = products.filter(
+          (p) => p.categoryid === record.category
+        );
+        return (
+          <Select
+            mode="multiple"
+            style={{ width: 200 }}
+            value={record.product}
+            onChange={(value) => handleChange(record.key, "product", value)}
+          >
+            {filteredProducts.map((prod) => (
+              <Option key={prod._id} value={prod._id}>
+                {prod.name}
+              </Option>
+            ))}
+          </Select>
+        );
+      },
+    },
+    {
+      title: "Parity",
+      dataIndex: "parity",
+      render: (_, record) => (
+        <Input
+          value={record.parity}
+          onChange={(e) => handleChange(record.key, "parity", e.target.value)}
+        />
+      ),
+    },
+    {
+      title: "Rate",
+      dataIndex: "rate",
+      render: (_, record) => (
+        <InputNumber
+          value={record.rate}
+          onChange={(value) => handleChange(record.key, "rate", value)}
+        />
+      ),
+    },
+    {
+      title: "Billing Rate",
+      dataIndex: "billingrate",
+      render: (_, record) => (
+        <InputNumber
+          value={record.billingrate}
+          onChange={(value) =>
+            handleChange(record.key, "billingrate", value)
+          }
+        />
+      ),
+    },
     {
       title: "Actions",
-      key: "actions",
-      align: "center",
       render: (_, record) => (
-        <>
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            className="action-button edit-button"
-          />
-          <Popconfirm
-            title="Are you sure you want to delete this brand product?"
-            onConfirm={() => handleDelete(record._id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button
-              type="link"
-              icon={<DeleteOutlined />}
-              danger
-              className="action-button delete-button"
-            />
-          </Popconfirm>
-        </>
+        <Button
+          icon={<MinusCircleOutlined />}
+          danger
+          onClick={() => handleRemoveRow(record.key)}
+        />
       ),
     },
   ];
@@ -187,112 +197,60 @@ const BrandProduct = () => {
       {contextHolder}
       <main id="main" className="main">
         <div className="pagetitle">
-          <h1>Brand Products</h1>
+          <h1>Brand-Product</h1>
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
                 <Link to="">Dashboard</Link>
               </li>
-              <li className="breadcrumb-item active">Brand Products</li>
+              <li className="breadcrumb-item active">Brand-Product</li>
             </ol>
           </nav>
         </div>
 
         <section className="section">
-          <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
-            <Form form={form} layout="vertical">
-              <div className="row">
-                <div className="col-lg-6">
-                  <Form.Item
-                    name="brandid"
-                    label="Brand"
-                    rules={[
-                      getTimedValidator("brandid", "Please select a brand!"),
-                    ]}
-                  >
-                    <Select
-                      placeholder="Select Brand"
-                      options={brands.map((b) => ({
-                        value: b._id,
-                        label: b.name,
-                      }))}
-                    />
-                  </Form.Item>
-                </div>
+          <div className="card p-3 custom-table">
+            <Space style={{ marginBottom: 16 }}>
+              <Select
+                placeholder="Select Brand"
+                value={selectedBrand}
+                style={{ width: 200 }}
+                onChange={setSelectedBrand}
+              >
+                {brands.map((b) => (
+                  <Option key={b._id} value={b._id}>
+                    {b.name}
+                  </Option>
+                ))}
+              </Select>
 
-                <div className="col-lg-6 ">
-                  <Form.Item
-                    name="productid"
-                    label="Product"
-                    rules={[
-                      getTimedValidator("productid", "Please select a product!"),
-                    ]}
-                  >
-                    <Select
-                      placeholder="Select Product"
-                      options={products.map((p) => ({
-                        value: p._id,
-                        label: p.name,
-                      }))}
-                    />
-                  </Form.Item>
-                </div>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleAddRow}
+                disabled={!selectedBrand}
+              >
+                Add Row
+              </Button>
+            </Space>
 
-                <div className="col-lg-6 ">
-                  <Form.Item
-                    name="parity"
-                    label="Parity"
-                    rules={[getTimedValidator("parity", "Please enter parity!")]}
-                  >
-                    <Input placeholder="Parity" />
-                  </Form.Item>
-                </div>
-
-                <div className="col-lg-6 ">
-                  <Form.Item
-                    name="rate"
-                    label="Rate"
-                    rules={[getTimedValidator("rate", "Please enter rate!")]}
-                  >
-                    <Input placeholder="Rate" />
-                  </Form.Item>
-                </div>
-
-                <div className="col-lg-6 ">
-                  <Form.Item
-                    name="billingrate"
-                    label="Billing Rate"
-                    rules={[
-                      getTimedValidator("billingrate", "Please enter billing rate!"),
-                    ]}
-                  >
-                    <Input placeholder="Billing Rate" />
-                  </Form.Item>
-                </div>
-
-                <div className="col-lg-12 p-1">
-                  <Button type="primary" onClick={handleSubmit}>
-                    {editingId ? "Update" : "Save"}
-                  </Button>
-                  <Button
-                    type="default"
-                    onClick={clearForm}
-                    style={{ marginLeft: "10px" }}
-                  >
-                    {editingId ? "Cancel" : "Clear"}
-                  </Button>
-                </div>
-              </div>
-            </Form>
+            <Table
+              columns={columns}
+              dataSource={tableData}
+              rowKey="key"
+              pagination={false}
+            />
           </div>
 
           <div className="card p-3 custom-table">
-            <Table
-              columns={columns}
-              dataSource={data}
-              rowKey="_id"
-              pagination={{ pageSize: 5, showSizeChanger: false }}
-            />
+            <Space>
+              <Button type="primary" onClick={handleSave}>
+                Save
+              </Button>
+              <Button danger onClick={handleCancel}>
+                Cancel
+              </Button>
+            </Space>
           </div>
         </section>
       </main>

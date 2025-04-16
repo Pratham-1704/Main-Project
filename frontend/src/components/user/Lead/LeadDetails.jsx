@@ -69,9 +69,9 @@ const LeadDetails = () => {
     { title: "Category", dataIndex: "category", key: "category" },
     { title: "Product", dataIndex: "product", key: "product" },
     { title: "Brand", dataIndex: "brand", key: "brand" },
-    { title: "Req", dataIndex: "req", key: "req" },
-    { title: "EstimationIn", dataIndex: "estimationin", key: "estimationin" },
-    { title: "Quantity", dataIndex: "quantity", key: "quantity" },
+    { title: "Req", dataIndex: "quantity", key: "quantity" },
+    { title: "Unit", dataIndex: "estimationin", key: "estimationin" },
+    { title: "Weight", dataIndex: "quantity", key: "quantity" },
     { title: "Narration", dataIndex: "narration", key: "narration" },
   ];
 
@@ -128,143 +128,127 @@ const LeadDetails = () => {
       `}
       </style>
 
-      <section style={{ background: "#f0f2f5", padding: "20px", marginTop: "60px" }}>
-        <div
-          className="printable-area"
-          style={{
-            padding: "30px",
-            margin: "0 auto",
-            background: "#fff",
-            maxWidth: "1000px",
-            marginRight:"30px"
-          }}
-        >
-          {contextHolder}
+      <section style={{ background: "#f0f2f5", padding: "10px", marginTop: "80px", marginLeft: "300px" }}>
+  <div
+    className="printable-area"
+    style={{
+      padding: "10px 20px",
+      background: "#fff",
+      maxWidth: "1000px",
+      margin: "0 auto"
+    }}
+  >
+    {contextHolder}
 
-          {/* Header */}
-          <Row justify="center" align="middle">
-            <Col>
-              <img
-                src="https://th.bing.com/th/id/OIP.nOL8HH_1fafIVupyd9raegAAAA?rs=1&pid=ImgDetMain"
-                alt="Logo"
-                height={230}
-              />
-            </Col>
-            <Col>
-              <Title level={3} style={{ marginBottom: 0, color: "orange" }}>
-                PARSHWANATH ISPAT PVT LTD
-              </Title>
-              <Text>120/1, P.B.Road, N.H.4, SHIROLI(P), KOLHAPUR</Text>
-              <br />
-              <Text>Email - purchase@parshwanathsteel.com</Text>
-              <br />
-              <Text>Tel - (0230) 2461285, 2460009 Mob - 96078 15933</Text>
-              <br />
-              <Text>
-                <b>GSTIN</b>: 27AAFCP4825L1Z2
-              </Text>
-            </Col>
-          </Row>
+    {/* Header */}
+    <Row justify="center" align="middle" gutter={16}>
+      <Col span={6}>
+        <img
+          src="https://th.bing.com/th/id/OIP.nOL8HH_1fafIVupyd9raegAAAA?rs=1&pid=ImgDetMain"
+          alt="Logo"
+          style={{ maxHeight: "120px", width: "auto" }}
+        />
+      </Col>
+      <Col span={18}>
+        <Title level={4} style={{ marginBottom: 4, color: "orange" }}>
+          PARSHWANATH ISPAT PVT LTD
+        </Title>
+        <Text style={{ fontSize: "12px" }}>120/1, P.B.Road, N.H.4, SHIROLI(P), KOLHAPUR</Text>
+        <br />
+        <Text style={{ fontSize: "12px" }}>Email - purchase@parshwanathsteel.com</Text>
+        <br />
+        <Text style={{ fontSize: "12px" }}>Tel - (0230) 2461285, 2460009 Mob - 96078 15933</Text>
+        <br />
+        <Text style={{ fontSize: "12px" }}>
+          <b>GSTIN</b>: 27AAFCP4825L1Z2
+        </Text>
+      </Col>
+    </Row>
 
-          <Divider />
+    <Divider style={{ margin: "10px 0" }} />
 
-          <Title level={4} style={{ textAlign: "center" }}>
-            LEAD
-          </Title>
+    <Title level={5} style={{ textAlign: "center", marginBottom: 10 }}>
+      LEAD
+    </Title>
 
-          <Row gutter={16} style={{ marginTop: 20 }}>
-            <Col span={8}>
-              <Card title="Bill To">
-                <Text strong>{lead.customername || "V AND G PIPE HOUSE"}</Text>
-                <br />
-                <Text>8805263434</Text>
-                <br />
-                <Text>
-                  GROUND, A-9, ZARINA TOWER, TALIGAO ROAD, ST INEZ PANAJI, North
-                  Goa, Goa, 403001
-                </Text>
-                <br />
-                <Text>
-                  <b>GST No.:</b> 30AAFFV2278N1ZW
-                </Text>
-              </Card>
-            </Col>
-
-            <Col span={8}>
-              <Card title="Ship To">
-                <Text strong>{lead.customername || "V AND G PIPE HOUSE"}</Text>
-                <br />
-                <Text>8805263434</Text>
-                <br />
-                <Text>
-                  GROUND, A-9, ZARINA TOWER, TALIGAO ROAD, ST INEZ PANAJI, North
-                  Goa, Goa, 403001
-                </Text>
-                <br />
-                <Text>
-                  <b>GST No.:</b> 30AAFFV2278N1ZW
-                </Text>
-              </Card>
-            </Col>
-
-            <Col span={8}>
-              <Card title="Details">
-                <p>
-                  <b>Lead No :</b> {lead.leadno}
-                </p>
-                <p>
-                  <b>Lead Date :</b>{" "}
-                  {dayjs(lead.leaddate).format("DD/MM/YYYY")}
-                </p>
-                <p>
-                  <b>Payment Term :</b> Against Delivery
-                </p>
-                <p>
-                  <b>Owner :</b> Deepak_Shinde
-                </p>
-                <p>
-                  <b>CRM :</b> Deepak_Shinde
-                </p>
-              </Card>
-            </Col>
-          </Row>
-
-          {/* Items Table */}
-          <div style={{ marginTop: 30 }}>
-            <Table columns={columns} dataSource={tableData} pagination={false} bordered />
-          </div>
-
-          {/* Total Weight */}
-          <div style={{ textAlign: "right", marginTop: 10 }}>
-            <Text strong>Total Weight : {totalWeight.toFixed(1)} Kg</Text>
-          </div>
-
-          {/* Buttons Section */}
-          <Row
-            className="hide-on-print"
-            justify="end"
-            gutter={16}
-            style={{ marginTop: 20 }}
+    {/* Cards Section */}
+    <Row gutter={12} style={{ marginTop: 10, display: "flex", alignItems: "stretch" }}>
+      {[...Array(3)].map((_, idx) => (
+        <Col span={8} style={{ display: "flex" }} key={idx}>
+          <Card
+            title={["Bill To", "Ship To", "Details"][idx]}
+            style={{ width: "100%", fontSize: "12px" }}
+            bodyStyle={{ display: "flex", flexDirection: "column", justifyContent: "space-between", fontSize: "12px" }}
           >
-            <Col>
-              <Button type="default" onClick={() => window.history.back()}>
-                Back
-              </Button>
-            </Col>
-            <Col>
-              <Button type="primary" onClick={() => window.print()}>
-                Print
-              </Button>
-            </Col>
-            <Col>
-              <Button type="dashed">SBQ</Button>
-            </Col>
-            <Col>
-              <Button type="dashed">MBQ</Button>
-            </Col>
-          </Row>
-        </div>
-      </section>
+            {idx < 2 ? (
+              <>
+                <Text strong>{lead.customername || "V AND G PIPE HOUSE"}</Text>
+                <Text>8805263434</Text>
+                <Text style={{ fontSize: "12px" }}>
+                  GROUND, A-9, ZARINA TOWER, TALIGAO ROAD, ST INEZ PANAJI, North Goa, Goa, 403001
+                </Text>
+                <Text>
+                  <b>GST No.:</b> 30AAFFV2278N1ZW
+                </Text>
+              </>
+            ) : (
+              <>
+                <p><b>Lead No :</b> {lead.leadno}</p>
+                <p><b>Lead Date :</b> {dayjs(lead.leaddate).format("DD/MM/YYYY")}</p>
+                <p><b>Payment Term :</b> Against Delivery</p>
+                <p><b>Owner :</b> Deepak_Shinde</p>
+                <p><b>CRM :</b> Deepak_Shinde</p>
+              </>
+            )}
+          </Card>
+        </Col>
+      ))}
+    </Row>
+
+    {/* Items Table */}
+    <div style={{ marginTop: 20 }}>
+      <Table
+        columns={columns}
+        dataSource={tableData}
+        pagination={false}
+        bordered
+        size="small"
+        style={{ fontSize: "12px" }}
+      />
+    </div>
+
+    {/* Total Weight */}
+    <div style={{ textAlign: "right", marginTop: 5 }}>
+      <Text strong>Total Weight : {totalWeight.toFixed(1)} Kg</Text>
+    </div>
+
+    {/* Buttons */}
+    <Row
+      className="hide-on-print"
+      justify="end"
+      gutter={8}
+      style={{ marginTop: 15 }}
+    >
+      <Col>
+        <Button type="default" onClick={() => window.history.back()}>
+          Back
+        </Button>
+      </Col>
+      <Col>
+        <Button type="primary" onClick={() => window.print()}>
+          Print
+        </Button>
+      </Col>
+      <Col>
+        <Button type="dashed">SBQ</Button>
+      </Col>
+      <Col>
+        <Button type="dashed">MBQ</Button>
+      </Col>
+    </Row>
+  </div>
+</section>
+
     </>
   );
 };
