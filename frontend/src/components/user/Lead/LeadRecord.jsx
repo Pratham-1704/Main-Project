@@ -154,7 +154,11 @@ const LeadRecord = () => {
           <div className="card p-3 mt-3">
             <Button
               type="primary"
+<<<<<<< HEAD
               style={{ marginLeft: "995px", marginBottom: "5px", width: "100px" }}
+=======
+              style={{ marginLeft: "900px", marginBottom: "5px", width: "100px",animation: "blink 1s infinite", }}
+>>>>>>> 68dc9a34da041c30679e7b7ed239ed8e5f5ef33e
               onClick={() => navigate("/lead/new-lead")}
             >
               Add New Lead
