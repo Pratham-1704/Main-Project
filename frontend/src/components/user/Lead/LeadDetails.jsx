@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import {
   Card,
@@ -25,6 +25,9 @@ const LeadDetails = () => {
   const [loading, setLoading] = useState(true);
   const [messageApi, contextHolder] = message.useMessage();
 
+
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -47,7 +50,7 @@ const LeadDetails = () => {
         messageApi.error("Failed to fetch lead or supporting data");
       } finally {
         setLoading(false);
-        localStorage.removeItem("selectedLeadId");
+       // localStorage.removeItem("selectedLeadId");
       }
     };
 
@@ -129,125 +132,129 @@ const LeadDetails = () => {
       </style>
 
       <section style={{ background: "#f0f2f5", padding: "10px", marginTop: "80px", marginLeft: "300px" }}>
-  <div
-    className="printable-area"
-    style={{
-      padding: "10px 20px",
-      background: "#fff",
-      maxWidth: "1000px",
-      margin: "0 auto"
-    }}
-  >
-    {contextHolder}
+        <div
+          className="printable-area"
+          style={{
+            padding: "10px 20px",
+            background: "#fff",
+            maxWidth: "1000px",
+            margin: "0 auto"
+          }}
+        >
+          {contextHolder}
 
-    {/* Header */}
-    <Row justify="center" align="middle" gutter={16}>
-      <Col span={6}>
-        <img
-          src="https://th.bing.com/th/id/OIP.nOL8HH_1fafIVupyd9raegAAAA?rs=1&pid=ImgDetMain"
-          alt="Logo"
-          style={{ maxHeight: "120px", width: "auto" }}
-        />
-      </Col>
-      <Col span={18}>
-        <Title level={4} style={{ marginBottom: 4, color: "orange" }}>
-          PARSHWANATH ISPAT PVT LTD
-        </Title>
-        <Text style={{ fontSize: "12px" }}>120/1, P.B.Road, N.H.4, SHIROLI(P), KOLHAPUR</Text>
-        <br />
-        <Text style={{ fontSize: "12px" }}>Email - purchase@parshwanathsteel.com</Text>
-        <br />
-        <Text style={{ fontSize: "12px" }}>Tel - (0230) 2461285, 2460009 Mob - 96078 15933</Text>
-        <br />
-        <Text style={{ fontSize: "12px" }}>
-          <b>GSTIN</b>: 27AAFCP4825L1Z2
-        </Text>
-      </Col>
-    </Row>
+          {/* Header */}
+          <Row justify="center" align="middle" gutter={16}>
+            <Col span={6}>
+              <img
+                src="https://th.bing.com/th/id/OIP.nOL8HH_1fafIVupyd9raegAAAA?rs=1&pid=ImgDetMain"
+                alt="Logo"
+                style={{ maxHeight: "120px", width: "auto" }}
+              />
+            </Col>
+            <Col span={18}>
+              <Title level={4} style={{ marginBottom: 4, color: "orange" }}>
+                PARSHWANATH ISPAT PVT LTD
+              </Title>
+              <Text style={{ fontSize: "12px" }}>120/1, P.B.Road, N.H.4, SHIROLI(P), KOLHAPUR</Text>
+              <br />
+              <Text style={{ fontSize: "12px" }}>Email - purchase@parshwanathsteel.com</Text>
+              <br />
+              <Text style={{ fontSize: "12px" }}>Tel - (0230) 2461285, 2460009 Mob - 96078 15933</Text>
+              <br />
+              <Text style={{ fontSize: "12px" }}>
+                <b>GSTIN</b>: 27AAFCP4825L1Z2
+              </Text>
+            </Col>
+          </Row>
 
-    <Divider style={{ margin: "10px 0" }} />
+          <Divider style={{ margin: "10px 0" }} />
 
-    <Title level={5} style={{ textAlign: "center", marginBottom: 10 }}>
-      LEAD
-    </Title>
+          <Title level={5} style={{ textAlign: "center", marginBottom: 10 }}>
+            LEAD
+          </Title>
 
-    {/* Cards Section */}
-    <Row gutter={12} style={{ marginTop: 10, display: "flex", alignItems: "stretch" }}>
-      {[...Array(3)].map((_, idx) => (
-        <Col span={8} style={{ display: "flex" }} key={idx}>
-          <Card
-            title={["Bill To", "Ship To", "Details"][idx]}
-            style={{ width: "100%", fontSize: "12px" }}
-            bodyStyle={{ display: "flex", flexDirection: "column", justifyContent: "space-between", fontSize: "12px" }}
+          {/* Cards Section */}
+          <Row gutter={12} style={{ marginTop: 10, display: "flex", alignItems: "stretch" }}>
+            {[...Array(3)].map((_, idx) => (
+              <Col span={8} style={{ display: "flex" }} key={idx}>
+                <Card
+                  title={["Bill To", "Ship To", "Details"][idx]}
+                  style={{ width: "100%", fontSize: "12px" }}
+                  bodyStyle={{ display: "flex", flexDirection: "column", justifyContent: "space-between", fontSize: "12px" }}
+                >
+                  {idx < 2 ? (
+                    <>
+                      <Text strong>{lead.customername || "V AND G PIPE HOUSE"}</Text>
+                      <Text>8805263434</Text>
+                      <Text style={{ fontSize: "12px" }}>
+                        GROUND, A-9, ZARINA TOWER, TALIGAO ROAD, ST INEZ PANAJI, North Goa, Goa, 403001
+                      </Text>
+                      <Text>
+                        <b>GST No.:</b> 30AAFFV2278N1ZW
+                      </Text>
+                    </>
+                  ) : (
+                    <>
+                      <p><b>Lead No :</b> {lead.leadno}</p>
+                      <p><b>Lead Date :</b> {dayjs(lead.leaddate).format("DD/MM/YYYY")}</p>
+                      <p><b>Payment Term :</b> Against Delivery</p>
+                      <p><b>Owner :</b> Deepak_Shinde</p>
+                      <p><b>CRM :</b> Deepak_Shinde</p>
+                    </>
+                  )}
+                </Card>
+              </Col>
+            ))}
+          </Row>
+
+          {/* Items Table */}
+          <div style={{ marginTop: 20 }}>
+            <Table
+              columns={columns}
+              dataSource={tableData}
+              pagination={false}
+              bordered
+              size="small"
+              style={{ fontSize: "12px" }}
+            />
+          </div>
+
+          {/* Total Weight */}
+          <div style={{ textAlign: "right", marginTop: 5 }}>
+            <Text strong>Total Weight : {totalWeight.toFixed(1)} Kg</Text>
+          </div>
+
+          {/* Buttons */}
+          <Row
+            className="hide-on-print"
+            justify="end"
+            gutter={8}
+            style={{ marginTop: 15 }}
           >
-            {idx < 2 ? (
-              <>
-                <Text strong>{lead.customername || "V AND G PIPE HOUSE"}</Text>
-                <Text>8805263434</Text>
-                <Text style={{ fontSize: "12px" }}>
-                  GROUND, A-9, ZARINA TOWER, TALIGAO ROAD, ST INEZ PANAJI, North Goa, Goa, 403001
-                </Text>
-                <Text>
-                  <b>GST No.:</b> 30AAFFV2278N1ZW
-                </Text>
-              </>
-            ) : (
-              <>
-                <p><b>Lead No :</b> {lead.leadno}</p>
-                <p><b>Lead Date :</b> {dayjs(lead.leaddate).format("DD/MM/YYYY")}</p>
-                <p><b>Payment Term :</b> Against Delivery</p>
-                <p><b>Owner :</b> Deepak_Shinde</p>
-                <p><b>CRM :</b> Deepak_Shinde</p>
-              </>
-            )}
-          </Card>
-        </Col>
-      ))}
-    </Row>
-
-    {/* Items Table */}
-    <div style={{ marginTop: 20 }}>
-      <Table
-        columns={columns}
-        dataSource={tableData}
-        pagination={false}
-        bordered
-        size="small"
-        style={{ fontSize: "12px" }}
-      />
-    </div>
-
-    {/* Total Weight */}
-    <div style={{ textAlign: "right", marginTop: 5 }}>
-      <Text strong>Total Weight : {totalWeight.toFixed(1)} Kg</Text>
-    </div>
-
-    {/* Buttons */}
-    <Row
-      className="hide-on-print"
-      justify="end"
-      gutter={8}
-      style={{ marginTop: 15 }}
-    >
-      <Col>
-        <Button type="default" onClick={() => window.history.back()}>
-          Back
-        </Button>
-      </Col>
-      <Col>
-        <Button type="primary" onClick={() => window.print()}>
-          Print
-        </Button>
-      </Col>
-      <Col>
-        <Button type="dashed">SBQ</Button>
-      </Col>
-      <Col>
-        <Button type="dashed">MBQ</Button>
-      </Col>
-    </Row>
-  </div>
-</section>
+            <Col>
+              <Button type="default" onClick={() => window.history.back()}>
+                Back
+              </Button>
+            </Col>
+            <Col>
+              <Button type="primary" onClick={() => window.print()}>
+                Print
+              </Button>
+            </Col>
+            <Col>
+              <Link to="/lead/sbq">
+                <Button type="dashed">SBQ</Button>
+              </Link>
+            </Col>
+            <Col>
+            <Link to="/lead/mbq">
+                <Button type="dashed">MBQ</Button>
+              </Link>
+            </Col>
+          </Row>
+        </div>
+      </section>
 
     </>
   );

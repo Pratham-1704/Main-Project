@@ -19,6 +19,8 @@ import AdminProfile from './components/user/AdminProfile';
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 import LeadRecord from './components/user/Lead/LeadRecord';
 import LeadDetails from './components/user/Lead/LeadDetails';
+import SBQ from './components/user/Lead/SBQ';
+import MBQ from './components/user/Lead/MBQ';
 
 function App() {
   return (
@@ -75,6 +77,8 @@ function App() {
             <Route path="order" element={<Order />} />
             <Route path="lead-record" element={<LeadRecord />} />
             <Route path="/lead/lead-details/:leadid" element={<LeadDetails />} />
+            <Route path="sbq" element={<SBQ />} />
+            <Route path="mbq" element={<MBQ />} />
 
           </Route>
         </Routes>
