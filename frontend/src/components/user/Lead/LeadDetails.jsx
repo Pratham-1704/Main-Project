@@ -232,76 +232,6 @@ const LeadDetails = () => {
             gutter={8}
             style={{ marginTop: 15 }}
           >
-<<<<<<< HEAD
-            {idx < 2 ? (
-              <>
-                <Text strong>{lead.customername || "V AND G PIPE HOUSE"}</Text>
-                <Text>8805263434</Text>
-                <Text style={{ fontSize: "12px" }}>
-                  GROUND, A-9, ZARINA TOWER, TALIGAO ROAD, ST INEZ PANAJI, North Goa, Goa, 403001
-                </Text>
-                <Text>
-                   <b>GST No.:</b> {lead.customer?.GSTno || "N/A"}
-                </Text>
-              </>
-            ) : (
-              <>
-                <p><b>Lead No :</b> {lead.leadno}</p>
-                <p><b>Lead Date :</b> {dayjs(lead.leaddate).format("DD/MM/YYYY")}</p>
-                <p><b>Payment Term :</b> Against Delivery</p>
-                <p><b>Owner :</b> Deepak_Shinde</p>
-                <p><b>CRM :</b> Deepak_Shinde</p>
-              </>
-            )}
-          </Card>
-        </Col>
-      ))}
-    </Row>
-
-    {/* Items Table */}
-    <div style={{ marginTop: 20 }}>
-      <Table
-        columns={columns}
-        dataSource={tableData}
-        pagination={false}
-        bordered
-        size="small"
-        style={{ fontSize: "12px" }}
-      />
-    </div>
-
-    {/* Total Weight */}
-    <div style={{ textAlign: "right", marginTop: 5 }}>
-      <Text strong>Total Weight : {totalWeight.toFixed(1)} Kg</Text>
-    </div>
-
-    {/* Buttons */}
-    <Row
-      className="hide-on-print"
-      justify="end"
-      gutter={8}
-      style={{ marginTop: 15 }}
-    >
-      <Col>
-        <Button type="default" onClick={() => window.history.back()}>
-          Back
-        </Button>
-      </Col>
-      <Col>
-        <Button type="primary" onClick={() => window.print()}>
-          Print
-        </Button>
-      </Col>
-      <Col>
-        <Button type="dashed">SBQ</Button>
-      </Col>
-      <Col>
-        <Button type="dashed">MBQ</Button>
-      </Col>
-    </Row>
-  </div>
-</section>
-=======
             <Col>
               <Button type="default" onClick={() => window.history.back()}>
                 Back
@@ -325,7 +255,6 @@ const LeadDetails = () => {
           </Row>
         </div>
       </section>
->>>>>>> 68dc9a34da041c30679e7b7ed239ed8e5f5ef33e
 
     </>
   );
