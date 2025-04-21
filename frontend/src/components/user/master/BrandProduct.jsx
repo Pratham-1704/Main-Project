@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   Button,
   Select,
@@ -6,10 +7,11 @@ import {
   Input,
   Form,
   message,
+  Popconfirm,
 } from "antd";
-import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import axios from "axios";
-import { Link, useLocation } from "react-router-dom";
+import "./Css Files/style.css"; // Reuse the same CSS file as in Brand.jsx
 
 const { Option } = Select;
 
@@ -52,6 +54,9 @@ const BrandProduct = () => {
         isCategoryDisabled: true, // Disable the category dropdown for this row
       },
     ]);
+
+    // Clear the category field in the form
+    form.resetFields(["category"]);
   };
 
   const handleRemoveRow = (key) => {
@@ -135,16 +140,25 @@ const BrandProduct = () => {
     {
       title: "Actions",
       key: "actions",
+      align: "center",
       render: (_, record) => (
-        <Button
-          type="danger"
-          icon={<DeleteOutlined />}
-          // onClick={() => handleRemoveRow(record.key)}
-
-        >
-          Remove
-        </Button>
+        <>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            // onClick={() => handleEdit(record)}
+          />
+          <Popconfirm
+            title="Are you sure to delete this customer?"
+            // onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="link" icon={<DeleteOutlined />} danger />
+          </Popconfirm>
+        </>
       ),
+    
     },
   ];
 
@@ -153,7 +167,7 @@ const BrandProduct = () => {
       {contextHolder}
       <main id="main" className="main">
         <div className="pagetitle">
-          <h1>Manage Products</h1>
+          <h1>Manage Products for {brandName}</h1>
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
@@ -165,28 +179,34 @@ const BrandProduct = () => {
         </div>
 
         <section className="section">
-          <div className="card p-3">
+          <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
             <Form form={form} layout="vertical">
-              <Form.Item label="Brand">
-                <Input value={brandName} disabled />
-              </Form.Item>
-              <Form.Item label="Category">
-                <Select
-                  placeholder="Select Category"
-                  style={{ width: "100%" }}
-                  onChange={handleCategoryChange} // Add a new row when a category is selected
-                >
-                  {categories.map((cat) => (
-                    <Option key={cat._id} value={cat._id}>
-                      {cat.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
+              <div className="row">
+                <div className="col-lg-6 p-1">
+                  <Form.Item label="Brand">
+                    <Input value={brandName} disabled />
+                  </Form.Item>
+                </div>
+                <div className="col-lg-6 p-1">
+                  <Form.Item name="category" label="Category">
+                    <Select
+                      placeholder="Select Category"
+                      style={{ width: "100%" }}
+                      onChange={handleCategoryChange} // Add a new row when a category is selected
+                    >
+                      {categories.map((cat) => (
+                        <Option key={cat._id} value={cat._id}>
+                          {cat.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </div>
+              </div>
             </Form>
           </div>
 
-          <div className="card p-3 mt-3">
+          <div className="card p-3 custom-table mt-3">
             <Table
               columns={columns}
               dataSource={tableData}
@@ -195,14 +215,7 @@ const BrandProduct = () => {
               bordered
             />
             <div style={{ marginTop: 10, textAlign: "right" }}>
-              <Button
-                type="dashed"
-                icon={<PlusOutlined />}
-                onClick={handleCategoryChange}
-                style={{ marginRight: 10 }}
-              >
-                Add Row
-              </Button>
+             
               <Button type="primary" onClick={handleSave}>
                 Save
               </Button>
