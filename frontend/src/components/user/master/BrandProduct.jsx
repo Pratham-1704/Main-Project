@@ -212,14 +212,6 @@ const BrandProduct = () => {
               bordered
             />
             <div style={{ marginTop: 10, textAlign: "right" }}>
-              <Button
-                type="dashed"
-                icon={<PlusOutlined />}
-                onClick={handleCategoryChange}
-                style={{ marginRight: 10 }}
-              >
-                Add Row
-              </Button>
               <Button type="primary" onClick={handleSave}>
                 Save
               </Button>
