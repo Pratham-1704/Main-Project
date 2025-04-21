@@ -62,6 +62,7 @@ function App() {
             {/* <Route path="leads" element={<LeadRecord />} /> */}
             <Route path="order" element={<Order />} />
             <Route path="quotations" element={<Quotations />} />
+            <Route path='manage products' element={<BrandProducts />} />
           </Route>
 
           <Route
