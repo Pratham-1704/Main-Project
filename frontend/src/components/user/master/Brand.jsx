@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
+<<<<<<< HEAD
 import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
+=======
+import { Link, useNavigate } from "react-router-dom";
+>>>>>>> a1ab58a846b00086b9f59bca03e1fa302f5fa26a
 import {
   Button,
   Input,
@@ -19,7 +23,11 @@ const Brand = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [initialValues, setInitialValues] = useState(null);
   const [nextSerialNumber, setNextSerialNumber] = useState(1); // Default serial number for new entries
+<<<<<<< HEAD
   const navigate = useNavigate(); // Initialize useNavigate
+=======
+  const navigate = useNavigate();
+>>>>>>> a1ab58a846b00086b9f59bca03e1fa302f5fa26a
 
   useEffect(() => {
     fetchBrands();
@@ -110,7 +118,12 @@ const Brand = () => {
     form.setFieldsValue({ srno: nextSerialNumber }); // Reset the serial number to the next value
   };
 
+<<<<<<< HEAD
   const handleManageProduct = (record) => {
+=======
+  const handleManageProducts = (record) => {
+    // Navigate to the BrandProduct page with the brand name
+>>>>>>> a1ab58a846b00086b9f59bca03e1fa302f5fa26a
     navigate(`/master/brandproduct`, { state: { brandName: record.name } });
   };
 
@@ -118,6 +131,7 @@ const Brand = () => {
     { title: "Serial No", dataIndex: "srno", key: "srno", align: "center" },
     { title: "Name", dataIndex: "name", key: "name" },
     {
+<<<<<<< HEAD
       title: "Product",
       dataIndex: "product",
       key: "product",
@@ -129,6 +143,21 @@ const Brand = () => {
         >
           Manage Product
         </Button>
+=======
+      title: "Products",align: "center",
+      key: "products",
+      render: (_, record) => (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+        <Button
+          type="dashed"
+          onClick={() => handleManageProducts(record)}
+          size="small"
+        >
+          Manage Products
+        </Button>
+      </div>
+      
+>>>>>>> a1ab58a846b00086b9f59bca03e1fa302f5fa26a
       ),
     },
     {
