@@ -9,7 +9,7 @@ import {
   message,
   Popconfirm,
 } from "antd";
-import { PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined, EditOutlined, SaveFilled, SaveOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./Css Files/style.css"; // Reuse the same CSS file as in Brand.jsx
 
@@ -54,6 +54,9 @@ const BrandProduct = () => {
         isCategoryDisabled: true, // Disable the category dropdown for this row
       },
     ]);
+
+    // Clear the category field in the form
+    form.resetFields(["category"]);
   };
 
   const handleRemoveRow = (key) => {
@@ -110,9 +113,11 @@ const BrandProduct = () => {
       title: "Products",
       dataIndex: "product",
       key: "product",
+      width: 300, // Set a fixed width for the column
       render: (text, record) => (
         <Select
-          placeholder="Select Product"
+          mode="multiple" // Enable multi-selection
+          placeholder="Select Products"
           value={record.product}
           onChange={(value) =>
             setTableData((prev) =>
@@ -142,7 +147,7 @@ const BrandProduct = () => {
         <>
           <Button
             type="link"
-            icon={<EditOutlined />}
+            icon={<SaveOutlined />}
             // onClick={() => handleEdit(record)}
           />
           <Popconfirm
@@ -185,7 +190,7 @@ const BrandProduct = () => {
                   </Form.Item>
                 </div>
                 <div className="col-lg-6 p-1">
-                  <Form.Item label="Category">
+                  <Form.Item name="category" label="Category">
                     <Select
                       placeholder="Select Category"
                       style={{ width: "100%" }}
