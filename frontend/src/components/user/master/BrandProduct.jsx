@@ -167,7 +167,7 @@ const BrandProduct = () => {
       {contextHolder}
       <main id="main" className="main">
         <div className="pagetitle">
-          <h1>Manage Products for {brandName}</h1>
+          <h1>Manage Products</h1>
           <nav>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
