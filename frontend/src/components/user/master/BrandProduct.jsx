@@ -54,9 +54,6 @@ const BrandProduct = () => {
         isCategoryDisabled: true, // Disable the category dropdown for this row
       },
     ]);
-
-    // Clear the category field in the form
-    form.resetFields(["category"]);
   };
 
   const handleRemoveRow = (key) => {
@@ -140,7 +137,7 @@ const BrandProduct = () => {
     {
       title: "Actions",
       key: "actions",
-      align: "center",
+      
       render: (_, record) => (
         <>
           <Button
@@ -188,7 +185,7 @@ const BrandProduct = () => {
                   </Form.Item>
                 </div>
                 <div className="col-lg-6 p-1">
-                  <Form.Item name="category" label="Category">
+                  <Form.Item label="Category">
                     <Select
                       placeholder="Select Category"
                       style={{ width: "100%" }}
@@ -215,7 +212,14 @@ const BrandProduct = () => {
               bordered
             />
             <div style={{ marginTop: 10, textAlign: "right" }}>
-             
+              <Button
+                type="dashed"
+                icon={<PlusOutlined />}
+                onClick={handleCategoryChange}
+                style={{ marginRight: 10 }}
+              >
+                Add Row
+              </Button>
               <Button type="primary" onClick={handleSave}>
                 Save
               </Button>
