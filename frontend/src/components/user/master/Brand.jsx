@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
   Input,
@@ -19,6 +19,7 @@ const Brand = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [initialValues, setInitialValues] = useState(null);
   const [nextSerialNumber, setNextSerialNumber] = useState(1); // Default serial number for new entries
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBrands();
@@ -109,9 +110,30 @@ const Brand = () => {
     form.setFieldsValue({ srno: nextSerialNumber }); // Reset the serial number to the next value
   };
 
+  const handleManageProducts = (record) => {
+    // Navigate to the BrandProduct page with the brand name
+    navigate(`/master/brandproduct`, { state: { brandName: record.name } });
+  };
+
   const columns = [
     { title: "Serial No", dataIndex: "srno", key: "srno", align: "center" },
     { title: "Name", dataIndex: "name", key: "name" },
+    {
+      title: "Products",align: "center",
+      key: "products",
+      render: (_, record) => (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+        <Button
+          type="dashed"
+          onClick={() => handleManageProducts(record)}
+          size="small"
+        >
+          Manage Products
+        </Button>
+      </div>
+      
+      ),
+    },
     {
       title: "Actions",
       key: "actions",
