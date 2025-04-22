@@ -23,23 +23,30 @@ const Products = () => {
     try {
       const response = await axios.get("http://localhost:8081/product");
       const fetchedData = response.data.status === "success" ? response.data.data : [];
-
-      // Reassign serial numbers to ensure they are sequential
-      const updatedData = fetchedData.map((item, index) => ({
+  
+      // Sort and reassign srno
+      const sortedData = fetchedData.sort((a, b) => a.srno - b.srno);
+      const updatedData = sortedData.map((item, index) => ({
         ...item,
-        srno: index + 1, // Reassign serial numbers sequentially
+        srno: index + 1,
       }));
-
+  
+      // Update srno in DB and wait for all to finish
+      await Promise.all(
+        updatedData.map((item) =>
+          axios.put(`http://localhost:8081/product/${item._id}`, { srno: item.srno })
+        )
+      );
+  
+      // Set state only after all updates succeed
       setData(updatedData);
-
-      // Calculate the next serial number for new entries
-      setNextSerialNumber(updatedData.length + 1); // Increment by 1
-      form.setFieldsValue({ srno: updatedData.length + 1 }); // Set the default value in the form
+      setNextSerialNumber(updatedData.length + 1);
+      form.setFieldsValue({ srno: updatedData.length + 1 });
     } catch (error) {
       console.error("Error fetching products:", error);
       setData([]);
     }
-  };
+  };  
 
   const fetchCategories = async () => {
     try {
@@ -100,14 +107,12 @@ const Products = () => {
     try {
       await axios.delete(`http://localhost:8081/product/${id}`);
       messageApi.success("Product deleted successfully!");
-
-      // Re-fetch data and reassign serial numbers
-      fetchData();
+      fetchData(); // 🔁 Refresh the data directly after delete
     } catch (error) {
       console.error("Error deleting product:", error);
       messageApi.error("Failed to delete product!");
     }
-  };
+  };  
 
   const clearForm = () => {
     form.resetFields();

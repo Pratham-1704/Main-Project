@@ -21,23 +21,31 @@ const Categories = () => {
     try {
       const res = await axios.get("http://localhost:8081/category");
       const fetchedData = res.data.status === "success" ? res.data.data : [];
-
-      // Reassign serial numbers to ensure they are sequential
-      const updatedData = fetchedData.map((item, index) => ({
+  
+      // Sort by srno or createdAt (to keep order stable)
+      const sortedData = fetchedData.sort((a, b) => a.srno - b.srno);
+  
+      // Reassign serial numbers
+      const updatedData = sortedData.map((item, index) => ({
         ...item,
-        srno: index + 1, // Reassign serial numbers sequentially
+        srno: index + 1,
       }));
-
+  
+      // Persist updated srno values to the DB
+      await Promise.all(
+        updatedData.map((item) =>
+          axios.put(`http://localhost:8081/category/${item._id}`, { srno: item.srno })
+        )
+      );
+  
       setData(updatedData);
-
-      // Calculate the next serial number for new entries
-      setNextSerialNumber(updatedData.length + 1); // Increment by 1
-      form.setFieldsValue({ srno: updatedData.length + 1 }); // Set the default value in the form
+      setNextSerialNumber(updatedData.length + 1);
+      form.setFieldsValue({ srno: updatedData.length + 1 });
     } catch (error) {
       console.error("Error fetching categories:", error);
       setData([]);
     }
-  };
+  };  
 
   const handleSubmit = async () => {
     try {
@@ -88,14 +96,14 @@ const Categories = () => {
     try {
       await axios.delete(`http://localhost:8081/category/${id}`);
       messageApi.success("Category deleted successfully!");
-
+  
       // Re-fetch data and reassign serial numbers
       fetchData();
     } catch (error) {
       console.error("Error deleting category:", error);
       messageApi.error("Failed to delete category!");
     }
-  };
+  };  
 
   const clearForm = () => {
     form.resetFields();
