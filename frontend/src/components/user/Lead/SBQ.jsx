@@ -127,6 +127,24 @@ const SBQ = () => {
     return tableData.reduce((sum, row) => sum + (row.total || 0), 0);
   };
 
+  const handleSave = async () => {
+    try {
+      // Save logic (you can replace this with the API call to save the data)
+      const response = await axios.post("http://localhost:8081/svq", {
+        data: tableData,
+      });
+
+      if (response.status === 200) {
+        message.success("Data saved successfully!");
+      } else {
+        message.error("Failed to save data");
+      }
+    } catch (error) {
+      console.error("Error saving data:", error);
+      message.error("Error saving data");
+    }
+  };
+
   const columns = [
     {
       title: "No",
@@ -158,7 +176,15 @@ const SBQ = () => {
         <Select
           placeholder="Select Brand"
           value={record.brand}
-          onChange={(value) => updateRow(record.key, "brand", value)}
+          onChange={(value) => {
+            updateRow(record.key, "brand", value);
+
+            if (value) {
+              message.success("Brand selected");
+            } else {
+              message.warning("Brand deselected");
+            }
+          }}
           style={{ width: "100%" }}
           options={brandOptions}
         />
@@ -196,6 +222,7 @@ const SBQ = () => {
         <Input
           value={record.rate}
           onChange={(e) => updateRow(record.key, "rate", e.target.value)}
+          disabled={!record.brand} // Disable rate if no brand is selected for that row
         />
       ),
     },
@@ -257,6 +284,13 @@ const SBQ = () => {
                 Cancel
               </Button>
             </Link>
+            <Button
+              type="primary"
+              style={{ marginLeft: "8px", marginTop: "8px" }}
+              onClick={handleSave}
+            >
+              Save
+            </Button>
           </div>
         </div>
       </section>

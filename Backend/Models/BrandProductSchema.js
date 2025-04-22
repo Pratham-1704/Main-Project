@@ -1,37 +1,14 @@
 const mongoose = require("mongoose");
 
-const BrandProductSchema = new mongoose.Schema(
-    {
-        brandid: { 
-            type: mongoose.Schema.Types.ObjectId, 
-            ref: "brand", 
-            required: [true, "Brand ID is required"] 
-        },
-        productid: { 
-            type: mongoose.Schema.Types.ObjectId, 
-            ref: "product", 
-            required: [true, "Product ID is required"] 
-        },
-        parity: { 
-            type: String, 
-            required: [true, "Parity is required"], 
-            enum: {
-                values: ["standard", "premium", "economy"],
-                message: "Parity must be 'standard', 'premium', or 'economy'"
-            }
-        },
-        rate: { 
-            type: Number, 
-            required: [true, "Rate is required"], 
-            min: [0, "Rate must be a positive number"] 
-        },
-        billingrate: { 
-            type: Number, 
-            required: [true, "Billing rate is required"], 
-            min: [0, "Billing rate must be a positive number"] 
-        }
-    }, 
-    { timestamps: true }
-);
+const BrandProductSchema = new mongoose.Schema({
+  brandid: { type: mongoose.Schema.Types.ObjectId, ref: "Brand", required: true },
+  productid: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
+  parityid: { type: String, default: "none" },
+  parity: { type: String, default: "0" },
+  rate: { type: Number, default: 0 },
+  billingrate: { type: Number, default: 0 },
+});
 
-module.exports = mongoose.model("brandProduct", BrandProductSchema);
+BrandProductSchema.index({ brandid: 1, productid: 1 }, { unique: true });
+
+module.exports = mongoose.model("BrandProduct", BrandProductSchema);

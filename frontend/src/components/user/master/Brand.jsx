@@ -111,27 +111,27 @@ const Brand = () => {
   };
 
   const handleManageProducts = (record) => {
-    // Navigate to the BrandProduct page with the brand name
-    navigate(`/master/brandproduct`, { state: { brandName: record.name } });
+    // Navigate to the BrandProduct page with the brand name and brand ID
+    navigate(`/master/brandproduct`, { state: { brandName: record.name, brandId: record._id } });
   };
 
   const columns = [
     { title: "Serial No", dataIndex: "srno", key: "srno", align: "center" },
     { title: "Name", dataIndex: "name", key: "name" },
     {
-      title: "Products",align: "center",
+      title: "Products",
+      align: "center",
       key: "products",
       render: (_, record) => (
         <div style={{ display: "flex", justifyContent: "center" }}>
-        <Button
-          type="dashed"
-          onClick={() => handleManageProducts(record)}
-          size="small"
-        >
-          Manage Products
-        </Button>
-      </div>
-      
+          <Button
+            type="dashed"
+            onClick={() => handleManageProducts(record)}
+            size="small"
+          >
+            Manage Products
+          </Button>
+        </div>
       ),
     },
     {

@@ -2,68 +2,95 @@ const express = require("express");
 const router = express.Router();
 const BrandProduct = require("../Models/BrandProductSchema");
 
-// ➤ Get all brand products
+// Get all brand products with optional filtering
 router.get("/", async (req, res) => {
-    try {
-        let result = await BrandProduct.find({}).populate("brandid").populate("productid");
-        res.json({ status: "success", data: result });
-    } catch (err) {
-        res.status(500).json({ status: "error", data: err.message });
-    }
+  try {
+    const { brandid, productid } = req.query;
+    const filter = {};
+    if (brandid) filter.brandid = brandid;
+    if (productid) filter.productid = productid;
+
+    const result = await BrandProduct.find(filter)
+      .populate("brandid")
+      .populate("productid");
+
+    res.json({ status: "success", data: result });
+  } catch (err) {
+    res.status(500).json({ status: "error", data: err.message });
+  }
 });
 
-// ➤ Get a single brand product by ID
-router.get("/:id", async (req, res) => {
-    try {
-        const id = req.params.id;
-        let object = await BrandProduct.findById(id).populate("brandid").populate("productid");
-        if (!object) {
-            return res.status(404).json({ status: "error", data: "BrandProduct not found" });
-        }
-        res.json({ status: "success", data: object });
-    } catch (err) {
-        res.status(500).json({ status: "error", data: err.message });
-    }
+// Get a list of product IDs by brand ID
+router.get("/productids/:brandid", async (req, res) => {
+  try {
+    const { brandid } = req.params;
+    const records = await BrandProduct.find({ brandid });
+    const productIds = records.map((r) => r.productid.toString());
+    res.json({ status: "success", data: productIds });
+  } catch (err) {
+    res.status(500).json({ status: "error", data: err.message });
+  }
 });
 
-// ➤ Add a new brand product
+// Add a brand product
 router.post("/", async (req, res) => {
-    try {
-        const data = req.body;
-        let object = await BrandProduct.create(data);
-        res.status(201).json({ status: "success", data: object });
-    } catch (err) {
-        res.status(400).json({ status: "error", data: err.message });
+  try {
+    const { brandid, productid, parityid, parity, rate, billingrate } = req.body;
+
+    if (!brandid || !productid) {
+      return res.status(400).json({
+        status: "error",
+        data: "Missing required fields: brandid and productid",
+      });
     }
+
+    const existing = await BrandProduct.findOne({ brandid, productid });
+    if (existing) {
+      return res.status(409).json({
+        status: "error",
+        data: "This brand-product combination already exists",
+      });
+    }
+
+    const newRecord = await BrandProduct.create({
+      brandid,
+      productid,
+      parityid,
+      parity,
+      rate,
+      billingrate,
+    });
+
+    res.status(201).json({ status: "success", data: newRecord });
+  } catch (err) {
+    res.status(500).json({ status: "error", data: err.message });
+  }
 });
 
-// ➤ Update a brand product by ID
-router.put("/:id", async (req, res) => {
-    try {
-        const id = req.params.id;
-        const data = req.body;
-        let object = await BrandProduct.findByIdAndUpdate(id, data, { new: true });
-        if (!object) {
-            return res.status(404).json({ status: "error", data: "BrandProduct not found" });
-        }
-        res.json({ status: "success", data: object });
-    } catch (err) {
-        res.status(400).json({ status: "error", data: err.message });
+// Delete brand product by brandId and productId
+router.delete("/", async (req, res) => {
+  try {
+    const { brandId, productId } = req.query;
+    if (!brandId || !productId) {
+      return res.status(400).json({
+        status: "error",
+        data: "Missing query parameters: brandId and productId",
+      });
     }
-});
 
-// ➤ Delete a brand product by ID
-router.delete("/:id", async (req, res) => {
-    try {
-        const id = req.params.id;
-        let object = await BrandProduct.findByIdAndDelete(id);
-        if (!object) {
-            return res.status(404).json({ status: "error", data: "BrandProduct not found" });
-        }
-        res.json({ status: "success", data: "BrandProduct deleted successfully" });
-    } catch (err) {
-        res.status(500).json({ status: "error", data: err.message });
+    const record = await BrandProduct.findOneAndDelete({
+      brandid: brandId,
+      productid: productId,
+    });
+
+    if (!record) {
+      return res.status(404).json({ status: "error", data: "BrandProduct not found" });
     }
+
+    res.json({ status: "success", data: "BrandProduct deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ status: "error", data: err.message });
+  }
 });
 
 module.exports = router;
