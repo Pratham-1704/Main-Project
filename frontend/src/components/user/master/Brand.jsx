@@ -29,23 +29,31 @@ const Brand = () => {
     try {
       const response = await axios.get("http://localhost:8081/brand");
       const fetchedBrands = response.data.status === "success" ? response.data.data : [];
-
-      // Reassign serial numbers to ensure they are sequential
-      const updatedBrands = fetchedBrands.map((brand, index) => ({
+  
+      // Sort by srno or createdAt to keep order consistent
+      const sortedBrands = fetchedBrands.sort((a, b) => a.srno - b.srno);
+  
+      // Reassign serial numbers
+      const updatedBrands = sortedBrands.map((brand, index) => ({
         ...brand,
-        srno: index + 1, // Reassign serial numbers sequentially
+        srno: index + 1,
       }));
-
+  
+      // Persist the new serial numbers to DB
+      await Promise.all(
+        updatedBrands.map((brand) =>
+          axios.put(`http://localhost:8081/brand/${brand._id}`, { srno: brand.srno })
+        )
+      );
+  
       setBrands(updatedBrands);
-
-      // Calculate the next serial number for new entries
-      setNextSerialNumber(updatedBrands.length + 1); // Increment by 1
-      form.setFieldsValue({ srno: updatedBrands.length + 1 }); // Set the default value in the form
+      setNextSerialNumber(updatedBrands.length + 1);
+      form.setFieldsValue({ srno: updatedBrands.length + 1 });
     } catch (error) {
       console.error("Error fetching brands:", error);
       setBrands([]);
     }
-  };
+  };  
 
   const handleSubmit = async () => {
     try {
