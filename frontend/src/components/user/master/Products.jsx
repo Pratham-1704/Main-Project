@@ -31,14 +31,7 @@ const Products = () => {
         srno: index + 1,
       }));
   
-      // Update srno in DB and wait for all to finish
-      await Promise.all(
-        updatedData.map((item) =>
-          axios.put(`http://localhost:8081/product/${item._id}`, { srno: item.srno })
-        )
-      );
-  
-      // Set state only after all updates succeed
+      // Set state with updated data
       setData(updatedData);
       setNextSerialNumber(updatedData.length + 1);
       form.setFieldsValue({ srno: updatedData.length + 1 });
@@ -107,7 +100,9 @@ const Products = () => {
     try {
       await axios.delete(`http://localhost:8081/product/${id}`);
       messageApi.success("Product deleted successfully!");
-      fetchData(); // 🔁 Refresh the data directly after delete
+
+      // Re-fetch data and recalculate srno
+      fetchData();
     } catch (error) {
       console.error("Error deleting product:", error);
       messageApi.error("Failed to delete product!");
