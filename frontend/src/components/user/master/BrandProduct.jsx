@@ -207,11 +207,13 @@ const BrandProduct = () => {
 
           <div className="card p-3 mt-3">
             <Table
+              className="custom-table"
               columns={columns}
               dataSource={filteredProducts}
               rowKey="_id"
-              pagination={false} // removed pagination
+              pagination={false}
             />
+
           </div>
         </section>
       </main>

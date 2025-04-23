@@ -188,7 +188,7 @@ const FinancialYears = () => {
           </nav>
         </div>
         <section className="section">
-          <div className="card p-3" style={{ backgroundColor: "#f8f9fa" }}>
+          <div className="card p-3">
             <Form form={form} layout="vertical">
               <div className="row">
                 <div className="col-lg-6 p-1">

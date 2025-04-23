@@ -25,9 +25,6 @@ const LeadDetails = () => {
   const [loading, setLoading] = useState(true);
   const [messageApi, contextHolder] = message.useMessage();
 
-
-
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -50,7 +47,6 @@ const LeadDetails = () => {
         messageApi.error("Failed to fetch lead or supporting data");
       } finally {
         setLoading(false);
-       // localStorage.removeItem("selectedLeadId");
       }
     };
 
@@ -59,12 +55,12 @@ const LeadDetails = () => {
 
   const getCategoryName = (id) => {
     const cat = categories.find((c) => c._id === id);
-    return cat ? cat.name : id;
+    return cat ? cat.name : "Unknown Category";
   };
 
   const getProductName = (id) => {
     const prod = products.find((p) => p._id === id);
-    return prod ? prod.name : id;
+    return prod ? prod.name : "Unknown Product";
   };
 
   const columns = [

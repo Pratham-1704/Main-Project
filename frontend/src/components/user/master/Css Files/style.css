@@ -1,5 +1,5 @@
 /* Table header */
-.custom-table .ant-table-thead > tr > th {
+.custom-table .ant-table-thead > tr > th1 {
     background-color: #c7b1ec; /* Lavender Purple */
     color: #5f3131; /* White Text */
     font-weight: bold;
@@ -8,17 +8,38 @@
   }
   
   /* Table body rows */
-  .custom-table .ant-table-tbody > tr > td {
+  .custom-table .ant-table-tbody > tr > td1 {
     background-color: #e4ebff; /* Soft Icy Blue */
     color: #2f2f2f; /* Dark Gray Text */
     font-size: 12px;
   }
   
   /* Hovered row */
-  .custom-table .ant-table-tbody > tr:hover > td {
+  .custom-table .ant-table-tbody > tr:hover > td1 {
     background-color: #ecf0c8; /* Light Lavender */
   }
   
+ .custom-table .ant-table-thead > tr > th {
+  background-color: #bcd4f6;
+  color: #1f2937;
+}
+.custom-table .ant-table-tbody > tr > td {
+  background-color: #eef4fb;
+  color: #1f2937;
+}
+.custom-table .ant-table-tbody > tr:hover > td {
+  background-color: #dbeafe;
+}
+
+.p-3 {
+  background-color: #d3dbd7; /* Light Lavender */
+  border-radius: 8px;
+  color: #3e3e3e; /* Charcoal text for readability */
+}
+
+  
+  
+
   /* Action buttons (shared style) */
   .action-button {
     font-size: 18px;
@@ -33,6 +54,9 @@
     height: 32px;
     transition: all 0.3s ease;
   }
+  
+
+
   
   /* Hover effect for action buttons */
   .action-button:hover {
