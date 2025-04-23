@@ -22,6 +22,7 @@ const LeadDetails = () => {
   const [lead, setLead] = useState(null);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
+  const [customer, setCustomer] = useState(null); // State for customer details
   const [loading, setLoading] = useState(true);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -40,9 +41,18 @@ const LeadDetails = () => {
           axios.get("http://localhost:8081/product"),
         ]);
 
-        setLead(leadRes.data.data);
+        const leadData = leadRes.data.data;
+        setLead(leadData);
         setCategories(catRes.data.data);
         setProducts(prodRes.data.data);
+
+        // Fetch customer details using customerid
+        if (leadData.customerid) {
+          const customerRes = await axios.get(
+            `http://localhost:8081/customer/${leadData.customerid}`
+          );
+          setCustomer(customerRes.data.data);
+        }
       } catch (err) {
         messageApi.error("Failed to fetch lead or supporting data");
       } finally {
@@ -181,13 +191,13 @@ const LeadDetails = () => {
                 >
                   {idx < 2 ? (
                     <>
-                      <Text strong>{lead.customername || "V AND G PIPE HOUSE"}</Text>
-                      <Text>8805263434</Text>
+                      <Text strong>{customer?.name || "Customer Name"}</Text>
+                      <Text>{customer?.mobileno1 || "Customer Mobile"}</Text>
                       <Text style={{ fontSize: "12px" }}>
-                        GROUND, A-9, ZARINA TOWER, TALIGAO ROAD, ST INEZ PANAJI, North Goa, Goa, 403001
+                        {customer?.address || "Customer Address"}
                       </Text>
                       <Text>
-                        <b>GST No.:</b> 30AAFFV2278N1ZW
+                        <b>GST No.:</b> {customer?.gst || "Customer GST"}
                       </Text>
                     </>
                   ) : (

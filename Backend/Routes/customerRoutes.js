@@ -27,7 +27,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     try {
         let id= req.params.id;
-        const customer = await Customer.findById(id).populate("firmid", "name");
+        const customer = await Customer.findById(id).populate("name");
         if (!customer) return res.status(404).json({ status: "error", message: "Customer not found" });
         res.json({ status: "success", data: customer });
     } catch (err) {

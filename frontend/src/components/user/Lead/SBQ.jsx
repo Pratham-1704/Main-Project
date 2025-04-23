@@ -1,23 +1,33 @@
 import React, { useState, useEffect } from "react";
-import { Table, Input, Select, Button, message } from "antd";
+import {
+  Table,
+  Input,
+  Select,
+  Button,
+  message,
+  Form,
+  DatePicker,
+  Row,
+  Col,
+} from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import dayjs from "dayjs";
 
 const SBQ = () => {
   const [tableData, setTableData] = useState([]);
   const [brandOptions, setBrandOptions] = useState([]);
-  const [leadData, setLeadData] = useState([]);
+  const [form] = Form.useForm();
 
-  // Fetch brands
   const fetchBrands = async () => {
     try {
       const res = await axios.get("http://localhost:8081/brand");
       const options = Array.isArray(res.data.data)
         ? res.data.data.map((brand) => ({
-            value: brand._id,
-            label: brand.name,
-          }))
+          value: brand._id,
+          label: brand.name,
+        }))
         : [];
       setBrandOptions(options);
     } catch (err) {
@@ -48,14 +58,42 @@ const SBQ = () => {
     }
   };
 
-  // Fetch lead data and populate table
   const fetchLeadDataById = async (leadId) => {
     try {
       const categories = await fetchCategories();
       const products = await fetchProducts();
 
       const res = await axios.get(`http://localhost:8081/lead/${leadId}`);
-      const itemsArray = Array.isArray(res.data.data?.items) ? res.data.data.items : [];
+      const leadData = res.data.data;
+
+      console.log("Lead Data:", leadData); // Debugging: Check the structure of the lead data
+
+      // Fetch customer details if needed
+      let customerDetails = {};
+      if (leadData.customerid) {
+        const customerRes = await axios.get(`http://localhost:8081/customer/${leadData.customerid}`);
+        customerDetails = customerRes.data.data || {};
+      }
+
+      // Fetch source details if needed
+      let sourceDetails = {};
+      if (leadData.sourceid) {
+        const sourceRes = await axios.get(`http://localhost:8081/source/${leadData.sourceid}`);
+        sourceDetails = sourceRes.data.data || {};
+      }
+
+      // Map API response keys to form field names
+      form.setFieldsValue({
+        name: customerDetails.name || "", // Customer name from customer API
+        mobile: customerDetails.mobileno1 || "", // Mobile from customer API
+        city: customerDetails.city || "", // City from customer API
+        state: customerDetails.state || "", // State from customer API
+        address: customerDetails.address || "", // Address from customer API
+        source: sourceDetails.name || "", // Source name from source API
+        leaddate: leadData.leaddate ? dayjs(leadData.leaddate) : null, // Lead date
+      });
+
+      const itemsArray = Array.isArray(leadData?.items) ? leadData.items : [];
 
       if (itemsArray.length === 0) {
         message.warning("No items found for the given leadId");
@@ -85,7 +123,6 @@ const SBQ = () => {
     }
   };
 
-  // Load on mount
   useEffect(() => {
     fetchBrands();
 
@@ -103,14 +140,11 @@ const SBQ = () => {
       prev.map((row) => {
         if (row.key === key) {
           const updatedRow = { ...row, [field]: value };
-
-          // Calculate total if 'req' or 'rate' is updated
           if (field === "req" || field === "rate") {
             const req = parseFloat(updatedRow.req) || 0;
             const rate = parseFloat(updatedRow.rate) || 0;
             updatedRow.total = req * rate;
           }
-
           return updatedRow;
         }
         return row;
@@ -122,15 +156,15 @@ const SBQ = () => {
     setTableData((prev) => prev.filter((row) => row.key !== key));
   };
 
-  // Calculate total sum of the "Total" column
   const calculateTotalSum = () => {
     return tableData.reduce((sum, row) => sum + (row.total || 0), 0);
   };
 
   const handleSave = async () => {
     try {
-      // Save logic (you can replace this with the API call to save the data)
+      const formData = await form.validateFields();
       const response = await axios.post("http://localhost:8081/svq", {
+        form: formData,
         data: tableData,
       });
 
@@ -145,28 +179,78 @@ const SBQ = () => {
     }
   };
 
-  const columns = [
-    {
-      title: "No",
-      dataIndex: "no",
-      key: "no",
-      render: (_, __, index) => index + 1,
-    },
-    {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
-      render: (text) => (
-        <Input value={text} readOnly style={{ backgroundColor: "#f5f5f5" }} />
-      ),
-    },
+  const handleUpdate = async () => {
+    try {
+      const formData = await form.validateFields();
+      const response = await axios.put("http://localhost:8081/svq", {
+        form: formData,
+        data: tableData,
+      });
+
+      if (response.status === 200) {
+        message.success("Data updated successfully!");
+      } else {
+        message.error("Failed to update data");
+      }
+    } catch (error) {
+      console.error("Error updating data:", error);
+      message.error("Error updating data");
+    }
+  };
+
+  const formFields = (
+    <Form form={form} layout="vertical">
+      <Row gutter={16}>
+        <Col span={6}>
+          <Form.Item label="Customer Name" name="name" rules={[{ required: true }]}>
+            <Input placeholder="Enter Name" readOnly />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="Mobile" name="mobile" rules={[{ required: true }]}>
+            <Input placeholder="Enter Mobile" readOnly />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="City" name="city">
+            <Input placeholder="Enter City" />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="State" name="state">
+            <Input placeholder="Enter State" />
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item label="Address" name="address">
+            <Input placeholder="Enter Address" />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="Source" name="source">
+            <Input placeholder="Enter Source" readOnly />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="Lead Date" name="leaddate">
+            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" disabled />
+          </Form.Item>
+        </Col>
+      </Row>
+      <div className="text-end">
+        <Button type="primary" onClick={handleUpdate}>
+          Update
+        </Button>
+      </div>
+    </Form>
+  );
+
+  const commonColumns = [
     {
       title: "Product",
       dataIndex: "product",
       key: "product",
-      render: (text) => (
-        <Input value={text} readOnly style={{ backgroundColor: "#f5f5f5" }} />
-      ),
+      render: (text) => <Input value={text} readOnly style={{ backgroundColor: "#f5f5f5" }} />,
     },
     {
       title: "Brand",
@@ -176,15 +260,7 @@ const SBQ = () => {
         <Select
           placeholder="Select Brand"
           value={record.brand}
-          onChange={(value) => {
-            updateRow(record.key, "brand", value);
-
-            if (value) {
-              message.success("Brand selected");
-            } else {
-              message.warning("Brand deselected");
-            }
-          }}
+          onChange={(value) => updateRow(record.key, "brand", value)}
           style={{ width: "100%" }}
           options={brandOptions}
         />
@@ -208,9 +284,7 @@ const SBQ = () => {
       render: (_, record) => (
         <Input
           value={record.estimationin}
-          onChange={(e) =>
-            updateRow(record.key, "estimationin", e.target.value)
-          }
+          onChange={(e) => updateRow(record.key, "estimationin", e.target.value)}
         />
       ),
     },
@@ -222,7 +296,7 @@ const SBQ = () => {
         <Input
           value={record.rate}
           onChange={(e) => updateRow(record.key, "rate", e.target.value)}
-          disabled={!record.brand} // Disable rate if no brand is selected for that row
+          disabled={!record.brand}
         />
       ),
     },
@@ -231,10 +305,7 @@ const SBQ = () => {
       dataIndex: "total",
       key: "total",
       render: (_, record) => (
-        <Input
-          value={record.total}
-          readOnly // Make the total field read-only
-        />
+        <Input value={record.total} readOnly />
       ),
     },
     {
@@ -267,9 +338,23 @@ const SBQ = () => {
 
       <section className="section">
         <div className="card p-3 mt-3">
+          {formFields}
+        </div>
+
+        <div className="card p-3 mt-3">
           <Table
             dataSource={tableData}
-            columns={columns}
+            columns={[
+              {
+                title: "Category",
+                dataIndex: "category",
+                key: "category",
+                render: (text) => (
+                  <Input value={text} readOnly style={{ backgroundColor: "#f5f5f5" }} />
+                ),
+              },
+              ...commonColumns,
+            ]}
             rowKey="key"
             pagination={false}
             footer={() => (

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const BrandProduct = require("../Models/BrandProductSchema");
+const mongoose = require("mongoose");
 
 // Get all brand products with optional filtering
 router.get("/", async (req, res) => {
@@ -24,6 +25,14 @@ router.get("/", async (req, res) => {
 router.get("/productids/:brandid", async (req, res) => {
   try {
     const { brandid } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(brandid)) {
+      return res.status(400).json({
+        status: "error",
+        data: "Invalid brand ID format",
+      });
+    }
+
     const records = await BrandProduct.find({ brandid });
     const productIds = records.map((r) => r.productid.toString());
     res.json({ status: "success", data: productIds });
@@ -41,6 +50,13 @@ router.post("/", async (req, res) => {
       return res.status(400).json({
         status: "error",
         data: "Missing required fields: brandid and productid",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(brandid) || !mongoose.Types.ObjectId.isValid(productid)) {
+      return res.status(400).json({
+        status: "error",
+        data: "Invalid brandid or productid format",
       });
     }
 
@@ -71,10 +87,18 @@ router.post("/", async (req, res) => {
 router.delete("/", async (req, res) => {
   try {
     const { brandId, productId } = req.query;
+
     if (!brandId || !productId) {
       return res.status(400).json({
         status: "error",
         data: "Missing query parameters: brandId and productId",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(brandId) || !mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({
+        status: "error",
+        data: "Invalid brandId or productId format",
       });
     }
 
@@ -92,5 +116,33 @@ router.delete("/", async (req, res) => {
     res.status(500).json({ status: "error", data: err.message });
   }
 });
+
+// Get product count for a specific brand
+// Get product count for a specific brand
+router.get("/count", async (req, res) => {
+  try {
+    const { brandid } = req.query;
+
+    if (!brandid) {
+      return res.status(400).json({
+        status: "error",
+        data: "Missing query parameter: brandid",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(brandid)) {
+      return res.status(400).json({
+        status: "error",
+        data: "Invalid brandid format",
+      });
+    }
+
+    const count = await BrandProduct.countDocuments({ brandid });
+    res.json({ status: "success", count });
+  } catch (err) {
+    res.status(500).json({ status: "error", data: err.message });
+  }
+});
+
 
 module.exports = router;

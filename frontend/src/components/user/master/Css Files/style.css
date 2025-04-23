@@ -32,13 +32,10 @@
 }
 
 .p-3 {
-  background-color: #d3dbd7; /* Light Lavender */
+  background-color: hsl(105, 25%, 84%); /* Light Lavender */
   border-radius: 8px;
-  color: #3e3e3e; /* Charcoal text for readability */
+  color: #c0b6b6; /* Charcoal text for readability */
 }
-
-  
-  
 
   /* Action buttons (shared style) */
   .action-button {

@@ -30,25 +30,39 @@ const Brand = () => {
       const response = await axios.get("http://localhost:8081/brand");
       const fetchedBrands = response.data.status === "success" ? response.data.data : [];
 
+      // Fetch product count for each brand
+      const updatedBrands = await Promise.all(
+        fetchedBrands.map(async (brand) => {
+          const countResponse = await axios.get("http://localhost:8081/brandproduct/count", {
+            params: { brandid: brand._id },
+          });
+
+          return {
+            ...brand,
+            productCount: countResponse.data.count, // Add product count to the brand data
+          };
+        })
+      );
+
       // Sort by srno or createdAt to keep order consistent
-      const sortedBrands = fetchedBrands.sort((a, b) => a.srno - b.srno);
+      const sortedBrands = updatedBrands.sort((a, b) => a.srno - b.srno);
 
       // Reassign serial numbers
-      const updatedBrands = sortedBrands.map((brand, index) => ({
+      const finalUpdatedBrands = sortedBrands.map((brand, index) => ({
         ...brand,
         srno: index + 1,
       }));
 
       // Persist the new serial numbers to DB
       await Promise.all(
-        updatedBrands.map((brand) =>
+        finalUpdatedBrands.map((brand) =>
           axios.put(`http://localhost:8081/brand/${brand._id}`, { srno: brand.srno })
         )
       );
 
-      setBrands(updatedBrands);
-      setNextSerialNumber(updatedBrands.length + 1);
-      form.setFieldsValue({ srno: updatedBrands.length + 1 });
+      setBrands(finalUpdatedBrands);
+      setNextSerialNumber(finalUpdatedBrands.length + 1);
+      form.setFieldsValue({ srno: finalUpdatedBrands.length + 1 });
     } catch (error) {
       console.error("Error fetching brands:", error);
       setBrands([]);
@@ -140,7 +154,7 @@ const Brand = () => {
             onClick={() => handleManageProducts(record)}
             size="small"
           >
-            Manage Products
+            Manage Products ({record.productCount ? record.productCount : 0})
           </Button>
         </div>
       ),
@@ -190,21 +204,16 @@ const Brand = () => {
           </nav>
         </div>
         <section className="section">
-          <div className="card p-3" >
+          <div className="card p-3">
             <Form form={form} layout="vertical">
               <div className="row">
                 <div className="col-lg-6 p-1">
                   <Form.Item
                     name="srno"
                     label="Serial No"
-                    rules={[
-                      { required: true, message: "Please enter serial number!" },
-                    ]}
+                    rules={[{ required: true, message: "Please enter serial number!" }]}
                   >
-                    <Input
-                      placeholder="Serial Number"
-                      disabled
-                    />
+                    <Input placeholder="Serial Number" disabled />
                   </Form.Item>
                 </div>
 
@@ -212,9 +221,7 @@ const Brand = () => {
                   <Form.Item
                     name="name"
                     label="Name"
-                    rules={[
-                      { required: true, message: "Please enter brand name!" },
-                    ]}
+                    rules={[{ required: true, message: "Please enter brand name!" }]}
                   >
                     <Input placeholder="Brand Name" />
                   </Form.Item>
