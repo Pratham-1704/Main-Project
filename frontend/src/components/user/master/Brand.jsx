@@ -29,23 +29,23 @@ const Brand = () => {
     try {
       const response = await axios.get("http://localhost:8081/brand");
       const fetchedBrands = response.data.status === "success" ? response.data.data : [];
-  
+
       // Sort by srno or createdAt to keep order consistent
       const sortedBrands = fetchedBrands.sort((a, b) => a.srno - b.srno);
-  
+
       // Reassign serial numbers
       const updatedBrands = sortedBrands.map((brand, index) => ({
         ...brand,
         srno: index + 1,
       }));
-  
+
       // Persist the new serial numbers to DB
       await Promise.all(
         updatedBrands.map((brand) =>
           axios.put(`http://localhost:8081/brand/${brand._id}`, { srno: brand.srno })
         )
       );
-  
+
       setBrands(updatedBrands);
       setNextSerialNumber(updatedBrands.length + 1);
       form.setFieldsValue({ srno: updatedBrands.length + 1 });
@@ -53,7 +53,7 @@ const Brand = () => {
       console.error("Error fetching brands:", error);
       setBrands([]);
     }
-  };  
+  };
 
   const handleSubmit = async () => {
     try {
@@ -62,7 +62,7 @@ const Brand = () => {
       if (editingId) {
         // Check if values are different
         const isChanged = Object.keys(values).some(
-          (key) => values[key] !== initialValues?.[key]
+          (key) => values[key]?.toString().trim() !== initialValues?.[key]?.toString().trim()
         );
 
         if (!isChanged) {
@@ -74,6 +74,9 @@ const Brand = () => {
         messageApi.success("Brand updated successfully!");
         setEditingId(null);
         setInitialValues(null);
+
+        // Re-fetch brands and reassign serial numbers
+        fetchBrands();
       } else {
         // Add the new brand with the next serial number
         const newBrand = { ...values, srno: nextSerialNumber };
@@ -93,7 +96,7 @@ const Brand = () => {
   };
 
   const handleEdit = (record) => {
-    form.setFieldsValue({ name: record.name }); // Only set the editable fields
+    form.setFieldsValue({ srno: record.srno, name: record.name }); // Only set the editable fields
     setEditingId(record._id);
     setInitialValues(record); // Save original data
   };
