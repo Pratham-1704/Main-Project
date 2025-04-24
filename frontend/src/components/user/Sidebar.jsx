@@ -69,7 +69,7 @@ function Sidebar() {
                 <span>Products</span>
               </Link>
             </li>
-          
+
             {/* <li>
               <Link to={"/master/firms"}>
                 <i class="bi bi-circle"></i>
@@ -83,25 +83,11 @@ function Sidebar() {
                 <span>Customers</span>
               </Link>
             </li>
-            
+
             <li>
               <Link to={"/master/brandproduct"}>
                 <i class="bi bi-circle"></i>
                 <span>Brand Product</span>
-              </Link>
-            </li>
-
-            <li>
-              <Link to={"/master/Parities"}>
-                <i class="bi bi-circle"></i>
-                <span>Parities</span>
-              </Link>
-            </li>
-            
-            <li>
-              <Link to={"/master/manage-parity"}>
-                <i class="bi bi-circle"></i>
-                <span>manage parity</span>
               </Link>
             </li>
 
