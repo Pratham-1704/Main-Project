@@ -21,6 +21,7 @@ import LeadRecord from './components/user/Lead/LeadRecord';
 import LeadDetails from './components/user/Lead/LeadDetails';
 import SBQ from './components/user/Lead/SBQ';
 import MBQ from './components/user/Lead/MBQ';
+import Parities from './components/user/master/Parities';
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function App() {
             <Route path="order" element={<Order />} />
             <Route path="quotations" element={<Quotations />} />
             <Route path='manage products' element={<BrandProducts />} />
+            <Route path="parities" element={<Parities />} />
           </Route>
 
           <Route

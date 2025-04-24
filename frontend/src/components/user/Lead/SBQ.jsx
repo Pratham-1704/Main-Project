@@ -277,26 +277,23 @@ const SBQ = () => {
         />
       ),
     },
+    
     {
       title: "Unit",
       dataIndex: "estimationin",
       key: "estimationin",
       render: (_, record) => (
-        <Input
+        <Select
+          placeholder="Select Unit"
           value={record.estimationin}
-          onChange={(e) => updateRow(record.key, "estimationin", e.target.value)}
-        />
-      ),
-    },
-    {
-      title: "Rate",
-      dataIndex: "rate",
-      key: "rate",
-      render: (_, record) => (
-        <Input
-          value={record.rate}
-          onChange={(e) => updateRow(record.key, "rate", e.target.value)}
-          disabled={!record.brand}
+          onChange={(value) => updateRow(record.key, "estimationin", value)}
+          style={{ width: "100%" }}
+          options={[
+            { value: "Kg", label: "Kg" },
+            { value: "Meter", label: "Meter" },
+            { value: "Feet", label: "Feet" },
+            { value: "No's", label: "No's" },
+          ]}
         />
       ),
     },
@@ -364,18 +361,20 @@ const SBQ = () => {
             )}
           />
           <div className="text-end mt-2">
+            <Button
+              type="primary"
+              style={{ marginRight: "8px", marginTop: "8px" }}
+              onClick={handleSave}
+            >
+              Save
+            </Button>
+
             <Link to="/lead/lead-record">
               <Button type="default" danger style={{ marginTop: "8px" }}>
                 Cancel
               </Button>
             </Link>
-            <Button
-              type="primary"
-              style={{ marginLeft: "8px", marginTop: "8px" }}
-              onClick={handleSave}
-            >
-              Save
-            </Button>
+
           </div>
         </div>
       </section>
