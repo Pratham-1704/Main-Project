@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Select, Button, message, Table } from "antd";
+import { Form, Input, Select, Button, message, Table, Flex } from "antd";
 import axios from "axios";
 import "./Css Files/style.css"; // Import the CSS file
 
@@ -147,10 +147,19 @@ function ManageParity() {
                 </div>
 
                 {/* Submit Button */}
-                <Form.Item wrapperCol={{ span: 16 }}>
-                  <Button type="primary" htmlType="submit" loading={loading} className="ant-btn">
-                    Save 
-                  </Button>
+                <Form.Item >
+                  <div >
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      loading={loading}
+                      style={{ marginLeft: '930px' }}
+                      className="ant-btn"
+                    >
+                      Save
+                    </Button>
+                  </div>
+
                 </Form.Item>
               </Form>
             </div>

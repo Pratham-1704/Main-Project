@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Button, Table, message } from "antd";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Parities() {
   const [data, setData] = useState([]); // State to hold table data
   const [loading, setLoading] = useState(false); // State for loading indicator
+  const navigate = useNavigate(); // Hook for navigation
 
   // Fetch data from the API
   useEffect(() => {
@@ -34,8 +35,8 @@ function Parities() {
 
   // Handle Manage Products button click
   const handleManageProducts = (record) => {
-    message.info(`Manage Products for Brand: ${record.brand}, Product: ${record.product}`);
-    // Add your logic for managing products here
+    // Navigate to the ManageParity page with brand and product details
+    navigate("/master/manage-parity", { state: { brand: record.brand, product: record.product } });
   };
 
   // Table columns
@@ -48,7 +49,7 @@ function Parities() {
       key: "actions",
       render: (_, record) => (
         <Button type="primary" onClick={() => handleManageProducts(record)}>
-          Manage Products
+          Manage Parity
         </Button>
       ),
     },
