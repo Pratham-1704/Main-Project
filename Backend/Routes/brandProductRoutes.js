@@ -3,6 +3,7 @@ const router = express.Router();
 const BrandProduct = require("../Models/BrandProductSchema");
 const mongoose = require("mongoose");
 
+
 // Get all brand products with optional filtering
 router.get("/", async (req, res) => {
   try {

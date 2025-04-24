@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
 const BrandProductSchema = new mongoose.Schema({
-  brandid: { type: mongoose.Schema.Types.ObjectId, ref: "Brand", required: true },
-  productid: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
+  brandid: { type: mongoose.Schema.Types.ObjectId, ref: "brand", required: true },
+  productid: { type: mongoose.Schema.Types.ObjectId, ref: "product", required: true },
   parityid: { type: String, default: "none" },
   parity: { type: String, default: "0" },
   rate: { type: Number, default: 0 },

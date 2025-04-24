@@ -15,12 +15,14 @@ import FinancialYear from './components/user/master/FinancialYear';
 import Lead from './components/user/Lead/Lead';
 import Quotations from './components/user/Lead/Quotations';
 import Order from './components/user/Lead/Order';
-import AdminProfile from './components/user/AdminProfile';
+// import AdminProfile from './components/user/AdminProfile';
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 import LeadRecord from './components/user/Lead/LeadRecord';
 import LeadDetails from './components/user/Lead/LeadDetails';
 import SBQ from './components/user/Lead/SBQ';
 import MBQ from './components/user/Lead/MBQ';
+import Parities from './components/user/master/parities';
+import ManageParity from './components/user/master/ManageParity';
 
 
 function App() {
@@ -64,6 +66,8 @@ function App() {
             <Route path="order" element={<Order />} />
             <Route path="quotations" element={<Quotations />} />
             <Route path='manage products' element={<BrandProducts />} />
+            <Route path="parities" element={<Parities />} />
+            <Route path="manage-parity" element={<ManageParity />} />
           </Route>
 
           <Route
