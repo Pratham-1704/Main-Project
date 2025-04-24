@@ -19,7 +19,6 @@ app.use("/state",require("./Routes/statesRoute"));
 app.use("/brand",require("./Routes/brandsRoute"));
 app.use("/category",require("./Routes/categoryRoutes"));
 app.use("/product",require("./Routes/productRoutes"));
-app.use("/brandproduct",require("./Routes/brandProductRoutes"));
 app.use("/customer",require("./Routes/customerRoutes"));
 app.use("/profession",require("./Routes/ProfessionRoutes"));
 app.use("/financialyear",require("./Routes/financialYearRoutes"));
@@ -32,7 +31,8 @@ app.use("/quotationbrandprice",require("./Routes/quotationBrandPriceRoutes"));
 app.use("/orderdetail",require("./Routes/orderDetailRoutes"));
 app.use("/lead",require("./Routes/leadRoutes"));
 app.use("/leaddetail",require("./Routes/leadDetailsRoutes"));
-app.use("/parity",require("./Routes/paritiesRoute"));
+app.use("/parities",require("./Routes/paritiesRoute"));
+app.use("/parity",require("./Routes/parityRoute"));
 
 app.listen(8081,()=>{
     console.log("server is running on port http://localhost:8081");
