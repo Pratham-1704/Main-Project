@@ -20,6 +20,8 @@ function Parities() {
           srno: index + 1,
           brand: item.brandid?.name || "N/A", // Assuming `brandid` contains the brand object with a `name` field
           product: item.productid?.name || "N/A", // Assuming `productid` contains the product object with a `name` field
+          brandId: item.brandid?._id, // Store brand ID for navigation
+          productId: item.productid?._id, // Store product ID for navigation
         }));
         setData(formattedData);
       } catch (error) {
@@ -36,7 +38,7 @@ function Parities() {
   // Handle Manage Products button click
   const handleManageProducts = (record) => {
     // Navigate to the ManageParity page with brand and product details
-    navigate("/master/manage-parity", { state: { brand: record.brand, product: record.product } });
+    navigate("/master/manage-parity", { state: { brandId: record.brandId, productId: record.productId } });
   };
 
   // Table columns
