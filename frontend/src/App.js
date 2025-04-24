@@ -24,6 +24,7 @@ import MBQ from './components/user/Lead/MBQ';
 import Parities from './components/user/master/parities';
 import ManageParity from './components/user/master/ManageParity';
 
+
 function App() {
   return (
     <>

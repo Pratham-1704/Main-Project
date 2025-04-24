@@ -92,16 +92,9 @@ function Sidebar() {
             </li>
 
             <li>
-              <Link to={"/master/parities"}>
+              <Link to={"/master/Parities"}>
                 <i class="bi bi-circle"></i>
                 <span>Parities</span>
-              </Link>
-            </li>
-
-            <li>
-              <Link to={"/master/manage-parity"}>
-                <i class="bi bi-circle"></i>
-                <span>manage parity</span>
               </Link>
             </li>
 
