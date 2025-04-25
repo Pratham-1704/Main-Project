@@ -37,7 +37,10 @@ function Parities() {
 
   // Handle Manage Products button click
   const handleManageProducts = (record) => {
-    // Navigate to the ManageParity page with brand and product details
+    if (!record.brandId || !record.productId) {
+      message.error("Brand or Product information is missing!");
+      return;
+    }
     navigate("/master/manage-parity", { state: { brandId: record.brandId, productId: record.productId } });
   };
 
@@ -80,7 +83,8 @@ function Parities() {
                   dataSource={data}
                   loading={loading}
                   rowKey="key"
-                  pagination={{ pageSize: 10, showSizeChanger: false }}
+                  pagination={{ pageSize: 10, showSizeChanger: true }}
+                  locale={{ emptyText: "No data available" }}
                 />
               </div>
             </div>

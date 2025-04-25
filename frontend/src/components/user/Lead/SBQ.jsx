@@ -143,7 +143,7 @@ const SBQ = () => {
           if (field === "req" || field === "rate") {
             const req = parseFloat(updatedRow.req) || 0;
             const rate = parseFloat(updatedRow.rate) || 0;
-            updatedRow.total = req * rate;
+            updatedRow.total = req * rate; // Calculate total
           }
           return updatedRow;
         }
@@ -277,7 +277,6 @@ const SBQ = () => {
         />
       ),
     },
-    
     {
       title: "Unit",
       dataIndex: "estimationin",
@@ -298,12 +297,22 @@ const SBQ = () => {
       ),
     },
     {
+      title: "Rate",
+      dataIndex: "rate",
+      key: "rate",
+      render: (_, record) => (
+        <Input
+          value={record.rate}
+          onChange={(e) => updateRow(record.key, "rate", e.target.value)}
+          placeholder="Enter Rate"
+        />
+      ),
+    },
+    {
       title: "Total",
       dataIndex: "total",
       key: "total",
-      render: (_, record) => (
-        <Input value={record.total} readOnly />
-      ),
+      render: (_, record) => <Input value={record.total} readOnly />,
     },
     {
       title: "Action",

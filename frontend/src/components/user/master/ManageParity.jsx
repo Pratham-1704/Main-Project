@@ -7,15 +7,14 @@ import "./Css Files/style.css"; // Import the CSS file
 const { Option } = Select;
 
 function ManageParity() {
-  const [brands, setBrands] = useState([]); // State to hold brand options
-  const [loading, setLoading] = useState(false); // State for loading indicator
-  const [tableData, setTableData] = useState([]); // State to hold table data
-  const [parity, setParity] = useState(""); // State for parity
-  const [baseRate, setBaseRate] = useState(""); // State for base rate
-  const [selectedBrand, setSelectedBrand] = useState(""); // State for selected brand
+  const [form] = Form.useForm(); // Form instance
+  const [brands, setBrands] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [tableData, setTableData] = useState([]);
+  const [selectedBrand, setSelectedBrand] = useState("");
 
   const location = useLocation();
-  const { brandId, productId } = location.state || {}; // Retrieve brand and product IDs from state
+  const { brandId, productId } = location.state || {};
 
   // Fetch parity and base rate from the brandproduct table
   useEffect(() => {
@@ -30,15 +29,18 @@ function ManageParity() {
         const response = await axios.get(
           `http://localhost:8081/brandproduct?brandId=${brandId}&productId=${productId}`
         );
-        console.log("API Response:", response.data); // Debugging log
 
         if (response.data.status === "success" && response.data.data.length > 0) {
           const { parity, rate } = response.data.data[0];
-          console.log("Fetched Parity:", parity); // Debugging log
-          console.log("Fetched Base Rate:", rate); // Debugging log
-          // setParity(parity || "0");
-          // setBaseRate(rate || "0");
-          fetchTableData(parity); // Fetch table data based on parity
+
+          form.setFieldsValue({
+            parity: parity || "0",
+            baseRate: rate || "0",
+            brand: brandId,
+          });
+
+          setSelectedBrand(brandId);
+          fetchTableData(parity);
         } else {
           message.warning("No parity or rate data found for the selected brand and product.");
         }
@@ -57,14 +59,14 @@ function ManageParity() {
   const fetchTableData = async (parity) => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:8081/brandproduct?parity=${parity}`); // Replace with your API endpoint
+      const response = await axios.get(`http://localhost:8081/brandproduct?parity=${parity}`);
       const fetchedData = response.data.status === "success" ? response.data.data : [];
       const formattedData = fetchedData.map((item, index) => ({
         key: item._id,
         no: index + 1,
         brand: item.brandid?.name || "N/A",
         product: item.productid?.name || "N/A",
-        parity: item.parity || "N/A",
+        parity: item.parity ||"",
       }));
       setTableData(formattedData);
     } catch (error) {
@@ -80,7 +82,7 @@ function ManageParity() {
     const fetchBrands = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("http://localhost:8081/brand"); // Replace with your API endpoint
+        const response = await axios.get("http://localhost:8081/brand");
         const fetchedBrands = response.data.status === "success" ? response.data.data : [];
         setBrands(fetchedBrands);
       } catch (error) {
@@ -97,12 +99,13 @@ function ManageParity() {
   // Handle brand selection
   const handleBrandChange = (value) => {
     setSelectedBrand(value);
+    form.setFieldsValue({ brand: value });
   };
 
   // Handle form submission
   const handleSubmit = async (values) => {
     try {
-      const response = await axios.post("http://localhost:8081/manageparity", values); // Replace with your API endpoint
+      const response = await axios.post("http://localhost:8081/manageparity", values);
       if (response.data.status === "success") {
         message.success("Parity details saved successfully!");
       } else {
@@ -136,7 +139,7 @@ function ManageParity() {
           value={text}
           onChange={(e) => handleParityChange(e.target.value, record)}
           placeholder="Enter parity"
-          style={{ width: "100px" }} // Adjust the width of the input
+          style={{ width: "100px" }}
         />
       ),
     },
@@ -152,49 +155,34 @@ function ManageParity() {
           <div className="col-lg-12">
             <div className="card p-3 custom-table">
               <Form
+                form={form}
                 layout="horizontal"
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 16 }}
                 onFinish={handleSubmit}
               >
-                {/* Parities Input */}
                 <div className="col-lg-12 mb-0">
                   <div className="row">
                     <div className="col-lg-6 mb-3">
                       <Form.Item
-                        label="Parities"
+                        label="Parity"
                         name="parity"
-                        initialValue={parity}
                         rules={[{ required: true, message: "Please enter parities" }]}
                       >
-                        <Input
-                          placeholder="Enter parities"
-                          className="ant-input"
-                          value={parity}
-                          onChange={(e) => setParity(e.target.value)}
-                        />
+                        <Input placeholder="Enter parities" className="ant-input" />
                       </Form.Item>
                     </div>
                     <div className="col-lg-6 mb-3">
-                      {/* Base Rate Input */}
                       <Form.Item
                         label="Base Rate"
                         name="baseRate"
-                        initialValue={baseRate}
                         rules={[{ required: true, message: "Please enter base rate" }]}
                       >
-                        <Input
-                          placeholder="Enter base rate"
-                          type="number"
-                          className="ant-input"
-                          value={baseRate}
-                          onChange={(e) => setBaseRate(e.target.value)}
-                        />
+                        <Input placeholder="Enter base rate" type="number" className="ant-input" />
                       </Form.Item>
                     </div>
                   </div>
                   <div className="col-lg-6 mb-3">
-                    {/* Brand Dropdown */}
                     <Form.Item
                       label="Brand"
                       name="brand"
@@ -217,7 +205,6 @@ function ManageParity() {
                   </div>
                 </div>
 
-                {/* Table */}
                 <div className="col-lg-12 mb-3">
                   <Table
                     columns={columns}
@@ -229,8 +216,7 @@ function ManageParity() {
                   />
                 </div>
 
-                {/* Submit Button */}
-                <Form.Item wrapperCol={{ offset: 4, span: 16 }}>
+                <Form.Item wrapperCol={{  span: 19}}>
                   <Button type="primary" htmlType="submit" loading={loading} className="ant-btn">
                     Save
                   </Button>
