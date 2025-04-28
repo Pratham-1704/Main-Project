@@ -31,7 +31,6 @@ app.use("/quotationbrandprice",require("./Routes/quotationBrandPriceRoutes"));
 app.use("/orderdetail",require("./Routes/orderDetailRoutes"));
 app.use("/lead",require("./Routes/leadRoutes"));
 app.use("/leaddetail",require("./Routes/leadDetailsRoutes"));
-app.use("/parities",require("./Routes/paritiesRoute"));
 app.use("/parity",require("./Routes/parityRoute"));
 
 app.listen(8081,()=>{

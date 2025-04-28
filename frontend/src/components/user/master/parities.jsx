@@ -45,7 +45,7 @@ const Parities = () => {
       console.log("Form Values:", values); // Debugging: Log form values
 
       if (editingId) {
-        // Update existing category
+        // Update existing parity
         console.log("Updating parity with ID:", editingId); // Debugging
         const response = await axios.put(`http://localhost:8081/parity/${editingId}`, values);
         console.log("Update Response:", response.data); // Debugging: Log backend response
@@ -53,7 +53,7 @@ const Parities = () => {
         setEditingId(null);
         setInitialValues(null);
       } else {
-        // Add new category with the next serial number
+        // Add new parity with the next serial number
         const newParity = { ...values, srno: nextSerialNumber };
         console.log("Adding new parity:", newParity); // Debugging
         await axios.post("http://localhost:8081/parity", newParity);
