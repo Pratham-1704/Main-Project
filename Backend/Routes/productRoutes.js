@@ -22,7 +22,21 @@ router.get("/:id", async (req, res) => {
         res.json({ status: "error", data: err });
     }
 });
+// Get products by category
+router.get("/products", async (req, res) => {
+    try {
+        const { categoryid } = req.query;
+        if (!categoryid) {
+            return res.status(400).json({ status: "error", message: "Category ID is required" });
+        }
 
+        const products = await Product.find({ categoryid }).populate("categoryid", "name");
+        res.status(200).json({ status: "success", data: products });
+    } catch (error) {
+        console.error("Error fetching products by category:", error);
+        res.status(500).json({ status: "error", message: "Failed to fetch products by category" });
+    }
+});
 // ➤ Add a new product
 router.post("/", async (req, res) => {
     try {

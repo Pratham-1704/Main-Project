@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button, Input, message, Table, Popconfirm, Form } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
@@ -109,8 +109,15 @@ const Parities = () => {
       title: "Product",
       dataIndex: "product",
       key: "product",
+      align: "center",
       render: (_, record) => (
-        <Link to="/master/manage-parity" state={{ product: record.product }}>
+        <Link
+          to="/master/manage-parity"
+          state={{
+            name: record.name, // Pass the parity name
+            baseRate: record.baserate, // Pass the base rate
+          }}
+        >
           <Button type="primary" size="small">
             Manage Products
           </Button>

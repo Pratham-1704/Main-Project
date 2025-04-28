@@ -32,6 +32,7 @@ app.use("/orderdetail",require("./Routes/orderDetailRoutes"));
 app.use("/lead",require("./Routes/leadRoutes"));
 app.use("/leaddetail",require("./Routes/leadDetailsRoutes"));
 app.use("/parity",require("./Routes/ParityRoute"));
+app.use("/brandproduct",require("./Routes/brandProductRoutes"));
 
 app.listen(8081,()=>{
     console.log("server is running on port http://localhost:8081");

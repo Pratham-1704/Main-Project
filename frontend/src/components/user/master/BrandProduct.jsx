@@ -92,8 +92,8 @@ const BrandProduct = () => {
         const payload = {
           brandid: brandId,
           productid: productId,
-          parityid: "none",
-          parity: "0",
+          parityid: "",
+          parity: "",
           rate: 0,
           billingrate: 0,
         };

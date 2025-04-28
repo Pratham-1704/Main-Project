@@ -13,8 +13,9 @@ router.get("/", async (req, res) => {
     if (productid) filter.productid = productid;
 
     const result = await BrandProduct.find(filter)
-      .populate("brandid")
-      .populate("productid");
+      .populate("brandid", "name") // Populate only the name field of the brand
+      .populate("productid", "name") // Populate only the name field of the product
+      // .populate("categoryid", "name"); // Populate only the name field of the category (if applicable)
 
     res.json({ status: "success", data: result });
   } catch (err) {
@@ -81,6 +82,45 @@ router.post("/", async (req, res) => {
     res.status(201).json({ status: "success", data: newRecord });
   } catch (err) {
     res.status(500).json({ status: "error", data: err.message });
+  }
+});
+
+router.put("/update", async (req, res) => {
+  try {
+    const { updates } = req.body;
+
+    if (!updates || !Array.isArray(updates)) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid request body. 'updates' must be an array.",
+      });
+    }
+
+    // Loop through the updates and update each record
+    for (const update of updates) {
+      if (!update.brandid || !update.productid) {
+        return res.status(400).json({
+          status: "error",
+          message: "Missing required fields: brandid and productid in one of the updates.",
+        });
+      }
+
+      await BrandProduct.updateOne(
+        { brandid: update.brandid, productid: update.productid }, // Match by brandid and productid
+        {
+          $set: {
+            parity: update.parity,
+            rate: update.rate,
+            parityid: update.parityid,
+          },
+        }
+      );
+    }
+
+    res.status(200).json({ status: "success", message: "Brand products updated successfully" });
+  } catch (error) {
+    console.error("Error updating brand products:", error);
+    res.status(500).json({ status: "error", message: "Failed to update brand products" });
   }
 });
 
