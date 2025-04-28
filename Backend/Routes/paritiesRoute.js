@@ -34,25 +34,15 @@ router.post("/", async (req, res) => {
     }
 });
 
-// ➤ Update a product by ID
+// Update a category by ID
 router.put("/:id", async (req, res) => {
     try {
-        const id = req.params.id;
-        const data = req.body;
-
-        // Check if srno already exists for another product
-        const existingProduct = await Parity.findOne({ srno: data.srno, _id: { $ne: id } });
-        if (existingProduct) {
-            return res.status(400).json({ status: "error", message: "Serial number already exists." });
-        }
-
-        const updatedProduct = await Parity.findByIdAndUpdate(id, data, { new: true });
-        res.json({ status: "success", data: updatedProduct });
-    } catch (err) {
-        console.error("Error updating product:", err);
-        res.status(500).json({ status: "error", message: "Failed to update product." });
+      const updatedParity = await Parity.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      res.json({ status: "success", data: updatedParity });
+    } catch (error) {
+      res.status(500).json({ status: "error", message: "Failed to update category" });
     }
-});
+  });
 
 // ➤ Delete a product by ID
 router.delete("/:id", async (req, res) => {
