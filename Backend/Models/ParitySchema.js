@@ -1,22 +1,32 @@
 const mongoose = require("mongoose");
 
-const ParitySchema = new mongoose.Schema(
-    {
-        name: { 
-            type: String, 
-            required: [true, "Name is required"], 
-            trim: true,
-            minlength: [2, "Name must be at least 3 characters long"],
-            maxlength: [50, "Name cannot exceed 50 characters"]
-        },
-        baserate: { 
-            type: Number, 
-            required: true,
-            trim: true
-        }
-    }, 
-    { timestamps: true }
-);
+const parityEntrySchema = new mongoose.Schema({
+    productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
+    },
+    parity: {
+        type: String,
+        required: true,
+    },
+});
 
-module.exports = mongoose.model("parity", ParitySchema);
+const paritySchema = new mongoose.Schema({
+    parityName: {
+        type: String,
+        required: true,
+    },
+    rateDate: {
+        type: Date,
+        required: true,
+    },
+    brandId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Brand",
+        required: true,
+    },
+    entries: [parityEntrySchema],
+});
 
+module.exports = mongoose.model("Parity", paritySchema);

@@ -9,7 +9,7 @@ import Admin from './components/user/master/Admin';
 import Products from './components/user/master/Products';
 import Brand from './components/user/master/Brand';
 import Firms from './components/user/master/Firms';
-import BrandProducts from './components/user/master/BrandProduct';
+import Parity from './components/user/master/Parity';
 import Customers from './components/user/master/Customers';
 import FinancialYear from './components/user/master/FinancialYear';
 import Lead from './components/user/Lead/Lead';
@@ -59,15 +59,18 @@ function App() {
             <Route path="products" element={<Products />} />
             <Route path="brands" element={<Brand />} />
             <Route path="firms" element={<Firms />} />
-            <Route path="brandproduct" element={<BrandProducts />} />
             <Route path="customers" element={<Customers />} />
             <Route path="financialyear" element={<FinancialYear />} />
             {/* <Route path="leads" element={<LeadRecord />} /> */}
             <Route path="order" element={<Order />} />
             <Route path="quotations" element={<Quotations />} />
+<<<<<<< HEAD
+            <Route path="parity" element={<Parity />} />
+=======
             <Route path='manage products' element={<BrandProducts />} />
             <Route path="parities" element={<Parities />} />
             <Route path="manage-parity" element={<ManageParity />} />
+>>>>>>> 8fd16234608804b59648358e582fc9b820319d71
           </Route>
 
           <Route
@@ -85,6 +88,7 @@ function App() {
             <Route path="/lead/lead-details/:leadid" element={<LeadDetails />} />
             <Route path="sbq" element={<SBQ />} />
             <Route path="mbq" element={<MBQ />} />
+           
 
           </Route>
         </Routes>
