@@ -243,18 +243,18 @@ const Leads = () => {
       ),
     },
     {
-      title: "Estimation In",
+      title: "Unit",
       dataIndex: "in",
       key: "in",
       render: (text, record) => (
         <Select
-          placeholder="Select Estimation In"
+          placeholder="Select Unit"
           value={record.in}
           onChange={(value) => handleRowChange(record.key, "in", value)}
           options={[
             { label: "Kg", value: "Kg" },
-            { label: "Foot", value: "Foot" },
-            { label: "Nos", value: "Nos" },
+            { label: "Feet", value: "Feet" },
+            { label: "No's", value: "No's" },
             { label: "Meter", value: "Meter" },
           ]}
         />

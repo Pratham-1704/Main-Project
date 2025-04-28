@@ -116,7 +116,7 @@ const Categories = () => {
     { title: "Serial No", dataIndex: "srno", key: "srno", align: "center" },
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Type", dataIndex: "type", key: "type" },
-    { title: "Billing In", dataIndex: "billingIn", key: "billingIn" },
+    { title: "Unit", dataIndex: "billingIn", key: "billingIn" },
     {
       title: "Actions",
       key: "actions",
@@ -202,10 +202,10 @@ const Categories = () => {
                 <div className="col-lg-6 p-1">
                   <Form.Item
                     name="billingIn"
-                    label="Billing In"
+                    label="Unit"
                     rules={[{ required: true, message: "Please select billing info!" }]}
                   >
-                    <Select placeholder="Select Billing In">
+                    <Select placeholder="Select Unit">
                       <Select.Option value="Kg">Kg</Select.Option>
                       <Select.Option value="Meter">Meter</Select.Option>
                       <Select.Option value="Feet">Feet</Select.Option>
