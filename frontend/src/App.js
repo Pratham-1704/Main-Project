@@ -21,8 +21,9 @@ import LeadRecord from './components/user/Lead/LeadRecord';
 import LeadDetails from './components/user/Lead/LeadDetails';
 import SBQ from './components/user/Lead/SBQ';
 import MBQ from './components/user/Lead/MBQ';
-import Parities from './components/user/master/parities';
 import ManageParity from './components/user/master/ManageParity';
+import Parities from './components/user/master/parities';
+
 
 
 function App() {
@@ -66,8 +67,8 @@ function App() {
             <Route path="order" element={<Order />} />
             <Route path="quotations" element={<Quotations />} />
             <Route path='manage products' element={<BrandProducts />} />
-            <Route path="parities" element={<Parities />} />
             <Route path="manage-parity" element={<ManageParity />} />
+            <Route path="parities" element={<Parities />} />
           </Route>
 
           <Route
@@ -94,3 +95,5 @@ function App() {
 }
 
 export default App;
+
+//nothing
