@@ -45,6 +45,18 @@ const Parities = () => {
       console.log("Form Values:", values); // Debugging: Log form values
 
       if (editingId) {
+        // Check if values are different from initial values
+        const isChanged = Object.keys(values).some(
+          (key) =>
+            values[key]?.toString().trim() !==
+            initialValues?.[key]?.toString().trim()
+        );
+
+        if (!isChanged) {
+          messageApi.info("No changes made. Update not required.");
+          return; // Exit without making an API call
+        }
+
         // Update existing parity
         console.log("Updating parity with ID:", editingId); // Debugging
         const response = await axios.put(`http://localhost:8081/parity/${editingId}`, values);
@@ -71,7 +83,7 @@ const Parities = () => {
         messageApi.error(error.response.data.message);
       } else {
         const errorMsg =
-          error.response?.data?.message || "An error occurred while saving the category!";
+          error.response?.data?.message || "An error occurred while saving the parity!";
         messageApi.error(errorMsg);
       }
     }
