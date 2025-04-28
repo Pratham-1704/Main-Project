@@ -2,28 +2,28 @@ const express = require("express");
 const router = express.Router();
 const Parity = require("../Models/ParitySchema");
 
-// ➤ Get all parity entries
+// ➤ Get all products
 router.get("/", async (req, res) => {
     try {
-        const result = await Parity.find({});
+        let result = await Parity.find({});
         res.json({ status: "success", data: result });
     } catch (err) {
         res.json({ status: "error", data: err });
     }
 });
 
-// ➤ Get a single parity entry by ID
+// ➤ Get a single product by ID
 router.get("/:id", async (req, res) => {
     try {
         const id = req.params.id;
-        const object = await Parity.findById(id);
+        let object = await Parity.findById(id);
         res.json({ status: "success", data: object });
     } catch (err) {
         res.json({ status: "error", data: err });
     }
 });
 
-// ➤ Add a new parity entry
+// ➤ Add a new product
 router.post("/", async (req, res) => {
     try {
         const parity = new Parity(req.body);
@@ -34,25 +34,21 @@ router.post("/", async (req, res) => {
     }
 });
 
-// ➤ Update a parity entry by ID
-router.put("/:id", async function (req, res) {
-        try {
-            const id = req.params.id;
-            const data = req.body;
+// Update a parity by ID
+router.put("/:id", async (req, res) => {
+    try {
+        const updatedParity = await Parity.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json({ status: "success", data: updatedParity });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: "Failed to update parity" });
+    }
+});
 
-            const updatedParity = await Parity.findByIdAndUpdate(id, data, { new: true });
-            res.json({ status: "success", data: updatedParity });
-        } catch (err) {
-            console.error("Error updating parity:", err);
-            res.status(500).json({ status: "error", message: "Failed to update parity entry." });
-        }
-    });
-
-// ➤ Delete a parity entry by ID
+// ➤ Delete a product by ID
 router.delete("/:id", async (req, res) => {
     try {
         const id = req.params.id;
-        const object = await Parity.findByIdAndDelete(id);
+        let object = await Parity.findByIdAndDelete(id);
         res.json({ status: "success", data: object });
     } catch (err) {
         res.json({ status: "error", data: err });
