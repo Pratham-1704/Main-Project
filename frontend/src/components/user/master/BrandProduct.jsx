@@ -89,35 +89,45 @@ const BrandProduct = () => {
   const handleCheckboxChange = async (productId, checked) => {
     try {
       if (checked) {
+        // Payload for adding a product
         const payload = {
-          brandid: brandId,
-          productid: productId,
-          parityid: "",
-          parity: "",
-          rate: 0,
-          billingrate: 0,
+          brandid: brandId, // Brand ID
+          productid: productId, // Product ID
+          parityid: null, // Set parityid as null
+          parity: "", // Set parity as empty
+          rate: 0, // Set rate as 0
         };
+        console.log("Payload for adding product:", payload); // Debugging log
 
-        await axios.post("http://localhost:8081/brandproduct", payload);
+        // API call to add the product to the brandproduct table
+        const response = await axios.post("http://localhost:8081/brandproduct", payload);
+        console.log("API response for adding product:", response.data);
+
+        // Update the selected products state
         setSelectedProducts((prev) => {
           const updatedSelectedProducts = [...prev, productId];
           localStorage.setItem(`selectedProducts_${brandId}`, JSON.stringify(updatedSelectedProducts)); // Save to localStorage
           return updatedSelectedProducts;
         });
-        messageApi.success("Product added successfully!");
+
+        message.success("Product added successfully!");
       } else {
+        // API call to remove the product from the brandproduct table
         const deleteUrl = `http://localhost:8081/brandproduct?brandId=${brandId}&productId=${productId}`;
         await axios.delete(deleteUrl);
+
+        // Update the selected products state
         setSelectedProducts((prev) => {
           const updatedSelectedProducts = prev.filter((id) => id !== productId);
           localStorage.setItem(`selectedProducts_${brandId}`, JSON.stringify(updatedSelectedProducts)); // Save to localStorage
           return updatedSelectedProducts;
         });
-        messageApi.success("Product removed successfully!");
+
+        message.success("Product removed successfully!");
       }
     } catch (err) {
       console.error("Error updating product selection:", err.response?.data || err.message);
-      messageApi.error("Error updating product selection.");
+      message.error("Error updating product selection.");
     }
   };
 

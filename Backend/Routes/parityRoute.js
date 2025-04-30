@@ -55,4 +55,22 @@ router.delete("/:id", async (req, res) => {
     }
 });
 
+router.get("/parity-counts", async (req, res) => {
+  try {
+    const parityCounts = await BrandProduct.aggregate([
+      {
+        $group: {
+          _id: "$parity", // Group by parity name
+          count: { $sum: 1 }, // Count the number of records
+        },
+      },
+    ]);
+
+    res.status(200).json({ status: "success", data: parityCounts });
+  } catch (error) {
+    console.error("Error fetching parity counts:", error);
+    res.status(500).json({ status: "error", message: "Failed to fetch parity counts" });
+  }
+});
+
 module.exports = router;

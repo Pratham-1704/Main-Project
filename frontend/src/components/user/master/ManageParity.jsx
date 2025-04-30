@@ -17,8 +17,8 @@ function ManageParity() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { name, baseRate } = location.state || {}; // Get parity name and base rate from parities.jsx
-
+  const { name, baseRate,parityId } = location.state || {}; // Get parity name and base rate from parities.jsx
+console.log("Location state:", location.state); // 
   // Fetch brandproduct records for the table
   const fetchBrandProductRecords = async (brandId = "", categoryId = "") => {
     setLoading(true);
@@ -27,19 +27,29 @@ function ManageParity() {
       if (brandId) queryParams.push(`brandid=${brandId}`);
       if (categoryId) queryParams.push(`categoryid=${categoryId}`);
       const queryString = queryParams.length > 0 ? `?${queryParams.join("&")}` : "";
-
+  
       const response = await axios.get(`http://localhost:8081/brandproduct${queryString}`);
       const fetchedData = response.data.status === "success" ? response.data.data : [];
-      const formattedData = fetchedData.map((item, index) => ({
+  
+      const filteredData = fetchedData.filter(
+        (item) => item.parityid === parityId || item.parityid === null
+      );
+  
+      // Get selected category name
+      const selectedCatObj = categories.find((cat) => cat._id === categoryId);
+      const selectedCatName = selectedCatObj ? selectedCatObj.name : "N/A";
+  
+      const formattedData = filteredData.map((item, index) => ({
         key: item._id,
         no: index + 1,
         brand: item.brandid?.name || "N/A",
-        category: item.categoryid?.name || "N/A",
+        category: selectedCatName || item.categoryid?.name || "N/A", // Prefer selected
         product: item.productid?.name || "N/A",
         parity: item.parity || "",
-        brandId: item.brandid?._id || item.brandid, // Ensure brandId is set
-        productId: item.productid?._id || item.productid, // Ensure productId is set
+        brandId: item.brandid?._id || item.brandid,
+        productId: item.productid?._id || item.productid,
       }));
+  
       setTableData(formattedData);
     } catch (error) {
       message.error("Failed to fetch brandproduct records");
@@ -48,42 +58,24 @@ function ManageParity() {
       setLoading(false);
     }
   };
+  
 
   // Handle brand selection
   const handleBrandChange = (value) => {
     setSelectedBrand(value);
     form.setFieldsValue({ brand: value });
-    fetchBrandProductRecords(value, selectedCategory); // Fetch data based on selected brand and category
+    fetchBrandProductRecords(value, selectedCategory); // Now filters both
   };
+  
 
-  // Handle category selection
-  const handleCategoryChange = async (value) => {
+  // Add this function to handle category selection
+  const handleCategoryChange = (value) => {
     setSelectedCategory(value);
     form.setFieldsValue({ category: value });
-
-    try {
-      setLoading(true);
-      const response = await axios.get(`http://localhost:8081/product?categoryid=${value}`);
-      const fetchedProducts = response.data.status === "success" ? response.data.data : [];
-      const formattedData = fetchedProducts.map((item, index) => ({
-        key: item._id,
-        no: index + 1,
-        brand: item.brand?.name || "N/A",
-        category: item.categoryid?.name || "N/A",
-        product: item.name || "N/A",
-        parity: "",
-        brandId: item.brand?._id || item.brand, // Ensure brandId is set
-        productId: item._id, // Ensure productId is set
-      }));
-      setTableData(formattedData);
-      navigate("/master/parities");
-    } catch (error) {
-      message.error("Failed to fetch products for the selected category");
-      console.error("Error fetching products by category:", error);
-    } finally {
-      setLoading(false);
-    }
+    fetchBrandProductRecords(selectedBrand, value); // Now filters both brand and category
   };
+  
+  
 
   // Fetch brands for the dropdown
   useEffect(() => {
@@ -138,20 +130,28 @@ function ManageParity() {
         return;
       }
 
-      // Prepare the data to update the brandproducts table
-      const updates = tableData.map((item) => ({
-        brandid: item.brandId, // Assuming `brandId` is stored in the tableData
-        productid: item.productId, // Assuming `productId` is stored in the tableData
-        parity: item.parity, // Parity value entered in the table
-        rate: baseRate + Number(item.parity), // Calculate rate as baseRate + parity
-        parityid: name, // Parity name from state
-      }));
+      // Filter rows with a non-empty parity value
+      const updates = tableData
+        .filter((item) => item.parity && item.parity.trim() !== "") // Only include rows with a parity value
+        .map((item) => ({
+          brandid: item.brandId, // Brand ID from the table row
+          productid: item.productId, // Product ID from the table row
+          parity: item.parity, // Parity value entered in the table
+          rate: baseRate + Number(item.parity), // Calculate rate as baseRate + parity value
+          parityid: parityId, // Parity ID from the state
+        }));
 
-      // Send the updates to the backend
-      const response = await axios.put("http://localhost:8081/brandproduct/update", { updates });
+      if (updates.length === 0) {
+        message.warning("No records to update. Please enter parity values.");
+        return;
+      }
+
+      // Send the data to the backend
+      const response = await axios.post("http://localhost:8081/brandproduct/update", { updates });
 
       if (response.data.status === "success") {
         message.success("Brand products updated successfully!");
+        // navigate("/parities"); // Navigate to the Parities Page
       } else {
         message.error("Failed to update brand products");
       }

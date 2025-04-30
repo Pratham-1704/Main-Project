@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const BrandProduct = require("../Models/BrandProductSchema");
 const mongoose = require("mongoose");
+const Product = require("../Models/ProductSchema"); // Assuming ProductSchema is defined
 
 
 // Get all brand products with optional filtering
@@ -46,7 +47,7 @@ router.get("/productids/:brandid", async (req, res) => {
 // Add a brand product
 router.post("/", async (req, res) => {
   try {
-    const { brandid, productid, parityid, parity, rate, billingrate } = req.body;
+    const { brandid, productid, parityid = null, parity = "", rate = 0 } = req.body;
 
     if (!brandid || !productid) {
       return res.status(400).json({
@@ -76,16 +77,16 @@ router.post("/", async (req, res) => {
       parityid,
       parity,
       rate,
-      billingrate,
     });
 
     res.status(201).json({ status: "success", data: newRecord });
   } catch (err) {
+    console.error("Error adding brandproduct:", err);
     res.status(500).json({ status: "error", data: err.message });
   }
 });
 
-router.put("/update", async (req, res) => {
+router.post("/update", async (req, res) => {
   try {
     const { updates } = req.body;
 
@@ -98,10 +99,10 @@ router.put("/update", async (req, res) => {
 
     // Loop through the updates and update each record
     for (const update of updates) {
-      if (!update.brandid || !update.productid) {
+      if (!update.brandid || !update.productid || !update.parityid) {
         return res.status(400).json({
           status: "error",
-          message: "Missing required fields: brandid and productid in one of the updates.",
+          message: "Missing required fields: brandid, productid, or parityid in one of the updates.",
         });
       }
 
@@ -111,9 +112,10 @@ router.put("/update", async (req, res) => {
           $set: {
             parity: update.parity,
             rate: update.rate,
-            parityid: update.parityid,
+            parityid: update.parityid, // Use the parity ID
           },
-        }
+        },
+        { upsert: true } // Create a new record if it doesn't exist
       );
     }
 
@@ -182,6 +184,72 @@ router.get("/count", async (req, res) => {
     res.json({ status: "success", count });
   } catch (err) {
     res.status(500).json({ status: "error", data: err.message });
+  }
+});
+
+router.get("/parity-counts", async (req, res) => {
+  try {
+    const parityCounts = await BrandProduct.aggregate([
+      {
+        $group: {
+          _id: "$parityid", // Group by parityid (ObjectId)
+          count: { $sum: 1 }, // Count the number of records
+        },
+      },
+      {
+        $lookup: {
+          from: "parities", // Name of the parity collection
+          localField: "_id", // Field in BrandProduct (parityid)
+          foreignField: "_id", // Field in Parity collection (_id)
+          as: "parityDetails", // Alias for the joined data
+        },
+      },
+      {
+        $unwind: "$parityDetails", // Unwind the parityDetails array
+      },
+      {
+        $project: {
+          _id: "$parityDetails.name", // Replace _id with the parity name
+          count: 1, // Keep the count field
+        },
+      },
+    ]);
+
+    res.status(200).json({ status: "success", data: parityCounts });
+  } catch (error) {
+    console.error("Error fetching parity counts:", error);
+    res.status(500).json({ status: "error", message: "Failed to fetch parity counts" });
+  }
+});
+
+router.get("/products-by-category", async (req, res) => {
+  try {
+    const { brandid, categoryid } = req.query;
+
+    if (!brandid || !categoryid) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing required query parameters: brandid or categoryid",
+      });
+    }
+
+    // Fetch products by category
+    const products = await Product.find({ categoryid });
+
+    // Fetch brandproduct records for the given brand
+    const brandProducts = await BrandProduct.find({ brandid });
+    const brandProductIds = brandProducts.map((bp) => bp.productid.toString());
+
+    // Mark products as existing or not in brandproduct
+    const result = products.map((product) => ({
+      ...product.toObject(),
+      existsInBrandProduct: brandProductIds.includes(product._id.toString()),
+    }));
+
+    res.status(200).json({ status: "success", data: result });
+  } catch (error) {
+    console.error("Error fetching products by category:", error);
+    res.status(500).json({ status: "error", message: "Failed to fetch products" });
   }
 });
 

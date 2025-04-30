@@ -18,17 +18,33 @@ const Parities = () => {
 
   const fetchData = async () => {
     try {
+      // Fetch parities
       const res = await axios.get("http://localhost:8081/parity");
       const fetchedData = res.data.status === "success" ? res.data.data : [];
+      console.log("Fetched Parities:", fetchedData); // Debugging: Log fetched parities
+
+      // Fetch parity counts
+      const countRes = await axios.get("http://localhost:8081/brandproduct/parity-counts");
+      const parityCounts = countRes.data.status === "success" ? countRes.data.data : [];
+      console.log("Fetched Parity Counts:", parityCounts); // Debugging: Log fetched counts
+
+      // Map counts to parity names
+      const parityCountMap = parityCounts.reduce((acc, item) => {
+        acc[item._id] = item.count; // _id is the parity name
+        return acc;
+      }, {});
+      console.log("Mapped Parity Counts:", parityCountMap); // Debugging: Log mapped counts
 
       // Sort by serial number or createdAt to maintain order
       const sortedData = fetchedData.sort((a, b) => a.srno - b.srno);
 
-      // Reassign serial numbers
+      // Reassign serial numbers and add counts
       const updatedData = sortedData.map((item, index) => ({
         ...item,
         srno: index + 1,
+        count: parityCountMap[item.name] || 0, // Add count for each parity
       }));
+      console.log("Updated Data with Counts:", updatedData); // Debugging: Log updated data
 
       setData(updatedData);
       setNextSerialNumber(updatedData.length + 1); // Set the next serial number
@@ -128,10 +144,11 @@ const Parities = () => {
           state={{
             name: record.name, // Pass the parity name
             baseRate: record.baserate, // Pass the base rate
+            parityId: record._id, // Pass the parity ID
           }}
         >
           <Button type="primary" size="small">
-            Manage Products
+            Manage Parities - {record.count || 0} {/* Display the count */}
           </Button>
         </Link>
       ),

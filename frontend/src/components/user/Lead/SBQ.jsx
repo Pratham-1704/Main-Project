@@ -19,6 +19,8 @@ const SBQ = () => {
   const [tableData, setTableData] = useState([]);
   const [brandOptions, setBrandOptions] = useState([]);
   const [form] = Form.useForm();
+const [brandProductData, setBrandProductData] = useState([]);
+
 
   const fetchBrands = async () => {
     try {
@@ -57,7 +59,18 @@ const SBQ = () => {
       return [];
     }
   };
-
+  const fetchBrandProducts = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/brandproduct");
+      setBrandProductData(res.data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch brand products:", err);
+      message.error("Failed to load brand products");
+    }
+  };
+  
+  fetchBrandProducts();
+  
   const fetchLeadDataById = async (leadId) => {
     try {
       const categories = await fetchCategories();
@@ -104,16 +117,28 @@ const SBQ = () => {
         const category = categories.find((cat) => cat._id === item.categoryid);
         const product = products.find((prod) => prod._id === item.productid);
 
+        // return {
+        //   key: item._id || `row-${index}`,
+        //   category: category ? category.name : "Unknown Category",
+        //   product: product ? product.name : "Unknown Product",
+        //   brand: null,
+        //   req: item.quantity || "",
+        //   estimationin: item.estimationin || "",
+        //   rate: item.rate || "",
+        //   total: (item.quantity || 0) * (item.rate || 0),
+        // };
         return {
           key: item._id || `row-${index}`,
           category: category ? category.name : "Unknown Category",
           product: product ? product.name : "Unknown Product",
+          productid: product ? product._id : null, // Include productid
           brand: null,
           req: item.quantity || "",
           estimationin: item.estimationin || "",
           rate: item.rate || "",
           total: (item.quantity || 0) * (item.rate || 0),
         };
+        
       });
 
       setTableData(tableRows);
@@ -135,23 +160,57 @@ const SBQ = () => {
     fetchLeadDataById(storedLeadId);
   }, []);
 
+  // const updateRow = (key, field, value) => {
+  //   setTableData((prev) =>
+  //     prev.map((row) => {
+  //       if (row.key === key) {
+  //         const updatedRow = { ...row, [field]: value };
+  //         if (field === "req" || field === "rate") {
+  //           const req = parseFloat(updatedRow.req) || 0;
+  //           const rate = parseFloat(updatedRow.rate) || 0;
+  //           updatedRow.total = req * rate; // Calculate total
+  //         }
+  //         return updatedRow;
+  //       }
+  //       return row;
+  //     })
+  //   );
+  // };
+
   const updateRow = (key, field, value) => {
     setTableData((prev) =>
       prev.map((row) => {
         if (row.key === key) {
           const updatedRow = { ...row, [field]: value };
-          if (field === "req" || field === "rate") {
-            const req = parseFloat(updatedRow.req) || 0;
-            const rate = parseFloat(updatedRow.rate) || 0;
-            updatedRow.total = req * rate; // Calculate total
+  
+          // If brand is updated, check for rate
+          if (field === "brand") {
+            const matched = brandProductData.find(
+              (bp) => bp.brandid === value && bp.productid === row.productid
+            );
+            if (matched) {
+              updatedRow.rate = matched.rate || 0;
+            } else {
+              updatedRow.rate = 0;
+            }
           }
+  
+          // Recalculate total if rate or req changes
+          const req = parseFloat(
+            field === "req" ? value : updatedRow.req
+          ) || 0;
+          const rate = parseFloat(
+            field === "rate" ? value : updatedRow.rate
+          ) || 0;
+          updatedRow.total = req * rate;
+  
           return updatedRow;
         }
         return row;
       })
     );
   };
-
+  
   const deleteRow = (key) => {
     setTableData((prev) => prev.filter((row) => row.key !== key));
   };
