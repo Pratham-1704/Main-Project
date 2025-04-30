@@ -134,6 +134,10 @@ const SBQ = () => {
       });
 
       setTableData(tableRows);
+
+      // Store customerid and sourceid for later use
+      localStorage.setItem("customerid", leadData.customerid || "");
+      localStorage.setItem("sourceid", leadData.sourceid || "");
     } catch (err) {
       console.error("Failed to fetch lead data:", err);
       message.error("Failed to load lead data");
@@ -194,6 +198,7 @@ const SBQ = () => {
     fetchBrandProducts(); // Fetch brandproduct data
 
     const storedLeadId = localStorage.getItem("selectedLeadId");
+    console.log("Stored Lead ID:", storedLeadId); // Debugging: Check stored lead ID
     if (!storedLeadId) {
       message.error("No leadId found in localStorage");
       return;
@@ -212,11 +217,72 @@ const SBQ = () => {
 
   const handleSave = async () => {
     try {
+      // Validate form fields
       const formData = await form.validateFields();
-      const response = await axios.post("http://localhost:8081/svq", {
-        form: formData,
-        data: tableData,
-      });
+      console.log("Form Data:", formData); // Debugging: Check form data
+
+      // Fetch admin ID from localStorage
+      const adminId = localStorage.getItem("adminid");
+      if (!adminId) {
+        message.error("Admin ID not found in localStorage");
+        return;
+      }
+      console.log("Admin ID:", adminId); // Debugging: Check admin ID
+
+      // Generate a unique quotation number
+      const quotationNo = `QT-${Date.now()}`;
+      console.log("Generated Quotation No:", quotationNo); // Debugging: Check quotation number
+
+      // Retrieve sourceid and customerid from localStorage
+      const sourceid = localStorage.getItem("sourceid");
+      const customerid = localStorage.getItem("customerid");
+      const adminid = localStorage.getItem("adminid");
+
+      if (!sourceid) {
+        message.error("Source ID is required");
+        return;
+      }
+      console.log("Source ID:", sourceid); // Debugging: Check source ID
+
+      if (!customerid) {
+        message.error("Customer ID is required");
+        return;
+      }
+      console.log("Customer ID:", customerid); // Debugging: Check customer ID
+
+      // Map form data to dataset structure
+      const payload = {
+        sourceid, // Source ID fetched from lead data
+        customerid, // Customer ID fetched from lead data
+        quotationno: quotationNo, // Dynamically generated quotation number
+        quotationdate: formData.leaddate ? formData.leaddate.format("YYYY-MM-DD") : null,
+        baddress: formData.address || "",
+        saddress: formData.address || "", // Use the same value as baddress
+        createdon: new Date().toISOString(), // Current timestamp
+        adminid, // Admin ID from localStorage
+        totalweight: tableData.reduce((sum, row) => sum + (row.req || 0), 0), // Sum of all quantities
+        subtotal: tableData.reduce((sum, row) => sum + (row.total || 0), 0), // Sum of all totals
+        gstamount: 0, // Replace with actual GST calculation if applicable
+        total: tableData.reduce((sum, row) => sum + (row.total || 0), 0), // Sum of all totals
+        quotationtype: "Sample", // Set quotation type as "Sample"
+        items: tableData.map((row) => ({
+          category: row.category,
+          product: row.product,
+          productid: row.productid,
+          brand: row.brand,
+          req: row.req,
+          estimationin: row.estimationin,
+          rate: row.rate,
+          total: row.total,
+        })), // Map table data to items
+      };
+
+      // Log each field for debugging
+      console.log("Payload to Save:", payload);
+
+      // Send payload to backend
+      const response = await axios.post("http://localhost:8081/quotation", payload);
+      console.log("Backend Response:", response.data); // Debugging: Check backend response
 
       if (response.status === 200) {
         message.success("Data saved successfully!");
@@ -224,7 +290,7 @@ const SBQ = () => {
         message.error("Failed to save data");
       }
     } catch (error) {
-      console.error("Error saving data:", error);
+      console.error("Error saving data:", error); // Debugging: Log the error
       message.error("Error saving data");
     }
   };
@@ -441,3 +507,4 @@ const SBQ = () => {
 };
 
 export default SBQ;
+
