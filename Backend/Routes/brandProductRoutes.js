@@ -253,5 +253,35 @@ router.get("/products-by-category", async (req, res) => {
   }
 });
 
+const getRate = async (brandid, productid) => {
+  try {
+    const brandProduct = await BrandProduct.findOne({ brandid, productid });
+    if (brandProduct) {
+      return brandProduct.rate;
+    } else {
+      return 0; // Default rate if no match is found
+    }
+  } catch (error) {
+    console.error("Error fetching rate:", error);
+    throw error;
+  }
+};
+
+// API Endpoint
+router.get("/getRate", async (req, res) => {
+  const { brandid, productid } = req.query;
+
+  if (!brandid || !productid) {
+    return res.status(400).json({ error: "Brand ID and Product ID are required" });
+  }
+
+  try {
+    const rate = await getRate(brandid, productid);
+    res.status(200).json({ rate });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch rate" });
+  }
+});
+
 
 module.exports = router;

@@ -19,17 +19,16 @@ const SBQ = () => {
   const [tableData, setTableData] = useState([]);
   const [brandOptions, setBrandOptions] = useState([]);
   const [form] = Form.useForm();
-const [brandProductData, setBrandProductData] = useState([]);
-
+  const [brandProductData, setBrandProductData] = useState([]);
 
   const fetchBrands = async () => {
     try {
       const res = await axios.get("http://localhost:8081/brand");
       const options = Array.isArray(res.data.data)
         ? res.data.data.map((brand) => ({
-          value: brand._id,
-          label: brand.name,
-        }))
+            value: brand._id,
+            label: brand.name,
+          }))
         : [];
       setBrandOptions(options);
     } catch (err) {
@@ -59,18 +58,18 @@ const [brandProductData, setBrandProductData] = useState([]);
       return [];
     }
   };
+
   const fetchBrandProducts = async () => {
     try {
       const res = await axios.get("http://localhost:8081/brandproduct");
-      setBrandProductData(res.data.data || []);
+      console.log("BrandProduct Data:", res.data.data); // Debugging
+      setBrandProductData(res.data.data || []); // Store brandproduct data
     } catch (err) {
       console.error("Failed to fetch brand products:", err);
       message.error("Failed to load brand products");
     }
   };
-  
-  fetchBrandProducts();
-  
+
   const fetchLeadDataById = async (leadId) => {
     try {
       const categories = await fetchCategories();
@@ -84,14 +83,18 @@ const [brandProductData, setBrandProductData] = useState([]);
       // Fetch customer details if needed
       let customerDetails = {};
       if (leadData.customerid) {
-        const customerRes = await axios.get(`http://localhost:8081/customer/${leadData.customerid}`);
+        const customerRes = await axios.get(
+          `http://localhost:8081/customer/${leadData.customerid}`
+        );
         customerDetails = customerRes.data.data || {};
       }
 
       // Fetch source details if needed
       let sourceDetails = {};
       if (leadData.sourceid) {
-        const sourceRes = await axios.get(`http://localhost:8081/source/${leadData.sourceid}`);
+        const sourceRes = await axios.get(
+          `http://localhost:8081/source/${leadData.sourceid}`
+        );
         sourceDetails = sourceRes.data.data || {};
       }
 
@@ -117,16 +120,6 @@ const [brandProductData, setBrandProductData] = useState([]);
         const category = categories.find((cat) => cat._id === item.categoryid);
         const product = products.find((prod) => prod._id === item.productid);
 
-        // return {
-        //   key: item._id || `row-${index}`,
-        //   category: category ? category.name : "Unknown Category",
-        //   product: product ? product.name : "Unknown Product",
-        //   brand: null,
-        //   req: item.quantity || "",
-        //   estimationin: item.estimationin || "",
-        //   rate: item.rate || "",
-        //   total: (item.quantity || 0) * (item.rate || 0),
-        // };
         return {
           key: item._id || `row-${index}`,
           category: category ? category.name : "Unknown Category",
@@ -138,7 +131,6 @@ const [brandProductData, setBrandProductData] = useState([]);
           rate: item.rate || "",
           total: (item.quantity || 0) * (item.rate || 0),
         };
-        
       });
 
       setTableData(tableRows);
@@ -148,8 +140,58 @@ const [brandProductData, setBrandProductData] = useState([]);
     }
   };
 
+  const fetchRate = async (brandid, productid) => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8081/brandproduct/getRate",
+        {
+          params: { brandid, productid },
+        }
+      );
+      return response.data.rate || 0; // Return the rate or default to 0
+    } catch (error) {
+      console.error("Failed to fetch rate:", error);
+      return 0; // Default rate in case of error
+    }
+  };
+
+  const updateRow = (key, field, value) => {
+    setTableData((prev) =>
+      prev.map((row) => {
+        if (row.key === key) {
+          const updatedRow = { ...row, [field]: value };
+
+          // If brand is updated, fetch the rate
+          if (field === "brand") {
+            console.log("Selected Brand ID:", value);
+            console.log("Product ID:", row.productid);
+
+            fetchRate(value, row.productid).then((rate) => {
+              updatedRow.rate = rate || 0; // Update rate dynamically
+              updatedRow.total = (updatedRow.req || 0) * updatedRow.rate; // Recalculate total
+              setTableData((prev) =>
+                prev.map((r) => (r.key === key ? updatedRow : r))
+              );
+            });
+          }
+
+          // If req or rate is updated, recalculate total
+          if (field === "req" || field === "rate") {
+            const req = parseFloat(field === "req" ? value : updatedRow.req) || 0;
+            const rate = parseFloat(field === "rate" ? value : updatedRow.rate) || 0;
+            updatedRow.total = req * rate; // Recalculate total
+          }
+
+          return updatedRow;
+        }
+        return row;
+      })
+    );
+  };
+
   useEffect(() => {
     fetchBrands();
+    fetchBrandProducts(); // Fetch brandproduct data
 
     const storedLeadId = localStorage.getItem("selectedLeadId");
     if (!storedLeadId) {
@@ -160,57 +202,6 @@ const [brandProductData, setBrandProductData] = useState([]);
     fetchLeadDataById(storedLeadId);
   }, []);
 
-  // const updateRow = (key, field, value) => {
-  //   setTableData((prev) =>
-  //     prev.map((row) => {
-  //       if (row.key === key) {
-  //         const updatedRow = { ...row, [field]: value };
-  //         if (field === "req" || field === "rate") {
-  //           const req = parseFloat(updatedRow.req) || 0;
-  //           const rate = parseFloat(updatedRow.rate) || 0;
-  //           updatedRow.total = req * rate; // Calculate total
-  //         }
-  //         return updatedRow;
-  //       }
-  //       return row;
-  //     })
-  //   );
-  // };
-
-  const updateRow = (key, field, value) => {
-    setTableData((prev) =>
-      prev.map((row) => {
-        if (row.key === key) {
-          const updatedRow = { ...row, [field]: value };
-  
-          // If brand is updated, check for rate
-          if (field === "brand") {
-            const matched = brandProductData.find(
-              (bp) => bp.brandid === value && bp.productid === row.productid
-            );
-            if (matched) {
-              updatedRow.rate = matched.rate || 0;
-            } else {
-              updatedRow.rate = 0;
-            }
-          }
-  
-          // Recalculate total if rate or req changes
-          const req = parseFloat(
-            field === "req" ? value : updatedRow.req
-          ) || 0;
-          const rate = parseFloat(
-            field === "rate" ? value : updatedRow.rate
-          ) || 0;
-          updatedRow.total = req * rate;
-  
-          return updatedRow;
-        }
-        return row;
-      })
-    );
-  };
-  
   const deleteRow = (key) => {
     setTableData((prev) => prev.filter((row) => row.key !== key));
   };
@@ -442,7 +433,6 @@ const [brandProductData, setBrandProductData] = useState([]);
                 Cancel
               </Button>
             </Link>
-
           </div>
         </div>
       </section>
