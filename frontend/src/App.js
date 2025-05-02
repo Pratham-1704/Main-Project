@@ -13,7 +13,8 @@ import BrandProducts from './components/user/master/BrandProduct';
 import Customers from './components/user/master/Customers';
 import FinancialYear from './components/user/master/FinancialYear';
 import Lead from './components/user/Lead/Lead';
-import Quotations from './components/user/Lead/Quotations';
+import Quotations from './components/user/Quotation/Quotations';
+import Quotationdetails from './components/user/Quotation/QuotationDetails';
 import Order from './components/user/Lead/Order';
 // import AdminProfile from './components/user/AdminProfile';
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
@@ -23,6 +24,7 @@ import SBQ from './components/user/Lead/SBQ';
 import MBQ from './components/user/Lead/MBQ';
 import ManageParity from './components/user/master/ManageParity';
 import Parities from './components/user/master/parities';
+import QuotationDetails from './components/user/Quotation/QuotationDetails';
 
 
 
@@ -80,13 +82,24 @@ function App() {
             }
           >
             <Route path="new-lead" element={<Lead />} />
-            <Route path="quotations" element={<Quotations />} />
+            {/* <Route path="quotations" element={<Quotations />} /> */}
             <Route path="order" element={<Order />} />
             <Route path="lead-record" element={<LeadRecord />} />
             <Route path="/lead/lead-details/:leadid" element={<LeadDetails />} />
             <Route path="sbq" element={<SBQ />} />
             <Route path="mbq" element={<MBQ />} />
 
+          </Route>
+          <Route
+            path="quotation"
+            element={
+              <ProtectedRoute>
+                <Landing />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="quotations" element={<Quotations />} />
+            <Route path="quotation-details/:id" element={<QuotationDetails />} />
           </Route>
         </Routes>
       </BrowserRouter>

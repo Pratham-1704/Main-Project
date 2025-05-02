@@ -131,23 +131,50 @@ function Sidebar() {
               </Link>
             </li>
 
-            <li>
+            {/* <li>
               <Link to={"/lead/quotations"}>
+                <i class="bi bi-circle"></i>
+                <span>Quotations</span>
+              </Link>
+            </li> */}
+
+          </ul>
+        </li>
+
+        <li class="nav-item">
+          <a
+            class="nav-link collapsed"
+            data-bs-target="#components-nav1"
+            data-bs-toggle="collapse"
+            href="#"
+          >
+            <i class="bi bi-menu-button-wide"></i>
+            <span>Quotation</span>
+            <i class="bi bi-chevron-down ms-auto"></i>
+          </a>
+          <ul
+            id="components-nav1"
+            class="nav-content collapse "
+            data-bs-parent="#sidebar-nav"
+          >
+            {/* <li>
+              <Link to={"/quotation/lead-record"}>
+                <i class="bi bi-circle"></i>
+                <span>Lead</span>
+              </Link>
+            </li> */}
+
+            <li>
+              <Link to={"/quotation/quotations"}>
                 <i class="bi bi-circle"></i>
                 <span>Quotations</span>
               </Link>
             </li>
 
-            <li>
-              <Link to={"/lead/order"}>
-                <i class="bi bi-circle"></i>
-                <span>Order</span>
-              </Link>
-            </li>
+          
           </ul>
         </li>
-
-
+        
         <li class="nav-item">
           <Link class="nav-link" onClick={(e) => { logout(e); }}>
             <i class="bi bi-grid"></i>

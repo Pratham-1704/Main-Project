@@ -82,7 +82,7 @@ console.log("Location state:", location.state); //
     const fetchBrands = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("http://localhost:8081/brand");
+        const response = await axios.get("http://localhost:8081/Brand");
         const fetchedBrands = response.data.status === "success" ? response.data.data : [];
         setBrands(fetchedBrands);
       } catch (error) {
