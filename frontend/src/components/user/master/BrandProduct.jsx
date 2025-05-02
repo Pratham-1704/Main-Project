@@ -22,11 +22,16 @@ const BrandProduct = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
 
+  useEffect(() => {
     if (!brandId) {
       messageApi.error("Brand ID is missing!");
       return;
     }
+
+    // Clear selected products when switching brands
+    setSelectedProducts([]);
 
     fetchInitialData();
     fetchSelectedProducts();
@@ -50,24 +55,18 @@ const BrandProduct = () => {
 
   const fetchSelectedProducts = async () => {
     try {
+      // Fetch the list of selected products for the current brand
       const response = await axios.get(`http://localhost:8081/brandproduct?brandId=${brandId}`);
-      const associatedProductIds = response.data.data.map((item) => item.productid);
-      // Update localStorage with the selected products
-      localStorage.setItem(`selectedProducts_${brandId}`, JSON.stringify(associatedProductIds));
+      const associatedProductIds = response.data.data.map((item) => item.productid._id || item.productid);
+      
+
+      // Update the selectedProducts state
       setSelectedProducts(associatedProductIds);
     } catch (err) {
       console.error("Error fetching selected products:", err.response?.data || err.message);
       messageApi.error("Failed to fetch associated products.");
     }
   };
-
-  // On page load, fetch selected products from localStorage
-  useEffect(() => {
-    const storedSelectedProducts = JSON.parse(localStorage.getItem(`selectedProducts_${brandId}`));
-    if (storedSelectedProducts) {
-      setSelectedProducts(storedSelectedProducts);
-    }
-  }, [brandId]);
 
   const handleCategoryChange = (value) => {
     setSelectedCategory(value);
@@ -100,18 +99,12 @@ const BrandProduct = () => {
           parity: "", // Set parity as empty
           rate: 0, // Set rate as 0
         };
-        console.log("Payload for adding product:", payload); // Debugging log
 
         // API call to add the product to the brandproduct table
-        const response = await axios.post("http://localhost:8081/brandproduct", payload);
-        console.log("API response for adding product:", response.data);
+        await axios.post("http://localhost:8081/brandproduct", payload);
 
         // Update the selected products state
-        setSelectedProducts((prev) => {
-          const updatedSelectedProducts = [...prev, productId];
-          localStorage.setItem(`selectedProducts_${brandId}`, JSON.stringify(updatedSelectedProducts)); // Save to localStorage
-          return updatedSelectedProducts;
-        });
+        setSelectedProducts((prev) => [...prev, productId]);
 
         messageApi.success("Product added successfully!");
       } else {
@@ -120,11 +113,7 @@ const BrandProduct = () => {
         await axios.delete(deleteUrl);
 
         // Update the selected products state
-        setSelectedProducts((prev) => {
-          const updatedSelectedProducts = prev.filter((id) => id !== productId);
-          localStorage.setItem(`selectedProducts_${brandId}`, JSON.stringify(updatedSelectedProducts)); // Save to localStorage
-          return updatedSelectedProducts;
-        });
+        setSelectedProducts((prev) => prev.filter((id) => id !== productId));
 
         messageApi.success("Product removed successfully!");
       }
