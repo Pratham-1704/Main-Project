@@ -12,6 +12,18 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.post("/forgot-password", async (req, res) => {
+    const { username, mobileno, newPassword } = req.body;
+  
+    const admin = await Admin.findOne({ username, mobileno });
+    if (!admin) return res.status(404).json({ message: "Invalid username or mobile number" });
+  
+    admin.password = newPassword;
+    await admin.save();
+  
+    res.json({ message: "Password reset successful" });
+  });
+  
 // ➤ Get a single admin by ID
 router.get("/:id", async (req, res) => {
     try {

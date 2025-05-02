@@ -98,12 +98,12 @@ function Sidebar() {
               </Link>
             </li>
             
-            <li>
+            {/* <li>
               <Link to={"/master/manage-parity"}>
                 <i class="bi bi-circle"></i>
                 <span>manage parity</span>
               </Link>
-            </li>
+            </li> */}
 
           </ul>
         </li>

@@ -242,7 +242,7 @@ const Products = () => {
               columns={columns}
               dataSource={data}
               rowKey="_id"
-              pagination={{ pageSize: 5, showSizeChanger: false }}
+              pagination={{ pageSize: 10, showSizeChanger: false }}
             />
           </div>
         </section>
