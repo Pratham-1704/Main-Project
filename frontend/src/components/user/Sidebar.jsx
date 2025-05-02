@@ -1,8 +1,7 @@
-import React from 'react'
-import { Link, useNavigate } from 'react-router'
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 function Sidebar() {
-
   let navigate = useNavigate();
 
   function logout(e) {
@@ -12,178 +11,135 @@ function Sidebar() {
   }
 
   return (
-    <aside id="sidebar" class="sidebar">
-      <ul class="sidebar-nav" id="sidebar-nav">
-        <li class="nav-item">
-          <Link class="nav-link " to={"/dashboard"}>
-            <i class="bi bi-grid"></i>
+    <aside id="sidebar" className="sidebar">
+      <ul className="sidebar-nav" id="sidebar-nav">
+        
+        {/* Dashboard */}
+        <li className="nav-item">
+          <Link className="nav-link" to={"/dashboard"}>
+            <i className="bi bi-grid"></i>
             <span>Dashboard</span>
           </Link>
-
         </li>
 
-        <li class="nav-item">
+        {/* Masters Section */}
+        <li className="nav-item">
           <a
-            class="nav-link collapsed"
-            data-bs-target="#components-nav"
+            className="nav-link collapsed"
+            data-bs-target="#masters-nav"
             data-bs-toggle="collapse"
             href="#"
           >
-            <i class="bi bi-menu-button-wide"></i>
+            <i className="bi bi-menu-button-wide"></i>
             <span>Masters</span>
-            <i class="bi bi-chevron-down ms-auto"></i>
+            <i className="bi bi-chevron-down ms-auto"></i>
           </a>
-          <ul
-            id="components-nav"
-            class="nav-content collapse "
-            data-bs-parent="#sidebar-nav"
-          >
+          <ul id="masters-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
             <li>
               <Link to={"/master/Admin"}>
-                <i class="bi bi-circle"></i>
+                <i className="bi bi-circle"></i>
                 <span>Admin</span>
               </Link>
             </li>
             <li>
               <Link to={"/master/financialYear"}>
-                <i class="bi bi-circle"></i>
-                <span>FinancialYear</span>
+                <i className="bi bi-circle"></i>
+                <span>Financial Year</span>
               </Link>
             </li>
-
             <li>
               <Link to={"/master/Categories"}>
-                <i class="bi bi-circle"></i>
+                <i className="bi bi-circle"></i>
                 <span>Categories</span>
               </Link>
             </li>
             <li>
               <Link to={"/master/brands"}>
-                <i class="bi bi-circle"></i>
+                <i className="bi bi-circle"></i>
                 <span>Brand</span>
               </Link>
             </li>
             <li>
               <Link to={"/master/products"}>
-                <i class="bi bi-circle"></i>
+                <i className="bi bi-circle"></i>
                 <span>Products</span>
               </Link>
             </li>
-
-            {/* <li>
-              <Link to={"/master/firms"}>
-                <i class="bi bi-circle"></i>
-                <span>Firms</span>
-              </Link>
-            </li> */}
-
             <li>
               <Link to={"/master/customers"}>
-                <i class="bi bi-circle"></i>
+                <i className="bi bi-circle"></i>
                 <span>Customers</span>
               </Link>
             </li>
-
             <li>
               <Link to={"/master/brandproduct"}>
-                <i class="bi bi-circle"></i>
+                <i className="bi bi-circle"></i>
                 <span>Brand Product</span>
               </Link>
             </li>
-
             <li>
               <Link to={"/master/Parities"}>
-                <i class="bi bi-circle"></i>
+                <i className="bi bi-circle"></i>
                 <span>Parities</span>
               </Link>
             </li>
-            
-            {/* <li>
-              <Link to={"/master/manage-parity"}>
-                <i class="bi bi-circle"></i>
-                <span>manage parity</span>
-              </Link>
-            </li> */}
-
           </ul>
         </li>
 
-        <li class="nav-item">
+        {/* Lead Section */}
+        <li className="nav-item">
           <a
-            class="nav-link collapsed"
-            data-bs-target="#components-nav1"
+            className="nav-link collapsed"
+            data-bs-target="#lead-nav"
             data-bs-toggle="collapse"
             href="#"
           >
-            <i class="bi bi-menu-button-wide"></i>
+            <i className="bi bi-menu-button-wide"></i>
             <span>Lead</span>
-            <i class="bi bi-chevron-down ms-auto"></i>
+            <i className="bi bi-chevron-down ms-auto"></i>
           </a>
-          <ul
-            id="components-nav1"
-            class="nav-content collapse "
-            data-bs-parent="#sidebar-nav"
-          >
+          <ul id="lead-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
             <li>
               <Link to={"/lead/lead-record"}>
-                <i class="bi bi-circle"></i>
+                <i className="bi bi-circle"></i>
                 <span>Lead</span>
               </Link>
             </li>
-
-            {/* <li>
-              <Link to={"/lead/quotations"}>
-                <i class="bi bi-circle"></i>
-                <span>Quotations</span>
-              </Link>
-            </li> */}
-
           </ul>
         </li>
 
-        <li class="nav-item">
+        {/* Quotation Section */}
+        <li className="nav-item">
           <a
-            class="nav-link collapsed"
-            data-bs-target="#components-nav1"
+            className="nav-link collapsed"
+            data-bs-target="#quotation-nav"
             data-bs-toggle="collapse"
             href="#"
           >
-            <i class="bi bi-menu-button-wide"></i>
+            <i className="bi bi-menu-button-wide"></i>
             <span>Quotation</span>
-            <i class="bi bi-chevron-down ms-auto"></i>
+            <i className="bi bi-chevron-down ms-auto"></i>
           </a>
-          <ul
-            id="components-nav1"
-            class="nav-content collapse "
-            data-bs-parent="#sidebar-nav"
-          >
-            {/* <li>
-              <Link to={"/quotation/lead-record"}>
-                <i class="bi bi-circle"></i>
-                <span>Lead</span>
-              </Link>
-            </li> */}
-
+          <ul id="quotation-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
             <li>
               <Link to={"/quotation/quotations"}>
-                <i class="bi bi-circle"></i>
+                <i className="bi bi-circle"></i>
                 <span>Quotations</span>
               </Link>
             </li>
-
-          
           </ul>
         </li>
-        
-        <li class="nav-item">
-          <Link class="nav-link" onClick={(e) => { logout(e); }}>
-            <i class="bi bi-grid"></i>
+
+        {/* Logout */}
+        <li className="nav-item">
+          <Link className="nav-link" onClick={(e) => logout(e)}>
+            <i className="bi bi-grid"></i>
             <span>Logout</span>
           </Link>
         </li>
       </ul>
     </aside>
-  )
+  );
 }
 
 export default Sidebar;

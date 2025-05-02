@@ -14,6 +14,7 @@ import {
   Button,
 } from "antd";
 import dayjs from "dayjs";
+import { jsPDF } from "jspdf"; // Import jsPDF
 
 const { Title, Text } = Typography;
 
@@ -103,6 +104,53 @@ const LeadDetails = () => {
     0
   );
 
+  // Function to generate PDF
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(12);
+    
+    // Add logo
+    doc.addImage(
+      "https://th.bing.com/th/id/OIP.nOL8HH_1fafIVupyd9raegAAAA?rs=1&pid=ImgDetMain",
+      "PNG",
+      10,
+      10,
+      30,
+      30
+    );
+
+    doc.text("PARSHWANATH ISPAT PVT LTD", 50, 20);
+    doc.text("120/1, P.B.Road, N.H.4, SHIROLI(P), KOLHAPUR", 50, 30);
+    doc.text("Email - purchase@parshwanathsteel.com", 50, 40);
+    doc.text("Tel - (0230) 2461285, 2460009 Mob - 96078 15933", 50, 50);
+    doc.text("GSTIN: 27AAFCP4825L1Z2", 50, 60);
+    doc.text("LEAD", 100, 80);
+
+    // Add Lead Details
+    doc.text(`Lead No: ${lead.leadno}`, 10, 100);
+    doc.text(`Lead Date: ${dayjs(lead.leaddate).format("DD/MM/YYYY")}`, 10, 110);
+    doc.text("Payment Term: Against Delivery", 10, 120);
+    doc.text("Owner: Deepak_Shinde", 10, 130);
+    doc.text("CRM: Deepak_Shinde", 10, 140);
+
+    // Add Items Table
+    let yOffset = 150;
+    tableData.forEach((item, index) => {
+      doc.text(`${item.no}. ${item.category} - ${item.product} - ${item.brand}`, 10, yOffset);
+      yOffset += 10;
+      doc.text(`Quantity: ${item.quantity} ${item.unit}`, 10, yOffset);
+      yOffset += 10;
+      doc.text(`Narration: ${item.narration}`, 10, yOffset);
+      yOffset += 20;
+    });
+
+    // Add total weight
+    doc.text(`Total Weight: ${totalWeight.toFixed(1)} Kg`, 10, yOffset);
+
+    // Save the document
+    doc.save(`Lead_${lead.leadno}.pdf`);
+  };
+
   if (loading) return <Spin tip="Loading..." fullscreen />;
   if (!lead) return <div>No lead found.</div>;
 
@@ -134,8 +182,7 @@ const LeadDetails = () => {
             page-break-inside: avoid;
           }
         }
-      `}
-      </style>
+      `}</style>
 
       <section style={{ background: "#f0f2f5", padding: "10px", marginTop: "80px", marginLeft: "300px" }}>
         <div
@@ -254,14 +301,18 @@ const LeadDetails = () => {
               </Link>
             </Col>
             <Col>
-            <Link to="/lead/mbq">
+              <Link to="/lead/mbq">
                 <Button type="dashed">MBQ</Button>
               </Link>
+            </Col>
+            <Col>
+              <Button type="default" onClick={generatePDF}>
+                Generate PDF
+              </Button>
             </Col>
           </Row>
         </div>
       </section>
-
     </>
   );
 };
