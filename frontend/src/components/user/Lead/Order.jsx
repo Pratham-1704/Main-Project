@@ -26,6 +26,8 @@ const Orders = () => {
 
   // Fetch data on component mount
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     fetchOrders();
     fetchCustomers();
     fetchQuotations();

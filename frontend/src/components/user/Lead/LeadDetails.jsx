@@ -28,6 +28,8 @@ const LeadDetails = () => {
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     const fetchData = async () => {
       try {
         const storedId = id || localStorage.getItem("selectedLeadId");

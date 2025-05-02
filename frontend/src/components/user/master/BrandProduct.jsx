@@ -18,11 +18,13 @@ const BrandProduct = () => {
   const brandName = location.state?.brandName;
   const brandId = location.state?.brandId;
 
-  const [messageApi, contextHolder] = message.useMessage();
+  const [messageApi, contextHolder] = message.useMessage(); // Use messageApi for displaying messages
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     if (!brandId) {
-      message.error("Brand ID is missing!");
+      messageApi.error("Brand ID is missing!");
       return;
     }
 
@@ -41,7 +43,8 @@ const BrandProduct = () => {
       setProducts(productsRes.data.data || []);
       setFilteredProducts(productsRes.data.data || []);
     } catch (err) {
-      message.error("Failed to fetch initial data.");
+      console.error("Error fetching initial data:", err);
+      messageApi.error("Failed to fetch initial data.");
     }
   };
 
@@ -54,7 +57,7 @@ const BrandProduct = () => {
       setSelectedProducts(associatedProductIds);
     } catch (err) {
       console.error("Error fetching selected products:", err.response?.data || err.message);
-      message.error("Failed to fetch associated products.");
+      messageApi.error("Failed to fetch associated products.");
     }
   };
 
@@ -110,7 +113,7 @@ const BrandProduct = () => {
           return updatedSelectedProducts;
         });
 
-        message.success("Product added successfully!");
+        messageApi.success("Product added successfully!");
       } else {
         // API call to remove the product from the brandproduct table
         const deleteUrl = `http://localhost:8081/brandproduct?brandId=${brandId}&productId=${productId}`;
@@ -123,11 +126,11 @@ const BrandProduct = () => {
           return updatedSelectedProducts;
         });
 
-        message.success("Product removed successfully!");
+        messageApi.success("Product removed successfully!");
       }
     } catch (err) {
       console.error("Error updating product selection:", err.response?.data || err.message);
-      message.error("Error updating product selection.");
+      messageApi.error("Error updating product selection.");
     }
   };
 
@@ -228,7 +231,6 @@ const BrandProduct = () => {
     </>
   );
 };
-
 
 export default BrandProduct;
 

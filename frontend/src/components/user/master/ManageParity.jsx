@@ -79,6 +79,8 @@ console.log("Location state:", location.state); //
 
   // Fetch brands for the dropdown
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     const fetchBrands = async () => {
       setLoading(true);
       try {

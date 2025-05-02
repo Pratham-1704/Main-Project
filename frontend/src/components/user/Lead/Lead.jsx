@@ -32,6 +32,8 @@ const Leads = () => {
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     fetchInitials();
 
     if (location.state?.record) {

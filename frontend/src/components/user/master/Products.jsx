@@ -15,6 +15,8 @@ const Products = () => {
   const [nextSerialNumber, setNextSerialNumber] = useState(1); // Default serial number for new entries
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     fetchData();
     fetchCategories();
   }, []);

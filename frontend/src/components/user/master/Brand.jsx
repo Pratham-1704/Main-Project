@@ -22,6 +22,8 @@ const Brand = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     fetchBrands();
   }, []);
 

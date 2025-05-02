@@ -194,6 +194,8 @@ const SBQ = () => {
   };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     fetchBrands();
     fetchBrandProducts(); // Fetch brandproduct data
 

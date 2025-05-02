@@ -23,6 +23,8 @@ const Customers = () => {
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     fetchCustomers();
     // fetchFirms();
     fetchStates();

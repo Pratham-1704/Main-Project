@@ -19,6 +19,8 @@ const MBQ = () => {
 
     // Fetch brands
     useEffect(() => {
+        window.scrollTo(0, 0);
+
         const fetchBrands = async () => {
             try {
                 const res = await axios.get("/api/brand");
