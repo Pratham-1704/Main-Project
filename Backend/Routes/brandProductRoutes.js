@@ -36,9 +36,19 @@ router.get("/productids/:brandid", async (req, res) => {
       });
     }
 
-    const records = await BrandProduct.find({ brandid });
-    const productIds = records.map((r) => r.productid.toString());
-    res.json({ status: "success", data: productIds });
+    const brandproducts = await BrandProduct.find({ brandid });
+    let products = await Product.find({});
+   // Create an array of productids from brandproducts for fast lookup
+const brandProductIds = brandproducts.map(item => item.productid.toString());
+
+// Add the 'added' column to each product
+products = products.map(product => {
+    return {
+        ...product.toObject(),  // Convert product object to a plain object
+        added: brandProductIds.includes(product._id.toString())  // Check if product exists in brandproducts
+    };
+});
+    res.json({ status: "success", data: products });
   } catch (err) {
     res.status(500).json({ status: "error", data: err.message });
   }

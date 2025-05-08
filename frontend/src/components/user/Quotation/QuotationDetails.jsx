@@ -1,52 +1,36 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Row, Col, Typography, Table, Card, Divider, Button } from "antd";
+import { useParams } from "react-router-dom";
+import { Row, Col, Typography, Table, Divider, Button, Spin, message } from "antd";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
 const { Title, Text } = Typography;
 
 const QuotationDetails = () => {
+  const { id } = useParams();
   const [quotationData, setQuotationData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get("http:localhost:8081/quotation/1") // Replace with actual API endpoint
-      .then(response => {
-        if (response.data && response.data.length > 0) {
-          setQuotationData(response.data);
+    axios
+      .get(`http://localhost:8081/quotation/${id}`) // ✅ Your backend route is /quotationdetails/:id
+      .then((response) => {
+        if (response.data?.status === "success" && response.data.data) {
+          setQuotationData(response.data.data); // ✅ Set actual data from response
         } else {
-          setQuotationData(sampleData); // Use fallback sample data
+          message.error("Quotation not found.");
         }
       })
-      .catch(() => {
-        setQuotationData(sampleData); // Handle error & use sample data
+      .catch((error) => {
+        console.error("Error fetching quotation data:", error);
+        message.error("Failed to fetch quotation data.");
+      })
+      .finally(() => {
+        setLoading(false);
       });
-  }, []);
-
-  const sampleData = {
-    billTo: { name: "Krida Buildcon LLP - Mapusa, Goa", contact: "Swapnil Gupta", phone: "9359654281", location: "Porvarim - GOA" },
-    shipTo: { name: "Krida Buildcon LLP - Mapusa, Goa", contact: "Swapnil Gupta", phone: "9359654281", location: "Porvarim - GOA" },
-    details: { quotationNo: "PIPL/SBQ/15-04-25/00561", quotationDate: "15-04-2025", paymentTerm: "Advance", owner: "Abhishek" },
-    products: [
-      { no: 1, product: "Plate", size: "32mm CTL", narration: "Plate 32mm 2500*6000 - 1 no", req: "1", unit: "Kgs", producer: "SAIL", quantity: "3,800.0 Kgs", rate: "₹ 56.00/Kgs", amount: "₹ 212,800.00" },
-      { no: 2, product: "Plate", size: "20mm*2000*6300", narration: "", req: "1", unit: "Nos", producer: "AM/NS (Essar)", quantity: "2,015.0 Kgs", rate: "₹ 54.00/Kgs", amount: "₹ 108,810.00" },
-    ],
-    totalWeight: "5,815.0 Kg",
-    totalAmount: "₹ 321,610.00",
-  };
-
-  const columns = [
-    { title: "No", dataIndex: "no", key: "no" },
-    { title: "Product", dataIndex: "product", key: "product" },
-    { title: "Size", dataIndex: "size", key: "size" },
-    { title: "Narration", dataIndex: "narration", key: "narration" },
-    { title: "Req", dataIndex: "req", key: "req" },
-    { title: "Unit", dataIndex: "unit", key: "unit" },
-    { title: "Producer", dataIndex: "producer", key: "producer" },
-    { title: "Quantity", dataIndex: "quantity", key: "quantity" },
-    { title: "Rate", dataIndex: "rate", key: "rate" },
-    { title: "Amount", dataIndex: "amount", key: "amount" },
-  ];
+  }, [id]);
+  
 
   const generatePDF = () => {
     const input = document.getElementById("quotation-print-area");
@@ -63,6 +47,31 @@ const QuotationDetails = () => {
       doc.save("quotation.pdf");
     });
   };
+
+  const columns = [
+    { title: "No", dataIndex: "no", key: "no" },
+    { title: "Product", dataIndex: "product", key: "product" },
+    { title: "Size", dataIndex: "size", key: "size" },
+    { title: "Narration", dataIndex: "narration", key: "narration" },
+    { title: "Req", dataIndex: "req", key: "req" },
+    { title: "Unit", dataIndex: "unit", key: "unit" },
+    { title: "Producer", dataIndex: "producer", key: "producer" },
+    { title: "Quantity", dataIndex: "quantity", key: "quantity" },
+    { title: "Rate", dataIndex: "rate", key: "rate" },
+    { title: "Amount", dataIndex: "amount", key: "amount" },
+  ];
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", marginTop: 100 }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (!quotationData) {
+    return <div style={{ textAlign: "center", marginTop: 100 }}>No quotation data available.</div>;
+  }
 
   return (
     <div className="print-area">
@@ -116,18 +125,50 @@ const QuotationDetails = () => {
 
         <Divider />
 
+        {/* Quotation Title */}
         <Title level={5} style={{ textAlign: "center" }}>QUOTATION</Title>
 
+        {/* Quotation Meta Info */}
+        <Row gutter={16} style={{ marginBottom: 16 }}>
+          <Col span={12}>
+            <Title level={5}>Bill To</Title>
+            <Text><b>Name:</b> {quotationData.billTo?.name}</Text><br />
+            <Text><b>Contact:</b> {quotationData.billTo?.contact}</Text><br />
+            <Text><b>Phone:</b> {quotationData.billTo?.phone}</Text><br />
+            <Text><b>Location:</b> {quotationData.billTo?.location}</Text>
+          </Col>
+          <Col span={12}>
+            <Title level={5}>Ship To</Title>
+            <Text><b>Name:</b> {quotationData.shipTo?.name}</Text><br />
+            <Text><b>Contact:</b> {quotationData.shipTo?.contact}</Text><br />
+            <Text><b>Phone:</b> {quotationData.shipTo?.phone}</Text><br />
+            <Text><b>Location:</b> {quotationData.shipTo?.location}</Text>
+          </Col>
+        </Row>
+
+        <Row gutter={16} style={{ marginBottom: 20 }}>
+          <Col span={8}><Text><b>Quotation No:</b> {quotationData.details?.quotationNo}</Text></Col>
+          <Col span={8}><Text><b>Date:</b> {quotationData.details?.quotationDate}</Text></Col>
+          <Col span={8}><Text><b>Owner:</b> {quotationData.details?.owner}</Text></Col>
+        </Row>
+
         {/* Product Table */}
-        <Table columns={columns} dataSource={quotationData?.products} pagination={false} bordered size="small" style={{ marginTop: 20 }} />
+        <Table
+          columns={columns}
+          dataSource={quotationData.products || []}
+          pagination={false}
+          bordered
+          size="small"
+          rowKey="no"
+          style={{ marginTop: 20 }}
+        />
 
         <div style={{ textAlign: "right", marginTop: 8 }}>
-          <Text strong>Total Weight: {quotationData?.totalWeight}</Text>
+          <Text strong>Total Weight: {quotationData.totalWeight}</Text>
           <br />
-          <Text strong>Total Amount: {quotationData?.totalAmount}</Text>
+          <Text strong>Total Amount: {quotationData.totalAmount}</Text>
         </div>
 
-        {/* Footer */}
         <Divider />
         <div style={{ textAlign: "center" }}>
           <Text type="secondary">One Stop Solution for Variety of Branded Steel</Text>

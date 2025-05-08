@@ -2,7 +2,7 @@ import React from "react";
 import Header from "../Header";
 import Sidebar from "../Sidebar";
 import Footer from "../Footer";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 function Dashboard() {
   return (

@@ -10,7 +10,6 @@ const BrandProduct = () => {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -29,24 +28,30 @@ const BrandProduct = () => {
       messageApi.error("Brand ID is missing!");
       return;
     }
-
-    // Clear selected products when switching brands
-    setSelectedProducts([]);
-
+    setProducts([]);
     fetchInitialData();
     fetchSelectedProducts();
   }, [brandId]);
 
+  useEffect(() => {
+    const filtered = products.filter((product) => {
+      let matchesCategory = true;
+      if(selectedCategory != "none") {
+        matchesCategory = selectedCategory ? product.categoryid === selectedCategory : true;
+      }
+      const matchesSearchTerm = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesCategory && matchesSearchTerm;
+    });
+    setFilteredProducts(filtered);
+  }, [products, searchTerm, selectedCategory]);
+
+
   const fetchInitialData = async () => {
     try {
       const [categoriesRes, productsRes] = await Promise.all([
-        axios.get("http://localhost:8081/category"),
-        axios.get("http://localhost:8081/product"),
+        axios.get("http://localhost:8081/category")
       ]);
-
       setCategories([{ _id: "none", name: "None" }, ...categoriesRes.data.data]);
-      setProducts(productsRes.data.data || []);
-      setFilteredProducts(productsRes.data.data || []);
     } catch (err) {
       console.error("Error fetching initial data:", err);
       messageApi.error("Failed to fetch initial data.");
@@ -56,36 +61,14 @@ const BrandProduct = () => {
   const fetchSelectedProducts = async () => {
     try {
       // Fetch the list of selected products for the current brand
-      const response = await axios.get(`http://localhost:8081/brandproduct?brandId=${brandId}`);
-      const associatedProductIds = response.data.data.map((item) => item.productid._id || item.productid);
-      
-
-      // Update the selectedProducts state
-      setSelectedProducts(associatedProductIds);
+      console.log(`http://localhost:8081/brandproduct/productids/${brandId}`);
+      const response = await axios.get(`http://localhost:8081/brandproduct/productids/${brandId}`);
+      setProducts(response.data.data);
+      setFilteredProducts(response.data.data);
     } catch (err) {
       console.error("Error fetching selected products:", err.response?.data || err.message);
       messageApi.error("Failed to fetch associated products.");
     }
-  };
-
-  const handleCategoryChange = (value) => {
-    setSelectedCategory(value);
-    setFilteredProducts(
-      value === "none"
-        ? products
-        : products.filter((prod) => prod.categoryid === value)
-    );
-  };
-
-  const handleSearch = (value) => {
-    setSearchTerm(value);
-    setFilteredProducts(
-      products.filter(
-        (prod) =>
-          prod.name.toLowerCase().includes(value.toLowerCase()) &&
-          (!selectedCategory || selectedCategory === "none" || prod.categoryid === selectedCategory)
-      )
-    );
   };
 
   const handleCheckboxChange = async (productId, checked) => {
@@ -99,24 +82,20 @@ const BrandProduct = () => {
           parity: "", // Set parity as empty
           rate: 0, // Set rate as 0
         };
-
         // API call to add the product to the brandproduct table
         await axios.post("http://localhost:8081/brandproduct", payload);
-
-        // Update the selected products state
-        setSelectedProducts((prev) => [...prev, productId]);
-
         messageApi.success("Product added successfully!");
       } else {
         // API call to remove the product from the brandproduct table
         const deleteUrl = `http://localhost:8081/brandproduct?brandId=${brandId}&productId=${productId}`;
         await axios.delete(deleteUrl);
-
-        // Update the selected products state
-        setSelectedProducts((prev) => prev.filter((id) => id !== productId));
-
         messageApi.success("Product removed successfully!");
       }
+      setProducts(products.map((product) =>
+        product._id === productId
+          ? { ...product, added: checked }
+          : product
+      ));
     } catch (err) {
       console.error("Error updating product selection:", err.response?.data || err.message);
       messageApi.error("Error updating product selection.");
@@ -129,7 +108,7 @@ const BrandProduct = () => {
       key: "checkbox",
       render: (_, record) => (
         <Checkbox
-          checked={selectedProducts.includes(record._id)} // Check if the product is in the selected list
+          checked={record.added} // Check if the product is in the selected list
           onChange={(e) => handleCheckboxChange(record._id, e.target.checked)}
         />
       ),
@@ -182,7 +161,7 @@ const BrandProduct = () => {
                 <label>Category</label>
                 <Select
                   placeholder="Select Category"
-                  onChange={handleCategoryChange}
+                  onChange={(setCategory) => setSelectedCategory(setCategory)}
                   allowClear
                   style={{ width: "100%" }}
                 >
@@ -199,8 +178,8 @@ const BrandProduct = () => {
               <div className="col-lg-12">
                 <Input
                   placeholder="Search Products"
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   value={searchTerm}
-                  onChange={(e) => handleSearch(e.target.value)}
                   style={{ width: "100%" }}
                 />
               </div>

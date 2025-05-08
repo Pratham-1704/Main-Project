@@ -23,6 +23,50 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get("/:id", async (req, res) => {
+    try {
+      const quotationId = req.params.id;
+  
+      const quotation = await Quotation.findById(quotationId)
+        .populate("baddress")
+        .populate("saddress")
+        .populate("adminid");
+  
+      if (!quotation) {
+        return res.status(404).json({ message: "Quotation not found" });
+      }
+  
+      const products = await QuotationDetail.find({ quotationid: quotationId })
+        .populate("productid categoryid brandid");
+  
+      res.json({
+        details: {
+          quotationNo: quotation.quotationno,
+          quotationDate: quotation.quotationdate,
+          owner: quotation.adminid?.name || "Unknown",
+        },
+        billTo: quotation.baddress,
+        shipTo: quotation.saddress,
+        products: products.map((p, i) => ({
+          no: i + 1,
+          product: p.productid?.name,
+          size: p.size,
+          narration: p.narration,
+          req: p.req,
+          unit: p.unit,
+          producer: p.brandid?.name,
+          quantity: p.quantity,
+          rate: p.rate,
+          amount: p.amount,
+        })),
+        totalWeight: quotation.totalweight,
+        totalAmount: quotation.totalamount,
+      });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+  
 // ➤ Get a single quotation by ID
 router.get("/:id", async (req, res) => {
     try {

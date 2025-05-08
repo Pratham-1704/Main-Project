@@ -1,6 +1,6 @@
 import './App.css';
 import Login from './components/Login';
-import { BrowserRouter, Route, Routes } from 'react-router';
+
 import Landing from './components/user/Landing';
 import Dashboard from './components/user/dashboard/Dashboard';
 import Forgotpassword from './components/Forgotpassword';
@@ -14,7 +14,6 @@ import Customers from './components/user/master/Customers';
 import FinancialYear from './components/user/master/FinancialYear';
 import Lead from './components/user/Lead/Lead';
 import Quotations from './components/user/Quotation/Quotations';
-import Quotationdetails from './components/user/Quotation/QuotationDetails';
 import Order from './components/user/Lead/Order';
 // import AdminProfile from './components/user/AdminProfile';
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
@@ -25,6 +24,7 @@ import MBQ from './components/user/Lead/MBQ';
 import ManageParity from './components/user/master/ManageParity';
 import Parities from './components/user/master/parities';
 import QuotationDetails from './components/user/Quotation/QuotationDetails';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 
 
@@ -99,7 +99,7 @@ function App() {
             }
           >
             <Route path="quotations" element={<Quotations />} />
-            <Route path="quotation-details/:id" element={<QuotationDetails />} />
+            <Route path="quotation-details/:id" element={<QuotationDetails/>} />
           </Route>
         </Routes>
       </BrowserRouter>
