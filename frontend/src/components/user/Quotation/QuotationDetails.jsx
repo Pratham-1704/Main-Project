@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useParams } from "react-router-dom";
-import { Row, Col, Typography, Table, Divider, Button, Spin, message } from "antd";
+import {
+  Row,
+  Col,
+  Typography,
+  Divider,
+  Table,
+  Button,
+  Card,
+  message,
+} from "antd";
+import axios from "axios";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -9,73 +18,55 @@ const { Title, Text } = Typography;
 
 const QuotationDetails = () => {
   const { id } = useParams();
-  const [quotationData, setQuotationData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [quotation, setQuotation] = useState(null);
+
+  const fallbackQuotation = {
+    quotationno: "QT-000000",
+    quotationdate: "2025-01-01",
+    owner: "Admin",
+    baddress: "Billing Address not available",
+    saddress: "Shipping Address not available",
+    loadingCharges: 0,
+    cuttingCharges: 0,
+    subtotal: 0,
+    gstamount: 0,
+    total: 0,
+    quotationtype: "Standard",
+    products: [],
+  };
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8081/quotation/${id}`) // ✅ Your backend route is /quotationdetails/:id
-      .then((response) => {
-        if (response.data?.status === "success" && response.data.data) {
-          setQuotationData(response.data.data); // ✅ Set actual data from response
-        } else {
-          message.error("Quotation not found.");
-        }
+      .get(`http://localhost:8081/quotation/${id}`)
+      .then((res) => {
+        // console.log(id);
+console.log(res.data);  
+        setQuotation(res.data.data);
       })
-      .catch((error) => {
-        console.error("Error fetching quotation data:", error);
-        message.error("Failed to fetch quotation data.");
-      })
-      .finally(() => {
-        setLoading(false);
+      .catch(() => {
+        message.error("Failed to fetch quotation. Showing fallback data.");
+        setQuotation(fallbackQuotation);
       });
   }, [id]);
-  
 
   const generatePDF = () => {
     const input = document.getElementById("quotation-print-area");
     html2canvas(input, { scale: 2, useCORS: true }).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
-      const doc = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const imgWidth = 210;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      doc.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-      doc.save("quotation.pdf");
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      pdf.save("quotation.pdf");
     });
   };
 
-  const columns = [
-    { title: "No", dataIndex: "no", key: "no" },
-    { title: "Product", dataIndex: "product", key: "product" },
-    { title: "Size", dataIndex: "size", key: "size" },
-    { title: "Narration", dataIndex: "narration", key: "narration" },
-    { title: "Req", dataIndex: "req", key: "req" },
-    { title: "Unit", dataIndex: "unit", key: "unit" },
-    { title: "Producer", dataIndex: "producer", key: "producer" },
-    { title: "Quantity", dataIndex: "quantity", key: "quantity" },
-    { title: "Rate", dataIndex: "rate", key: "rate" },
-    { title: "Amount", dataIndex: "amount", key: "amount" },
-  ];
-
-  if (loading) {
-    return (
-      <div style={{ textAlign: "center", marginTop: 100 }}>
-        <Spin size="large" />
-      </div>
-    );
-  }
-
-  if (!quotationData) {
-    return <div style={{ textAlign: "center", marginTop: 100 }}>No quotation data available.</div>;
-  }
+  if (!quotation) return null;
 
   return (
-    <div className="print-area">
-      <div id="quotation-print-area" style={{ padding: "20px", background: "#fff" }}>
+    <div className="container-fluid" >
+    <div className="print-area" style={{ paddingTop: "60px", maxWidth: 850, marginLeft: "300px", background: "#fff" }}>
+      <div id="quotation-print-area">
         <style>
           {`
             @media print {
@@ -90,90 +81,115 @@ const QuotationDetails = () => {
                 left: 0;
                 top: 0;
                 width: 100%;
-                padding: 20px;
                 background: white;
               }
               .ant-btn {
                 display: none !important;
-              }
-              .ant-card-head-title {
-                font-size: 16px !important;
-              }
-              .ant-table {
-                font-size: 14px !important;
               }
             }
           `}
         </style>
 
         {/* Header */}
-        <Row align="middle" gutter={16}>
+        <Row align="middle" gutter={12}>
           <Col span={4}>
-            <img src="/logo192.png" alt="Logo" style={{ maxHeight: 100 }} />
+            <img src="/logo192.png" alt="Logo" style={{ maxHeight: 80 }} />
           </Col>
           <Col span={20}>
             <Title level={4} style={{ marginBottom: 0, color: "red" }}>PRITAM STEEL PVT LTD</Title>
-            <Text>Nagaon, Kolhapur - 416122</Text>
-            <br />
-            <Text>Email - sales@pritamsteel.com / adminparshwa@gmail.com</Text>
-            <br />
-            <Text>Tel - (0230) 2461285, 2460009 Mob - 96078 15933</Text>
-            <br />
+            <Text>Nagaon, Kolhapur - 416122</Text><br />
+            <Text>Email: sales@pritamsteel.com / adminparshwa@gmail.com</Text><br />
+            <Text>Tel: (0230) 2461285, 2460009 Mob: 96078 15933</Text><br />
             <Text><b>GSTIN:</b> 27AALCP1877G1Z1</Text>
           </Col>
         </Row>
 
         <Divider />
 
-        {/* Quotation Title */}
+        {/* Quotation Info */}
         <Title level={5} style={{ textAlign: "center" }}>QUOTATION</Title>
 
-        {/* Quotation Meta Info */}
-        <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Row gutter={16} style={{ marginBottom: 20 }}>
           <Col span={12}>
-            <Title level={5}>Bill To</Title>
-            <Text><b>Name:</b> {quotationData.billTo?.name}</Text><br />
-            <Text><b>Contact:</b> {quotationData.billTo?.contact}</Text><br />
-            <Text><b>Phone:</b> {quotationData.billTo?.phone}</Text><br />
-            <Text><b>Location:</b> {quotationData.billTo?.location}</Text>
+            <Card title="Bill To" size="small">
+              <Text>{quotation.baddress}</Text>
+            </Card>
           </Col>
           <Col span={12}>
-            <Title level={5}>Ship To</Title>
-            <Text><b>Name:</b> {quotationData.shipTo?.name}</Text><br />
-            <Text><b>Contact:</b> {quotationData.shipTo?.contact}</Text><br />
-            <Text><b>Phone:</b> {quotationData.shipTo?.phone}</Text><br />
-            <Text><b>Location:</b> {quotationData.shipTo?.location}</Text>
+            <Card title="Ship To" size="small">
+              <Text>{quotation.saddress}</Text>
+            </Card>
           </Col>
         </Row>
 
         <Row gutter={16} style={{ marginBottom: 20 }}>
-          <Col span={8}><Text><b>Quotation No:</b> {quotationData.details?.quotationNo}</Text></Col>
-          <Col span={8}><Text><b>Date:</b> {quotationData.details?.quotationDate}</Text></Col>
-          <Col span={8}><Text><b>Owner:</b> {quotationData.details?.owner}</Text></Col>
+          <Col span={8}><Text><b>Quotation No:</b> {quotation.quotationno}</Text></Col>
+          <Col span={8}><Text><b>Date:</b> {quotation.quotationdate}</Text></Col>
+          <Col span={8}><Text><b>Type:</b> {quotation.quotationtype}</Text></Col>
         </Row>
 
-        {/* Product Table */}
+        {/* Products Table */}
         <Table
-          columns={columns}
-          dataSource={quotationData.products || []}
+          dataSource={quotation.products || []}
           pagination={false}
-          bordered
           size="small"
-          rowKey="no"
-          style={{ marginTop: 20 }}
+          bordered
+          rowKey={(record, index) => index}
+          columns={[
+            {
+              title: "No",
+              dataIndex: "index",
+              render: (_, __, i) => i + 1,
+            },
+            {
+              title: "Product",
+              dataIndex: "productname",
+              key: "productname",
+            },
+            {
+              title: "Size",
+              dataIndex: "size",
+              key: "size",
+            },
+            {
+              title: "Narration",
+              dataIndex: "narration",
+              key: "narration",
+            },
+            {
+              title: "Qty",
+              dataIndex: "quantity",
+              key: "quantity",
+            },
+            {
+              title: "Rate",
+              dataIndex: "rate",
+              key: "rate",
+            },
+            {
+              title: "Amount",
+              dataIndex: "amount",
+              key: "amount",
+            },
+          ]}
         />
 
-        <div style={{ textAlign: "right", marginTop: 8 }}>
-          <Text strong>Total Weight: {quotationData.totalWeight}</Text>
-          <br />
-          <Text strong>Total Amount: {quotationData.totalAmount}</Text>
-        </div>
+        {/* Charges Summary */}
+        <Row justify="end" style={{ marginTop: 20 }}>
+          <Col span={8}>
+            <Row justify="space-between"><Col><Text>Loading Charges:</Text></Col><Col><Text>₹{quotation.loadingCharges}</Text></Col></Row>
+            <Row justify="space-between"><Col><Text>Cutting Charges:</Text></Col><Col><Text>₹{quotation.cuttingCharges}</Text></Col></Row>
+            <Row justify="space-between"><Col><Text>Subtotal:</Text></Col><Col><Text>₹{quotation.subtotal}</Text></Col></Row>
+            <Row justify="space-between"><Col><Text>GST (18%):</Text></Col><Col><Text>₹{quotation.gstamount}</Text></Col></Row>
+            <Row justify="space-between"><Col><Text strong>Total:</Text></Col><Col><Text strong>₹{quotation.total}</Text></Col></Row>
+          </Col>
+        </Row>
 
+        {/* Footer */}
         <Divider />
         <div style={{ textAlign: "center" }}>
-          <Text type="secondary">One Stop Solution for Variety of Branded Steel</Text>
-          <br />
-          <img src="https://i.imgur.com/mZTrYHY.png" alt="Steel Logos" style={{ maxHeight: 50 }} />
+          <Text type="secondary">One Stop Solution for Variety of Branded Steel</Text><br />
+          <img src="https://i.imgur.com/mZTrYHY.png" alt="Steel Logos" style={{ maxHeight: 40 }} />
         </div>
 
         {/* Buttons */}
@@ -184,6 +200,7 @@ const QuotationDetails = () => {
           </Col>
         </Row>
       </div>
+    </div>
     </div>
   );
 };

@@ -66,7 +66,6 @@ function App() {
             <Route path="customers" element={<Customers />} />
             <Route path="financialyear" element={<FinancialYear />} />
             {/* <Route path="leads" element={<LeadRecord />} /> */}
-            <Route path="order" element={<Order />} />
             <Route path="quotations" element={<Quotations />} />
             <Route path='manage products' element={<BrandProducts />} />
             <Route path="manage-parity" element={<ManageParity />} />
@@ -100,6 +99,10 @@ function App() {
           >
             <Route path="quotations" element={<Quotations />} />
             <Route path="quotation-details/:id" element={<QuotationDetails/>} />
+
+            
+            <Route path="order" element={<Order />} />
+
           </Route>
         </Routes>
       </BrowserRouter>

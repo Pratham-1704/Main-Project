@@ -127,6 +127,12 @@ function Sidebar() {
                 <span>Quotations</span>
               </Link>
             </li>
+             <li>
+              <Link to={"/quotation/order"}>
+                <i className="bi bi-circle"></i>
+                <span>order</span>
+              </Link>
+            </li>
           </ul>
         </li>
 

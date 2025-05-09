@@ -1,149 +1,154 @@
-import React, { useState, useEffect } from "react";
-import { Button, Input, message, Table, DatePicker, Select } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import { Table, Descriptions, Typography, Divider, Button, Spin, message } from "antd";
 import axios from "axios";
-import "./Css Files/style.css";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
-const { Option } = Select;
+const { Title, Text } = Typography;
 
-function Order() {
-  const [formData, setFormData] = useState({
-    firmid: "",
-    quotationid: "",
-    customerid: "",
-    adminid: "",
-    orderno: "",
-    orderdate: "",
-    baddress: "",
-    saddress: "",
-    createdon: "",
-    totalweight: "",
-    subtotal: "",
-    gstamount: "",
-    total: ""
-  });
+const Order = () => {
+  const printRef = useRef();
+  const [orderDetails, setOrderDetails] = useState(null);
+  const [customer, setCustomer] = useState(null);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [orders, setOrders] = useState([]);
-  const [messageApi, contextHolder] = message.useMessage();
-
-  const fetchOrders = async () => {
-    try {
-      const response = await axios.get("http://localhost:8081/order");
-      setOrders(response.data.status === "success" ? response.data.data : []);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-      messageApi.open({ type: "error", content: "Failed to fetch orders!" });
-    }
-  };
+  // Replace this with actual Order ID
+  const orderId = "ORDER_ID";  
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const fetchOrder = async () => {
+      try {
+        const { data } = await axios.get(`/api/order/${orderId}`);
+        setOrderDetails(data.orderDetails);
+        setCustomer(data.customer);
+        setItems(data.items);
+      } catch (err) {
+        message.error("Failed to load order data");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    fetchOrders();
-  }, []);
+    fetchOrder();
+  }, [orderId]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const columns = [
+    { title: "No", dataIndex: "key", key: "key" },
+    { title: "Category", dataIndex: "category", key: "category" },
+    { title: "Product", dataIndex: "product", key: "product" },
+    { title: "Req", dataIndex: "req", key: "req" },
+    { title: "Unit", dataIndex: "unit", key: "unit" },
+    { title: "Producer", dataIndex: "producer", key: "producer" },
+    { title: "Quantity", dataIndex: "quantity", key: "quantity" },
+    { title: "Rate", dataIndex: "rate", key: "rate" },
+  ];
+
+  const getTotalWeight = () => {
+    return items.reduce((sum, item) => {
+      const weight = parseFloat(item.quantity);
+      return sum + (isNaN(weight) ? 0 : weight);
+    }, 0).toFixed(1);
   };
 
-  const handleSelectChange = (name, value) => {
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleDateChange = (date, dateString) => {
-    setFormData({ ...formData, orderdate: dateString });
-  };
-
-  const handleSubmit = async () => {
-    try {
-      await axios.post("http://localhost:8081/order", formData);
-      messageApi.open({ type: "success", content: "Order saved successfully!" });
-      fetchOrders();
-      clearForm();
-    } catch (error) {
-      messageApi.open({ type: "error", content: "Failed to save order!" });
-      console.error("Error:", error);
-    }
-  };
-
-  const clearForm = () => {
-    setFormData({
-      firmid: "",
-      quotationid: "",
-      customerid: "",
-      orderno: "",
-      orderdate: "",
-      baddress: "",
-      saddress: "",
-      createdon: "",
-      adminid: "",
-      totalweight: "",
-      subtotal: "",
-      gstamount: "",
-      total: ""
+  const handleDownload = () => {
+    const input = printRef.current;
+    html2canvas(input).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Order-${orderDetails?.orderNo || "print"}.pdf`);
     });
   };
 
+  if (loading) return <Spin tip="Loading..." style={{ marginTop: 100 }} />;
+
   return (
-    <>
-      {contextHolder}
-      <main id="main" className="main">
-        <div className="pagetitle">
-          <h1>Orders</h1>
+    <div>
+      <Button type="primary" onClick={handleDownload} style={{ marginBottom: 20 }}>
+        Download PDF
+      </Button>
+      <div ref={printRef} style={{ background: "#fff", padding: 24 }}>
+        <Title level={3} style={{ textAlign: "center", marginBottom: 0 }}>
+          PRITAM STEEL PVT LTD
+        </Title>
+        <Text style={{ display: "block", textAlign: "center" }}>
+          Nagaon, Kolhapur-416122 | sales@pritamsteel.com | Mob: 96078 15933
+        </Text>
+        <Text style={{ display: "block", textAlign: "center", marginBottom: 10 }}>
+          GSTIN - 27AALCP1877G1Z1
+        </Text>
+        <Divider />
+        <Title level={4} style={{ textAlign: "center" }}>
+          DELIVERY ORDER
+        </Title>
+
+        <Descriptions bordered column={2} size="small">
+          <Descriptions.Item label="Bill To">
+            <b>{customer.name}</b> <br />
+            {customer.address} <br />
+            📞 {customer.phone}
+          </Descriptions.Item>
+          <Descriptions.Item label="Ship To">
+            <b>{customer.name}</b> <br />
+            {customer.address} <br />
+            📞 {customer.phone}
+          </Descriptions.Item>
+          <Descriptions.Item label="Order No">
+            {orderDetails.orderNo}
+          </Descriptions.Item>
+          <Descriptions.Item label="D. D. Date">
+            {orderDetails.ddDate}
+          </Descriptions.Item>
+          <Descriptions.Item label="Payment Mode">
+            {orderDetails.paymentMode}
+          </Descriptions.Item>
+          <Descriptions.Item label="Payment Term">
+            {orderDetails.paymentTerm}
+          </Descriptions.Item>
+          <Descriptions.Item label="Owner">
+            {orderDetails.owner}
+          </Descriptions.Item>
+          <Descriptions.Item label="CRM">
+            {orderDetails.crm}
+          </Descriptions.Item>
+        </Descriptions>
+
+        <Divider />
+        <Table
+          dataSource={items}
+          columns={columns}
+          pagination={false}
+          bordered
+          summary={() => (
+            <Table.Summary.Row>
+              <Table.Summary.Cell index={0} colSpan={6}>
+                <b>Total wt.</b>
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={6}>
+                <b>{getTotalWeight()} Kgs</b>
+              </Table.Summary.Cell>
+              <Table.Summary.Cell />
+            </Table.Summary.Row>
+          )}
+        />
+
+        <Divider />
+        <div style={{ marginTop: 16 }}>
+          <Text>Loading Charges: <b>Yes</b></Text> <br />
+          <Text>Freight Charges: <b>Ex Kolhapur - Freight Extra</b></Text> <br />
+          <Text>Cutting Charges: <b>0 ₹</b></Text> <br />
+          <Text>C.D.: <b>0 ₹</b></Text>
         </div>
-        <section className="section">
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card p-3">
-                <div className="row">
-                  {Object.keys(formData).map((key) => (
-                    <div className="col-lg-6 p-1" key={key}>
-                      {key.replace(/([a-z])([A-Z])/g, "$1 $2").toUpperCase()}*
-                      {[
-                        "firmid",
-                        "quotationid",
-                        "customerid",
-                        "adminid"
-                      ].includes(key) ? (
-                        <Select
-                          name={key}
-                          style={{ width: "100%" }}
-                          placeholder={`Select ${key}`}
-                          onChange={(value) => handleSelectChange(key, value)}
-                        >
-                          <Option value="1">Option 1</Option>
-                          <Option value="2">Option 2</Option>
-                          <Option value="3">Option 3</Option>
-                        </Select>
-                      ) : key === "orderdate" ? (
-                        <DatePicker
-                          onChange={handleDateChange}
-                          style={{ width: "100%" }}
-                        />
-                      ) : (
-                        <Input
-                          name={key}
-                          placeholder={`Enter ${key}`}
-                          value={formData[key]}
-                          onChange={handleInputChange}
-                        />
-                      )}
-                    </div>
-                  ))}
-                  <div className="col-lg-12 p-1">
-                    <Button type="primary" onClick={handleSubmit} style={{ marginRight: "10px" }}>
-                      Save
-                    </Button>
-                    <Button onClick={clearForm}>Cancel</Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-    </>
+
+        <div style={{ textAlign: "right", marginTop: 40 }}>
+          <Text>For <b>PRITAM STEEL PVT LTD</b></Text>
+        </div>
+      </div>
+    </div>
   );
-}
+};
 
 export default Order;
