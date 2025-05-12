@@ -20,15 +20,17 @@ const SBQ = () => {
   const [brandOptions, setBrandOptions] = useState([]);
   const [form] = Form.useForm();
   const [brandProductData, setBrandProductData] = useState([]);
+  const [categories, setCategories] = useState([]);
+
 
   const fetchBrands = async () => {
     try {
       const res = await axios.get("http://localhost:8081/brand");
       const options = Array.isArray(res.data.data)
         ? res.data.data.map((brand) => ({
-            value: brand._id,
-            label: brand.name,
-          }))
+          value: brand._id,
+          label: brand.name,
+        }))
         : [];
       setBrandOptions(options);
     } catch (err) {
@@ -198,6 +200,9 @@ const SBQ = () => {
 
     fetchBrands();
     fetchBrandProducts(); // Fetch brandproduct data
+    fetchCategories().then((data) => {
+      setCategories(data);
+    });
 
     const storedLeadId = localStorage.getItem("selectedLeadId");
     console.log("Stored Lead ID:", storedLeadId); // Debugging: Check stored lead ID
@@ -219,83 +224,92 @@ const SBQ = () => {
 
   const handleSave = async () => {
     try {
-      // Validate form fields
+      // Step 1: Validate form
       const formData = await form.validateFields();
-      console.log("Form Data:", formData); // Debugging: Check form data
 
-      // Fetch admin ID from localStorage
-      const adminId = localStorage.getItem("adminid");
-      if (!adminId) {
-        message.error("Admin ID not found in localStorage");
-        return;
-      }
-      console.log("Admin ID:", adminId); // Debugging: Check admin ID
-
-      // Generate a unique quotation number
-      const quotationNo = `QT-${Date.now()}`;
-      console.log("Generated Quotation No:", quotationNo); // Debugging: Check quotation number
-
-      // Retrieve sourceid and customerid from localStorage
+      // Step 2: Fetch IDs
       const sourceid = localStorage.getItem("sourceid");
       const customerid = localStorage.getItem("customerid");
       const adminid = localStorage.getItem("adminid");
 
-      if (!sourceid) {
-        message.error("Source ID is required");
+      if (!sourceid || !customerid || !adminid) {
+        message.error("Missing Source ID, Customer ID, or Admin ID");
         return;
       }
-      console.log("Source ID:", sourceid); // Debugging: Check source ID
 
-      if (!customerid) {
-        message.error("Customer ID is required");
-        return;
-      }
-      console.log("Customer ID:", customerid); // Debugging: Check customer ID
+      // Step 3: Generate quotation number
+      const quotationNo = `QT-${Date.now()}`;
 
-      // Map form data to dataset structure
-      const payload = {
-        sourceid, // Source ID fetched from lead data
-        customerid, // Customer ID fetched from lead data
-        quotationno: quotationNo, // Dynamically generated quotation number
+      // Step 4: Prepare main quotation payload
+      const quotationPayload = {
+        sourceid,
+        customerid,
+        quotationno: quotationNo,
         quotationdate: formData.leaddate ? formData.leaddate.format("YYYY-MM-DD") : null,
         baddress: formData.address || "",
-        saddress: formData.address || "", // Use the same value as baddress
-        createdon: new Date().toISOString(), // Current timestamp
-        adminid, // Admin ID from localStorage
-        totalweight: tableData.reduce((sum, row) => sum + (row.req || 0), 0), // Sum of all quantities
-        subtotal: tableData.reduce((sum, row) => sum + (row.total || 0), 0), // Sum of all totals
-        gstamount: 0, // Replace with actual GST calculation if applicable
-        total: tableData.reduce((sum, row) => sum + (row.total || 0), 0), // Sum of all totals
-        quotationtype: "Sample", // Set quotation type as "Sample"
-        items: tableData.map((row) => ({
-          category: row.category,
-          product: row.product,
-          productid: row.productid,
-          brand: row.brand,
-          req: row.req,
-          estimationin: row.estimationin,
-          rate: row.rate,
-          total: row.total,
-        })), // Map table data to items
+        saddress: formData.address || "",
+        createdon: new Date().toISOString(),
+        adminid,
+        totalweight: tableData.reduce((sum, row) => sum + (row.req || 0), 0),
+        subtotal: tableData.reduce((sum, row) => sum + (row.total || 0), 0),
+        gstamount: 0,
+        total: tableData.reduce((sum, row) => sum + (row.total || 0), 0),
+        quotationtype: "Sample",
+        // items: tableData.map(row => ({
+        //   category: row.category,
+        //   product: row.product,
+        //   productid: row.productid,
+        //   brand: row.brand,
+        //   req: row.req,
+        //   estimationin: row.estimationin,
+        //   rate: row.rate,
+        //   total: row.total,
+        // }))
       };
 
-      // Log each field for debugging
-      console.log("Payload to Save:", payload);
+      // Step 5: Save quotation
+      const quotationRes = await axios.post("http://localhost:8081/quotation", quotationPayload);
+      const quotationId = quotationRes.data?.data?._id;
 
-      // Send payload to backend
-      const response = await axios.post("http://localhost:8081/quotation", payload);
-      console.log("Backend Response:", response.data); // Debugging: Check backend response
-
-      if (response.status === 200) {
-        message.success("Data saved successfully!");
-      } else {
-        message.error("Failed to save data");
+      if (!quotationId) {
+        message.error("Failed to get quotation ID from response");
+        return;
       }
+
+      // Step 6: Prepare quotation details payload
+      const detailsPayload = tableData.map((row) => {
+        const categoryId = categories.find((cat) => cat.name === row.category)?._id || ''; // Find category ID by matching name
+
+        console.log("Category ID:", categoryId); // Debugging: Log category ID instead of category name
+
+        return {
+          quotationid: quotationId,
+          category: categoryId,  // Store category ID instead of name
+          productid: row.productid ?? '',
+          brandid: row.brand ?? '',
+          estimationin: row.estimationin ?? '',
+          singleweight: Number(row.singleweight ?? 0),
+          quantity: Number(row.req ?? 0),
+          weight: Number(row.weight ?? 0),
+          rate: Number(row.rate ?? 0),
+          amount: Number(row.total ?? 0),
+          narration: row.narration ?? '',
+        };
+      });
+
+      console.log("Quotation Details Payload:", detailsPayload); // Debugging: Log the entire detailsPayload
+
+
+      // Step 7: Save quotation details
+      await axios.post('http://localhost:8081/quotationdetail', detailsPayload);
+
+      message.success("Quotation and details saved successfully!");
     } catch (error) {
-      console.error("Error saving data:", error); // Debugging: Log the error
-      message.error("Error saving data");
+      console.error("Error saving quotation:", error);
+      message.error("Failed to save quotation or details.");
     }
   };
+
 
   const handleUpdate = async () => {
     try {
@@ -364,6 +378,24 @@ const SBQ = () => {
   );
 
   const commonColumns = [
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      render: (_, record) => (
+        <Select
+          placeholder="Select Category"
+          value={record.category}
+          onChange={(value) => updateRow(record.key, "category", value)}
+          style={{ width: "100%" }}
+          options={categories.map((cat) => ({
+            value: cat._id,
+            label: cat.name,
+          }))}
+        />
+      ),
+    },
+
     {
       title: "Product",
       dataIndex: "product",
@@ -469,14 +501,14 @@ const SBQ = () => {
           <Table
             dataSource={tableData}
             columns={[
-              {
-                title: "Category",
-                dataIndex: "category",
-                key: "category",
-                render: (text) => (
-                  <Input value={text} readOnly style={{ backgroundColor: "#f5f5f5" }} />
-                ),
-              },
+              // {
+              //   title: "Category",
+              //   dataIndex: "category",
+              //   key: "category",
+              //   render: (text) => (
+              //     <Input value={text} readOnly style={{ backgroundColor: "#f5f5f5" }} />
+              //   ),
+              // },
               ...commonColumns,
             ]}
             rowKey="key"

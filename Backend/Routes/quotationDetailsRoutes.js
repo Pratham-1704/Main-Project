@@ -3,15 +3,53 @@ const router = express.Router();
 const QuotationDetail = require("../Models/QuotationDetailSchema");
 
 // ➤ Create a new quotation detail
+
+// Replace your current POST route with this:
 router.post("/", async (req, res) => {
     try {
-        const newQuotationDetail = new QuotationDetail(req.body);
-        const savedQuotationDetail = await newQuotationDetail.save();
-        res.status(201).json({ status: "success", data: savedQuotationDetail });
+        // Handle both array and single object
+        const details = Array.isArray(req.body) ? req.body : [req.body];
+        
+        // Validate and save
+        const savedDetails = await QuotationDetail.insertMany(details);
+        
+        res.status(201).json({ 
+            status: "success", 
+            data: savedDetails,
+            count: savedDetails.length
+        });
     } catch (err) {
-        res.status(400).json({ status: "error", message: err.message });
+        console.error("Error saving details:", err);
+        res.status(400).json({ 
+            status: "error",
+            message: err.message,
+            errors: err.errors 
+        });
     }
 });
+
+// router.post("/", async (req, res) => {
+//     try {
+//         const newQuotationDetail = new QuotationDetail(req.body);
+//         const savedQuotationDetail = await newQuotationDetail.save();
+//         res.status(201).json({ status: "success", data: savedQuotationDetail });
+//     } catch (err) {
+//         res.status(400).json({ status: "error", message: err.message });
+//     }
+// });
+
+// // POST /api/quotationdetails
+// router.post('/quotationdetails', async (req, res) => {
+//   try {
+//     const details = req.body; // should be an array
+//     const savedDetails = await QuotationDetail.insertMany(details);
+//     res.status(201).json(savedDetails);
+//   } catch (error) {
+//     console.error('Error saving quotation details:', error);
+//     res.status(500).json({ message: 'Failed to save quotation details' });
+//   }
+// });
+
 
 // ➤ Get all quotation details
 router.get("/", async (req, res) => {

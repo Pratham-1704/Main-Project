@@ -4,22 +4,22 @@ const QuotationDetailSchema = new mongoose.Schema({
     quotationid: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "quotation", 
-        required: [true, "Quotation ID is required"] 
+        // required: [true, "Quotation ID is required"] 
     },
     categoryid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "category", 
-        required: [true, "Category ID is required"] 
+        ref: "categories", 
+        // required: [true, "Category ID is required"] 
     },
     productid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "product", 
-        required: [true, "Product ID is required"] 
+        ref: "Product", 
+        // required: [true, "Product ID is required"] 
     },
     brandid: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "brand", 
-        required: [true, "Brand ID is required"] 
+        ref: "Brand", 
+        // required: [true, "Brand ID is required"] 
     },
     estimationin: { 
         type: String, 
@@ -45,10 +45,11 @@ const QuotationDetailSchema = new mongoose.Schema({
         type: Number, 
         required: [true, "Rate is required"], 
         min: [0, "Rate must be a positive value"] 
-    },
+    },  
     amount: { 
         type: Number, 
         required: [true, "Amount is required"], 
+
         min: [0, "Amount must be a positive value"] 
     },
     narration: { 
