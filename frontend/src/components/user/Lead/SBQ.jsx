@@ -11,11 +11,12 @@ import {
   Col,
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
 
 const SBQ = () => {
+  const { quotationid } = useParams();
   const [tableData, setTableData] = useState([]);
   const [brandOptions, setBrandOptions] = useState([]);
   const [form] = Form.useForm();
@@ -196,6 +197,8 @@ const SBQ = () => {
   };
 
   useEffect(() => {
+
+    
     window.scrollTo(0, 0);
 
     fetchBrands();
@@ -245,6 +248,7 @@ const SBQ = () => {
         sourceid,
         customerid,
         quotationno: quotationNo,
+        
         quotationdate: formData.leaddate ? formData.leaddate.format("YYYY-MM-DD") : null,
         baddress: formData.address || "",
         saddress: formData.address || "",
@@ -284,7 +288,7 @@ const SBQ = () => {
 
         return {
           quotationid: quotationId,
-          category: categoryId,  // Store category ID instead of name
+          categoryid: categoryId,  // Store category ID instead of name
           productid: row.productid ?? '',
           brandid: row.brand ?? '',
           estimationin: row.estimationin ?? '',
@@ -312,22 +316,6 @@ const SBQ = () => {
 
 
   const handleUpdate = async () => {
-    try {
-      const formData = await form.validateFields();
-      const response = await axios.put("http://localhost:8081/svq", {
-        form: formData,
-        data: tableData,
-      });
-
-      if (response.status === 200) {
-        message.success("Data updated successfully!");
-      } else {
-        message.error("Failed to update data");
-      }
-    } catch (error) {
-      console.error("Error updating data:", error);
-      message.error("Error updating data");
-    }
   };
 
   const formFields = (
@@ -386,7 +374,7 @@ const SBQ = () => {
         <Select
           placeholder="Select Category"
           value={record.category}
-          onChange={(value) => updateRow(record.key, "category", value)}
+          disabled
           style={{ width: "100%" }}
           options={categories.map((cat) => ({
             value: cat._id,
@@ -395,7 +383,6 @@ const SBQ = () => {
         />
       ),
     },
-
     {
       title: "Product",
       dataIndex: "product",

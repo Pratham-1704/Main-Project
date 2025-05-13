@@ -86,6 +86,7 @@ function App() {
             <Route path="lead-record" element={<LeadRecord />} />
             <Route path="/lead/lead-details/:leadid" element={<LeadDetails />} />
             <Route path="sbq" element={<SBQ />} />
+            <Route path="sbq/:id" element={<SBQ />} />
             <Route path="mbq" element={<MBQ />} />
 
           </Route>
@@ -102,6 +103,19 @@ function App() {
 
             
             <Route path="order" element={<Order />} />
+
+          </Route>
+
+          <Route
+            path="order"
+            element={
+              <ProtectedRoute>
+                <Landing />
+              </ProtectedRoute>
+            }
+          >             
+            <Route path="orders" element={<Order />} />
+            <Route path="order-details/:id" element={<LeadDetails />} />
 
           </Route>
         </Routes>

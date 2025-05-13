@@ -127,14 +127,38 @@ function Sidebar() {
                 <span>Quotations</span>
               </Link>
             </li>
-             <li>
+             {/* <li>
               <Link to={"/quotation/order"}>
                 <i className="bi bi-circle"></i>
                 <span>order</span>
               </Link>
+            </li> */}
+          </ul>
+        </li>
+
+
+        {/* Order Section */}
+          <li className="nav-item">
+          <a
+            className="nav-link collapsed"
+            data-bs-target="#order-nav"
+            data-bs-toggle="collapse"
+            href="#"
+          >
+            <i className="bi bi-menu-button-wide"></i>
+            <span>Order</span>
+            <i className="bi bi-chevron-down ms-auto"></i>
+          </a>
+          <ul id="order-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
+            <li>
+              <Link to={"/order/orders"}>
+                <i className="bi bi-circle"></i>
+                <span>Orders</span>
+              </Link>
             </li>
           </ul>
         </li>
+
 
         {/* Logout */}
         <li className="nav-item">

@@ -1,42 +1,38 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import axios from "axios";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
-  Card,
-  Descriptions,
-  Spin,
-  message,
-  Table,
   Row,
   Col,
   Typography,
   Divider,
+  Table,
   Button,
+  Card,
+  message,
+  Spin,
 } from "antd";
+import axios from "axios";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import dayjs from "dayjs";
-import { jsPDF } from "jspdf"; // Import jsPDF
 
 const { Title, Text } = Typography;
 
 const LeadDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const [lead, setLead] = useState(null);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [customer, setCustomer] = useState(null); // State for customer details
-  const [loading, setLoading] = useState(true);
+  const [customer, setCustomer] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-
     const fetchData = async () => {
       try {
         const storedId = id || localStorage.getItem("selectedLeadId");
-        if (!storedId) {
-          messageApi.error("No lead ID provided");
-          return;
-        }
+        if (!storedId) return messageApi.error("No lead ID provided");
 
         const [leadRes, catRes, prodRes] = await Promise.all([
           axios.get(`http://localhost:8081/lead/${storedId}`),
@@ -49,7 +45,6 @@ const LeadDetails = () => {
         setCategories(catRes.data.data);
         setProducts(prodRes.data.data);
 
-        // Fetch customer details using customerid
         if (leadData.customerid) {
           const customerRes = await axios.get(
             `http://localhost:8081/customer/${leadData.customerid}`
@@ -66,26 +61,11 @@ const LeadDetails = () => {
     fetchData();
   }, [id]);
 
-  const getCategoryName = (id) => {
-    const cat = categories.find((c) => c._id === id);
-    return cat ? cat.name : "Unknown Category";
-  };
+  const getCategoryName = (id) =>
+    categories.find((c) => c._id === id)?.name || "Unknown Category";
 
-  const getProductName = (id) => {
-    const prod = products.find((p) => p._id === id);
-    return prod ? prod.name : "Unknown Product";
-  };
-
-  const columns = [
-    { title: "No", dataIndex: "no", key: "no" },
-    { title: "Category", dataIndex: "category", key: "category" },
-    { title: "Product", dataIndex: "product", key: "product" },
-    { title: "Brand", dataIndex: "brand", key: "brand" },
-    { title: "Req", dataIndex: "quantity", key: "quantity" },
-    { title: "Unit", dataIndex: "estimationin", key: "estimationin" },
-    { title: "Weight", dataIndex: "quantity", key: "quantity" },
-    { title: "Narration", dataIndex: "narration", key: "narration" },
-  ];
+  const getProductName = (id) =>
+    products.find((p) => p._id === id)?.name || "Unknown Product";
 
   const tableData =
     lead?.items?.map((item, index) => ({
@@ -95,9 +75,8 @@ const LeadDetails = () => {
       product: getProductName(item.productid),
       estimationin: item.estimationin,
       brand: item.brand,
-      req: item.req,
-      unit: item.unit,
       quantity: item.quantity,
+      unit: item.unit,
       narration: item.narration,
     })) || [];
 
@@ -106,217 +85,185 @@ const LeadDetails = () => {
     0
   );
 
-  // Function to generate PDF
-  const generatePDF = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(12);
-    
-    // Add logo
-    doc.addImage(
-      "https://th.bing.com/th/id/OIP.nOL8HH_1fafIVupyd9raegAAAA?rs=1&pid=ImgDetMain",
-      "PNG",
-      10,
-      10,
-      30,
-      30
-    );
+  const columns = [
+    { title: "No", dataIndex: "no" },
+    { title: "Category", dataIndex: "category" },
+    { title: "Product", dataIndex: "product" },
+    { title: "Brand", dataIndex: "brand" },
+    { title: "Req", dataIndex: "quantity" },
+    { title: "Unit", dataIndex: "unit" },
+    { title: "Weight", dataIndex: "quantity" },
+    { title: "Narration", dataIndex: "narration" },
+  ];
 
-    doc.text("PARSHWANATH ISPAT PVT LTD", 50, 20);
-    doc.text("120/1, P.B.Road, N.H.4, SHIROLI(P), KOLHAPUR", 50, 30);
-    doc.text("Email - purchase@parshwanathsteel.com", 50, 40);
-    doc.text("Tel - (0230) 2461285, 2460009 Mob - 96078 15933", 50, 50);
-    doc.text("GSTIN: 27AAFCP4825L1Z2", 50, 60);
-    doc.text("LEAD", 100, 80);
 
-    // Add Lead Details
-    doc.text(`Lead No: ${lead.leadno}`, 10, 100);
-    doc.text(`Lead Date: ${dayjs(lead.leaddate).format("DD/MM/YYYY")}`, 10, 110);
-    doc.text("Payment Term: Against Delivery", 10, 120);
-    doc.text("Owner: Deepak_Shinde", 10, 130);
-    doc.text("CRM: Deepak_Shinde", 10, 140);
+ const generatePDF = async () => {
+  const input = document.getElementById("lead-print-area");
+  const buttons = document.getElementById("pdf-buttons");
 
-    // Add Items Table
-    let yOffset = 150;
-    tableData.forEach((item, index) => {
-      doc.text(`${item.no}. ${item.category} - ${item.product} - ${item.brand}`, 10, yOffset);
-      yOffset += 10;
-      doc.text(`Quantity: ${item.quantity} ${item.unit}`, 10, yOffset);
-      yOffset += 10;
-      doc.text(`Narration: ${item.narration}`, 10, yOffset);
-      yOffset += 20;
+  if (!input) return;
+
+  if (buttons) buttons.style.display = "none";
+
+  try {
+    const canvas = await html2canvas(input, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#fff",
+      scrollY: -window.scrollY,
     });
 
-    // Add total weight
-    doc.text(`Total Weight: ${totalWeight.toFixed(1)} Kg`, 10, yOffset);
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
 
-    // Save the document
-    doc.save(`Lead_${lead.leadno}.pdf`);
-  };
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgHeight = (canvas.height * pageWidth) / canvas.width;
 
-  if (loading) return <Spin tip="Loading..." fullscreen />;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position -= pageHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    const pdfBlob = pdf.output("blob");
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    // window.open(pdfUrl); // ⬅️ This opens the preview in a new tab
+    window.open(
+  pdfUrl,
+  "_blank",
+  "width=900,height=700,left=100,top=100,scrollbars=yes,resizable=yes"
+);
+  } catch (error) {
+    messageApi.error("Failed to generate PDF preview");
+  } finally {
+    if (buttons) buttons.style.display = "flex";
+  }
+};
+
+
+
+  // const generatePDF = () => {
+  //   const input = document.getElementById("lead-print-area");
+  //   const buttons = document.getElementById("pdf-buttons");
+
+  //   if (!input) return;
+
+  //   if (buttons) buttons.style.display = "none";
+
+  //   html2canvas(input, { scale: 2, useCORS: true }).then((canvas) => {
+  //     const imgData = canvas.toDataURL("image/png");
+  //     const pdf = new jsPDF("p", "mm", "a4");
+  //     const imgWidth = 210;
+  //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  //     pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  //     pdf.save(`Lead_${lead.leadno}.pdf`);
+
+  //     if (buttons) buttons.style.display = "flex";
+  //   });
+  // };
+
+  if (loading) return <Spin fullscreen tip="Loading..." />;
   if (!lead) return <div>No lead found.</div>;
 
   return (
-    <>
-      {/* Print Styles */}
-      <style>
-        {`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          .printable-area, .printable-area * {
-            visibility: visible;
-          }
-          .printable-area {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            background: white;
-          }
-          .hide-on-print {
-            display: none !important;
-          }
-          .ant-card {
-            page-break-inside: avoid;
-          }
-        }
-      `}</style>
+    <div className="container" style={{ padding: 0, marginLeft: 180 }}>
 
-      <section style={{ background: "#f0f2f5", padding: "10px", marginTop: "80px", marginLeft: "300px" }}>
-        <div
-          className="printable-area"
-          style={{
-            padding: "10px 20px",
-            background: "#fff",
-            maxWidth: "1000px",
-            margin: "0 auto"
-          }}
-        >
-          {contextHolder}
-
-          {/* Header */}
-          <Row justify="center" align="middle" style={{marginLeft:"100px"}} gutter={16}>
-            <Col span={6}>
-              <img
-                src="https://th.bing.com/th/id/OIP.nOL8HH_1fafIVupyd9raegAAAA?rs=1&pid=ImgDetMain"
-                alt="Logo"
-                style={{ maxHeight: "120px", width: "auto" }}
-              />
-            </Col>
-            <Col span={18}>
-              <Title level={4} style={{ marginBottom: 4, color: "orange" }}>
-                PARSHWANATH ISPAT PVT LTD
-              </Title>
-              <Text style={{ fontSize: "12px" }}>120/1, P.B.Road, N.H.4, SHIROLI(P), KOLHAPUR</Text>
-              <br />
-              <Text style={{ fontSize: "12px" }}>Email - purchase@parshwanathsteel.com</Text>
-              <br />
-              <Text style={{ fontSize: "12px" }}>Tel - (0230) 2461285, 2460009 Mob - 96078 15933</Text>
-              <br />
-              <Text style={{ fontSize: "12px" }}>
-                <b>GSTIN</b>: 27AAFCP4825L1Z2
-              </Text>
-            </Col>
-          </Row>
-
-          <Divider style={{ margin: "10px 0" }} />
-
-          <Title level={5} style={{ textAlign: "center", marginBottom: 10 }}>
-            LEAD
-          </Title>
-
-          {/* Cards Section */}
-          <Row gutter={12} style={{ marginTop: 10, display: "flex", alignItems: "stretch" }}>
-            {[...Array(3)].map((_, idx) => (
-              <Col span={8} style={{ display: "flex" }} key={idx}>
-                <Card
-                  title={["Bill To", "Ship To", "Details"][idx]}
-                  style={{ width: "100%", fontSize: "12px" }}
-                  bodyStyle={{ display: "flex", flexDirection: "column", justifyContent: "space-between", fontSize: "12px" }}
-                >
-                  {idx < 2 ? (
-                    <>
-                      <Text strong>{customer?.name || "Customer Name"}</Text>
-                      <Text>{customer?.mobileno1 || "Customer Mobile"}</Text>
-                      <Text style={{ fontSize: "12px" }}>
-                        {customer?.address || "Customer Address"}
-                      </Text>
-                      <Text>
-                        <b>GST No.:</b> {customer?.gst || "Customer GST"}
-                      </Text>
-                    </>
-                  ) : (
-                    <>
-                      <p><b>Lead No :</b> {lead.leadno}</p>
-                      <p><b>Lead Date :</b> {dayjs(lead.leaddate).format("DD/MM/YYYY")}</p>
-                      <p><b>Payment Term :</b> Against Delivery</p>
-                      <p><b>Owner :</b> Deepak_Shinde</p>
-                      <p><b>CRM :</b> Deepak_Shinde</p>
-                    </>
-                  )}
-                </Card>
+      <>
+        {contextHolder}
+      <div style={{ paddingTop: "60px", maxWidth: 850, margin: "auto", background: "#fff" }}>
+          <div
+            id="lead-print-area"
+            style={{
+              padding: 20,
+              background: "#fff",
+              maxWidth: 1000,
+              margin: "auto",
+            }}
+          >
+            <Row justify="center" gutter={16}>
+              <Col span={6}>
+                <img
+                  src="https://th.bing.com/th/id/OIP.nOL8HH_1fafIVupyd9raegAAAA?rs=1&pid=ImgDetMain"
+                  alt="Logo"
+                  style={{ maxHeight: "100px" }}
+                />
               </Col>
-            ))}
-          </Row>
+              <Col span={18}>
+                <Title level={4} style={{ color: "orange" }}>
+                  PARSHWANATH ISPAT PVT LTD
+                </Title>
+                <Text>120/1, P.B.Road, N.H.4, SHIROLI(P), KOLHAPUR</Text><br />
+                <Text>Email - purchase@parshwanathsteel.com</Text><br />
+                <Text>Tel - (0230) 2461285, 2460009 Mob - 96078 15933</Text><br />
+                <Text><b>GSTIN</b>: 27AAFCP4825L1Z2</Text>
+              </Col>
+            </Row>
 
-          {/* Items Table */}
-          <div style={{ marginTop: 20 }}>
+            <Divider style={{ margin: "10px 0" }} />
+            <Title level={5} style={{ textAlign: "center" }}>LEAD</Title>
+
+            <Row gutter={16}>
+              {["Bill To", "Ship To", "Details"].map((title, idx) => (
+                <Col span={8} key={title}>
+                  <Card title={title} size="small">
+                    {idx < 2 ? (
+                      <>
+                        <Text strong>{customer?.name}</Text><br />
+                        <Text>{customer?.mobileno1}</Text><br />
+                        <Text>{customer?.address}</Text><br />
+                        <Text><b>GST No:</b> {customer?.gst}</Text>
+                      </>
+                    ) : (
+                      <>
+                        <Text><b>Lead No:</b> {lead.leadno}</Text><br />
+                        <Text><b>Lead Date:</b> {dayjs(lead.leaddate).format("DD/MM/YYYY")}</Text><br />
+                        <Text><b>Payment Term:</b> Against Delivery</Text><br />
+                        <Text><b>Owner:</b> Deepak_Shinde</Text><br />
+                        <Text><b>CRM:</b> Deepak_Shinde</Text>
+                      </>
+                    )}
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+
             <Table
+              style={{ marginTop: 20 }}
               columns={columns}
               dataSource={tableData}
               pagination={false}
               bordered
               size="small"
-              style={{ fontSize: "12px" }}
             />
-          </div>
 
-          {/* Total Weight */}
-          <div style={{ textAlign: "right", marginTop: 5 }}>
-            <Text strong>Total Weight : {totalWeight.toFixed(1)} Kg</Text>
+            <div style={{ textAlign: "right", marginTop: 10 }}>
+              <Text strong>Total Weight: {totalWeight.toFixed(1)} Kg</Text>
+            </div>
           </div>
 
           {/* Buttons */}
-          <Row
-            className="hide-on-print"
-            justify="end"
-            gutter={8}
-            style={{ marginTop: 15 }}
-          >
-            <Col>
-              <Button type="default" onClick={() => window.history.back()}>
-                Back
-              </Button>
-            </Col>
-            <Col>
-              <Button type="primary" onClick={() => window.print()}>
-                Print
-              </Button>
-            </Col>
-            <Col>
-              <Link to="/lead/sbq">
-                <Button type="dashed">SBQ</Button>
-              </Link>
-            </Col>
-            <Col>
-              <Link to="/lead/mbq">
-                <Button type="dashed">MBQ</Button>
-              </Link>
-            </Col>
-            <Col>
-              <Button type="default" onClick={generatePDF}>
-                Generate PDF
-              </Button>
-            </Col>
+          <Row id="pdf-buttons" justify="end" gutter={8} style={{ marginTop: 20 }}>
+            <Col><Button onClick={() => navigate(-1)}>Back</Button></Col>
+            <Col><Button type="primary" onClick={() => window.print()}>Print</Button></Col>
+            <Col><Link to="/lead/sbq"><Button type="dashed">SBQ</Button></Link></Col>
+            <Col><Link to="/lead/mbq"><Button type="dashed">MBQ</Button></Link></Col>
+            <Col><Button onClick={generatePDF}>Generate PDF</Button></Col>
           </Row>
         </div>
-      </section>
+      
     </>
+    </div>
   );
+
 };
 
 export default LeadDetails;

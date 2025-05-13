@@ -72,6 +72,16 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+// routes/quotationdetails.js
+router.get('/byquotation/:id', async (req, res) => {
+  try {
+    const details = await QuotationDetail.find({ quotationid: req.params.id }).populate('productid').populate('categoryid').populate('brandid');
+    res.json({ data: details });
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching quotation details.' });
+  }
+});
+
 // ➤ Update a quotation detail by ID
 router.put("/:id", async (req, res) => {
     try {

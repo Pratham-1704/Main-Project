@@ -3,15 +3,29 @@ const router = express.Router();
 const OrderDetail = require("../Models/OrderDetailSchema");
 
 // ➤ Create a new order detail
+// router.post("/", async (req, res) => {
+//     try {
+//         console.log("Received request body:", req.body);  // Debugging step
+
+//         const newOrderDetail = new OrderDetail(req.body);
+//         const savedOrderDetail = await newOrderDetail.save();
+//         res.status(201).json({ status: "success", data: savedOrderDetail });
+//     } catch (err) {
+//         console.error("Error saving order detail:", err);
+//         res.status(500).json({ status: "error", message: err.message });
+//     }
+// });
+
+
 router.post("/", async (req, res) => {
-    try {
-        const newOrderDetail = new OrderDetail(req.body);
-        const savedOrderDetail = await newOrderDetail.save();
-        res.status(201).json({ status: "success", data: savedOrderDetail });
-    } catch (err) {
-        res.status(400).json({ status: "error", message: err.message });
-    }
+  try {
+    const savedDetails = await OrderDetail.insertMany(req.body);
+    res.status(200).json({ data: savedDetails });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 });
+
 
 // ➤ Get all order details
 router.get("/", async (req, res) => {
