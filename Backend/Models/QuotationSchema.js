@@ -61,9 +61,15 @@ const QuotationSchema = new mongoose.Schema({
         min: [0, "Total cannot be negative"] 
     },
     quotationtype: { 
-        type: String, 
+        type: String,
         // enum: ["retail", "wholesale"], 
         required: [true, "Quotation Type is required"] 
+    },
+      do_prepared: {
+        type: String,
+        enum: ["yes", "no"],
+        default: "no",
+        required: true
     }
 }, { timestamps: true });
 

@@ -89,6 +89,22 @@ router.put("/:id", async (req, res) => {
     }
 });
 
+router.patch("/:id", async (req, res) => {
+  try {
+    const updated = await Quotation.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!updated) {
+      return res.status(404).json({ status: "error", message: "Quotation not found" });
+    }
+    res.json({ status: "success", data: updated });
+  } catch (error) {
+    res.status(400).json({ status: "error", message: error.message });
+  }
+});
+
 // ➤ Delete a quotation by ID
 router.delete("/:id", async (req, res) => {
     try {

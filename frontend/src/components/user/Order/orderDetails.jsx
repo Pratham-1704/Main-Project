@@ -1,3 +1,4 @@
+// ...imports remain the same
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -5,54 +6,66 @@ import {
   Col,
   Typography,
   Divider,
+  Card,
   Table,
   Button,
-  Card,
-  message,
   Spin,
+  message,
+  Modal,
 } from "antd";
 import axios from "axios";
 import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
+import jsPDF from "jspdf";
 import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
+
 
 const OrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [orderDetails, setOrderDetails] = useState([]);
   const [customer, setCustomer] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
+  const [modal, modalContextHolder] = Modal.useModal();
+
+  const fallbackOrder = {
+    orderno: "DO-000000",
+    orderdate: "2025-01-01",
+    owner: "Admin",
+    baddress: "Billing Address not available",
+    saddress: "Shipping Address not available",
+    subtotal: 0,
+    gstamount: 0,
+    total: 0,
+    products: [],
+  };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchData = async () => {
+      setLoading(true);
       try {
-        const storedId = id || localStorage.getItem("selectedOrderId");
-        if (!storedId) return messageApi.error("No order ID provided");
+        const orderRes = await axios.get(`http://localhost:8081/order/${id}`);
+        setOrder(orderRes.data.data);
 
-        const [orderRes, catRes, prodRes] = await Promise.all([
-          axios.get(`http://localhost:8081/order/${storedId}`),
-          axios.get("http://localhost:8081/category"),
-          axios.get("http://localhost:8081/product"),
-        ]);
+        const detailsRes = await axios.get(
+          `http://localhost:8081/orderDetail/byorder/${id}`
+        );
+        setOrderDetails(detailsRes.data.data);
 
-        const orderData = orderRes.data.data;
-        setOrder(orderData);
-        setCategories(catRes.data.data);
-        setProducts(prodRes.data.data);
-
-        if (orderData.customerid) {
+        if (orderRes.data.data?.customerid) {
           const customerRes = await axios.get(
-            `http://localhost:8081/customer/${orderData.customerid}`
+            `http://localhost:8081/customer/${orderRes.data.data.customerid._id}`
           );
           setCustomer(customerRes.data.data);
         }
       } catch (err) {
-        messageApi.error("Failed to fetch order or supporting data");
+        messageApi.error("Failed to fetch order. Showing fallback data.");
+        setOrder(fallbackOrder);
+        setOrderDetails([]);
       } finally {
         setLoading(false);
       }
@@ -61,59 +74,10 @@ const OrderDetails = () => {
     fetchData();
   }, [id]);
 
-  const getCategoryName = (id) =>
-    categories.find((c) => c._id === id)?.name || "Unknown Category";
-
-  const getProductName = (id) =>
-    products.find((p) => p._id === id)?.name || "Unknown Product";
-
-  const tableData =
-    order?.items?.map((item, index) => ({
-      key: index,
-      no: index + 1,
-      category: getCategoryName(item.categoryid),
-      product: getProductName(item.productid),
-      size: item.size || "-",
-      req: item.quantity || "-",
-      unit: item.unit || "-",
-      producer: item.brand || "As Per IS2062",
-      quantity: item.quantity || 0,
-      rate: item.rate || 0,
-    })) || [];
-
-  const totalWeight = tableData.reduce(
-    (acc, item) => acc + parseFloat(item.quantity || 0),
-    0
-  );
-
-  const columns = [
-    { title: "No", dataIndex: "no", width: 50 },
-    { title: "Category", dataIndex: "category", width: 100 },
-    { title: "Product", dataIndex: "product", width: 100 },
-    { title: "Narration", dataIndex: "size", width: 100 },
-    { title: "Req", dataIndex: "req", width: 50 },
-    { title: "Unit", dataIndex: "unit", width: 50 },
-    { title: "Producer", dataIndex: "producer", width: 120 },
-    {
-      title: "Quantity",
-      dataIndex: "quantity",
-      width: 80,
-      render: (text) => `${parseFloat(text || 0).toFixed(1)} Kgs`,
-    },
-    {
-      title: "Rate",
-      dataIndex: "rate",
-      width: 80,
-      render: (text) => `${text || 0}/Kgs`,
-    },
-  ];
-
   const generatePDF = async () => {
     const input = document.getElementById("order-print-area");
     const buttons = document.getElementById("pdf-buttons");
-
     if (!input) return;
-
     if (buttons) buttons.style.display = "none";
 
     try {
@@ -126,7 +90,6 @@ const OrderDetails = () => {
 
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
-
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const imgHeight = (canvas.height * pageWidth) / canvas.width;
@@ -146,12 +109,26 @@ const OrderDetails = () => {
 
       const pdfBlob = pdf.output("blob");
       const pdfUrl = URL.createObjectURL(pdfBlob);
+      const fileName = `Order-${order.orderno || order._id || "Document"}.pdf`;
 
-      window.open(
-        pdfUrl,
+      const win = window.open(
+        "",
         "_blank",
         "width=900,height=700,left=100,top=100,scrollbars=yes,resizable=yes"
       );
+
+      if (win) {
+        win.document.title = fileName;
+        win.document.body.innerHTML = `
+          <title>${fileName}</title>
+          <iframe src="${pdfUrl}" width="100%" height="90%" style="border:none;"></iframe>
+          <div style="text-align:center;margin-top:10px;">
+            <a href="${pdfUrl}" download="${fileName}">
+              <button style="padding:8px 16px;font-size:16px;">Download PDF</button>
+            </a>
+          </div>
+        `;
+      }
     } catch (error) {
       messageApi.error("Failed to generate PDF preview");
     } finally {
@@ -163,193 +140,184 @@ const OrderDetails = () => {
   if (!order) return <div>No order found.</div>;
 
   return (
-    <div className="container" style={{ padding: 0, marginLeft: 180 }}>
+    <div style={{ padding: 0, marginLeft: 180 , marginTop: 50 }}>
       {contextHolder}
-      <div
-        style={{
-          paddingTop: "60px",
-          maxWidth: 850,
-          margin: "auto",
-          background: "#fff",
-        }}
-      >
-        <div
-          id="order-print-area"
-          style={{
-            padding: 20,
-            background: "#fff",
-            maxWidth: 1000,
-            margin: "auto",
-          }}
-        >
-          <Row justify="center" gutter={16}>
-            <Col span={24}>
-              <Title level={4} style={{ textAlign: "center", marginBottom: 0 }}>
+      {modalContextHolder}
+      <div style={{ maxWidth: 950, margin: "auto", background: "#fff" }}>
+        <div id="order-print-area" style={{ padding: 20 }}>
+          {/* Header */}
+          <Row>
+            <Col span={4}>
+              <img src="/logo192.png" alt="Logo" style={{ height: 80 }} />
+            </Col>
+            <Col span={20}>
+              <Title level={4} style={{ color: "red", marginBottom: 4 }}>
                 PRITAM STEEL PVT LTD
               </Title>
-              <Text style={{ textAlign: "center", display: "block" }}>
-                Nagaon, Kolhapur-416122
-              </Text>
-              <Text style={{ textAlign: "center", display: "block" }}>
-                Email - sales@pritamsteel.com / adminparshwa@gmail.com
-              </Text>
-              <Text style={{ textAlign: "center", display: "block" }}>
-                Tel - (0230) 2461285, 2460009 Mob - 96078 15933, 960
-                (77/76/75/74) 15933
-              </Text>
-              <Text strong style={{ textAlign: "center", display: "block" }}>
-                GSTIN - 27AALCP18776121
+              <Text>Nagaon, Kolhapur - 416122</Text>
+              <br />
+              <Text>Email: sales@pritamsteel.com / adminparshwa@gmail.com</Text>
+              <br />
+              <Text>Tel: (0230) 2461285, 2460009 Mob: 96078 15933</Text>
+              <br />
+              <Text>
+                <b>GSTIN:</b> 27AALCP1877G1Z1
               </Text>
             </Col>
           </Row>
 
-          <Divider
-            style={{ margin: "10px 0", borderTop: "2px solid #000" }}
-          />
-          <Title level={4} style={{ textAlign: "center" }}>
+          <Divider style={{ margin: "8px 0" }} />
+
+          <Title level={5} style={{ textAlign: "center" }}>
             DELIVERY ORDER
           </Title>
 
-          <Row gutter={16} style={{ marginBottom: 16 }}>
+          {/* Bill To / Ship To */}
+          <Row gutter={16} style={{ marginBottom: 12 }}>
             <Col span={12}>
-              <Card
-                title="Bill To"
-                size="small"
-                headStyle={{ backgroundColor: "#f0f0f0" }}
-              >
-                <Text strong>{customer?.name || "N/A"}</Text>
+              <Card size="small" title="Bill To">
+                <Text>{customer?.name}</Text>
                 <br />
-                <Text>{customer?.mobileno1 || "N/A"}</Text>
+                <Text>{customer?.mobileno1}</Text>
                 <br />
-                <Text>{customer?.address || "N/A"}</Text>
-                <br />
-                <Text>
-                  {(customer?.city || "N/A") + " - " + (customer?.state || "N/A")}
-                </Text>
+                <Text>{customer?.address}</Text>
               </Card>
             </Col>
             <Col span={12}>
-              <Card
-                title="Ship To"
-                size="small"
-                headStyle={{ backgroundColor: "#f0f0f0" }}
-              >
-                <Text strong>{customer?.name || "N/A"}</Text>
+              <Card size="small" title="Ship To">
+                <Text>{customer?.name}</Text>
                 <br />
-                <Text>{customer?.mobileno1 || "N/A"}</Text>
+                <Text>{customer?.mobileno1}</Text>
                 <br />
-                <Text>{customer?.address || "N/A"}</Text>
-                <br />
-                <Text>
-                  {(customer?.city || "N/A") + " - " + (customer?.state || "N/A")}
-                </Text>
+                <Text>{customer?.address}</Text>
               </Card>
             </Col>
           </Row>
 
-          <Card
-            title="Order Details"
-            size="small"
-            headStyle={{ backgroundColor: "#f0f0f0" }}
-          >
-            <Row gutter={16}>
-              <Col span={8}>
-                <Text>
-                  <strong>Order No.:</strong> {order.orderno || "N/A"}
-                </Text>
-              </Col>
-              <Col span={8}>
-                <Text>
-                  <strong>D. O. Date:</strong>{" "}
-                  {order.orderdate
-                    ? dayjs(order.orderdate).format("DD-MM-YYYY")
-                    : "N/A"}
-                </Text>
-              </Col>
-              <Col span={8}>
-                <Text>
-                  <strong>Payment Mode:</strong> NEFT / RTGS
-                </Text>
-              </Col>
-            </Row>
-            <Row gutter={16} style={{ marginTop: 8 }}>
-              <Col span={8}>
-                <Text>
-                  <strong>Payment Term:</strong> 15 Days
-                </Text>
-              </Col>
-              <Col span={8}>
-                <Text>
-                  <strong>Owner:</strong> SagarKhanvilkar
-                </Text>
-              </Col>
-              <Col span={8}>
-                <Text>
-                  <strong>CRM:</strong> Sagar Khanvilkar
-                </Text>
-              </Col>
-            </Row>
-          </Card>
+          {/* Order Info */}
+          <Row gutter={16}>
+            <Col span={6}>
+              <Text>
+                <b>Order No:</b> {order.orderno}
+              </Text>
+              <br />
+              <Text>
+                <b>D. O. Date:</b>{" "}
+                {order.orderdate ? dayjs(order.orderdate).format("DD-MM-YYYY") : ""}
+              </Text>
+            </Col>
+            <Col span={6}>
+              <Text>
+                <b>Payment Mode:</b> NEFT / RTGS
+              </Text>
+              <br />
+              <Text>
+                <b>Payment Term:</b> 15 Days
+              </Text>
+            </Col>
+            <Col span={6}>
+              <Text>
+                <b>Owner:</b> {order.owner || "N/A"}
+              </Text>
+              <br />
+              <Text>
+                <b>CRM:</b> Sagar Khanvilkar
+              </Text>
+            </Col>
+          </Row>
 
+          <Divider />
+
+          {/* Table */}
           <Table
-            style={{ marginTop: 20 }}
-            columns={columns}
-            dataSource={tableData}
+            dataSource={orderDetails}
             pagination={false}
-            bordered
             size="small"
-            scroll={{ x: true }}
+            bordered
+            rowKey="_id"
+            columns={[
+              { title: "No", render: (_, __, i) => i + 1 },
+              {
+                title: "Category",
+                dataIndex: "categoryid",
+                render: (_, r) => r.categoryid?.name || "N/A",
+              },
+              {
+                title: "Product",
+                dataIndex: "productid",
+                render: (_, r) => r.productid?.name || "N/A",
+              },
+              { title: "Narration", dataIndex: "narration" },
+              { title: "Req", dataIndex: "quantity" },
+              { title: "Unit", dataIndex: "estimationin" },
+              {
+                title: "Producer",
+                dataIndex: "brandid",
+                render: (_, r) => r.brandid?.name || "N/A",
+              },
+              // { title: "Quantity", dataIndex: "quantity" },
+              { title: "Rate", dataIndex: "rate" },
+            ]}
           />
 
-          <div style={{ textAlign: "right", marginTop: 10 }}>
-            <Text strong>
-              Total wt. {isNaN(totalWeight) ? "0.0" : totalWeight.toFixed(1)}
-            </Text>
-          </div>
+          {/* Total */}
+          <Row justify="end" style={{ marginTop: 20 }}>
+            <Col span={8}>
+              <Row justify="space-between">
+                <Col>
+                  <Text strong>Total wt:</Text>
+                </Col>
+                <Col>
+                  <Text strong>{order.total} Kgs</Text>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
 
-          <Divider style={{ margin: "20px 0 10px 0" }} />
+          {/* Footer Notes */}
+          <Divider />
+          <Text>
+            <b>Loading Charges:</b> <span style={{ color: "green" }}>Yes</span>
+          </Text>
+          <br />
+          <Text>
+            <b>Freight Charges:</b> <span style={{ color: "red" }}>Ex Kolhapur - Freight Extra</span>
+          </Text>
+          <br />
+          <Text>
+            <b>Cutting Charges:</b> 0 ₹
+          </Text>
+          <br />
+          <Text>
+            <b>C.D.:</b> 0 ₹
+          </Text>
 
-          <div style={{ marginTop: 20 }}>
-            <Text strong>Term and Conditions:</Text>
-            <br />
-            <Text>Loading Charges : ( Yes )</Text>
-            <br />
-            <Text>Freight Charges : ( Ex Kolhapur - Freight Extra )</Text>
-            <br />
-            <Text>Cutting Charges : ( 0 ¥ )</Text>
-            <br />
-            <Text>C.D. : 0 ¥</Text>
-          </div>
+          <Divider />
 
-          <div style={{ textAlign: "right", marginTop: 30 }}>
-            <Text strong>For PRITAM STEEL PVT LTD</Text>
-          </div>
-
-          <Divider style={{ margin: "20px 0 10px 0" }} />
-
+          {/* Footer Branding */}
           <div style={{ textAlign: "center" }}>
-            <Text>One Stop Solution for Variety of Branded Steel</Text>
+            <Text type="secondary">One Stop Solution for Variety of Branded Steel</Text>
+            <br />
+            <img
+              src="https://i.imgur.com/mZTrYHY.png"
+              alt="Steel Logos"
+              style={{ maxHeight: 40 }}
+            />
           </div>
         </div>
 
-        {/* Buttons */}
         <Row
-          id="pdf-buttons"
           justify="end"
-          gutter={8}
-          style={{ marginTop: 20 }}
+          id="pdf-buttons"
+          style={{ marginTop: 20, display: "flex", gap: 8 }}
         >
-          <Col>
-            <Button onClick={() => navigate(-1)}>Back</Button>
-          </Col>
-          <Col>
-            <Button type="primary" onClick={() => window.print()}>
-              Print
-            </Button>
-          </Col>
-          <Col>
-            <Button onClick={generatePDF}>Generate PDF</Button>
-          </Col>
+          <Button onClick={() => navigate(-1)}>Back</Button>
+          {/* <Button type="primary" onClick={() => window.print()}>
+            Print
+          </Button> */}
+          <Button type="primary" onClick={generatePDF}>
+            Generate PDF
+          </Button>
         </Row>
       </div>
     </div>

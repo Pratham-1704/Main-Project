@@ -19,7 +19,7 @@ const Order = () => {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const { data } = await axios.get(`/api/order/${orderId}`);
+        const { data } = await axios.get(`http://localhost:8081/order/${orderId}`);
         setOrderDetails(data.orderDetails);
         setCustomer(data.customer);
         setItems(data.items);

@@ -37,10 +37,26 @@ router.get("/", async (req, res) => {
     }
 });
 
+// ➤ Get order details by order ID
+router.get("/byorder/:orderid", async (req, res) => {
+    try {
+        const orderDetails = await OrderDetail.find({ orderid: req.params.orderid })
+            .populate("categoryid")
+            .populate("productid")
+            .populate("brandid");
+        res.json({ status: "success", data: orderDetails });
+    } catch (err) {
+        res.status(500).json({ status: "error", message: err.message });
+    }
+});
+
 // ➤ Get a single order detail by ID
 router.get("/:id", async (req, res) => {
     try {
-        const orderDetail = await OrderDetail.findById(req.params.id);
+        const orderDetail = await OrderDetail.findById(req.params.id)
+            .populate("categoryid")
+            .populate("productid")
+            .populate("brandid");
         if (!orderDetail) return res.status(404).json({ status: "error", message: "Order Detail not found" });
         res.json({ status: "success", data: orderDetail });
     } catch (err) {
@@ -71,3 +87,4 @@ router.delete("/:id", async (req, res) => {
 });
 
 module.exports = router;
+
