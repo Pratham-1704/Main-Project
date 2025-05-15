@@ -26,6 +26,7 @@ import Parities from './components/user/master/parities';
 import QuotationDetails from './components/user/Quotation/QuotationDetails';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import OrderDetails from './components/user/Order/orderDetails';
+import DOrder from './components/user/Order/DOrder';
 
 
 
@@ -101,7 +102,8 @@ function App() {
           >
             <Route path="quotations" element={<Quotations />} />
             <Route path="quotation-details/:id" element={<QuotationDetails/>} />
-
+            <Route path="dOrder" element={<DOrder />} />
+            <Route path="dOrder/:id" element={<DOrder />} />
             
             {/* <Route path="order" element={<Order />} /> */}
 
@@ -117,6 +119,7 @@ function App() {
           >             
             <Route path="orders" element={<Order />} />
             <Route path="order-details/:id" element={<OrderDetails />} />
+            {/* <Route path="dorder" element={<dOrder />} />             */}
 
           </Route>
         </Routes>

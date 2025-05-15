@@ -111,6 +111,11 @@ const Quotations = () => {
       key: "sourceid",
       render: (id) => sources.find((s) => s._id === id)?.name || "N/A",
     },
+    // {
+    //   title: "DO Prepared",
+    //   dataIndex: "do_prepared",
+    //   key: "do_prepared",
+    // },
     {
       title: "Action",
       key: "action",
@@ -158,7 +163,17 @@ const Quotations = () => {
               dataSource={data}
               rowKey="_id"
               pagination={{ pageSize: 5, showSizeChanger: false }}
+              rowClassName={(record) =>
+                record.do_prepared === "yes" ? "do-prepared-row" : ""
+              }
             />
+            <style>
+              {`
+                .do-prepared-row {
+                  background-color:rgb(5, 12, 5) !important;
+                }
+              `}
+            </style>
           </div>
         </section>
       </main>

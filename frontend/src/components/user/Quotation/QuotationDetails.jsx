@@ -155,7 +155,10 @@ const QuotationDetails = () => {
           }
 
           await createOrderDetails(orderId);
+          localStorage.setItem("orderId", orderId);
           messageApi.success("Delivery Order prepared successfully!");
+          // Redirect to dOrder page
+          navigate(`/quotation/dOrder/${orderId}`);
         } catch (err) {
           console.error(err);
           messageApi.error(err.message || "Failed to prepare Delivery Order");
@@ -164,7 +167,7 @@ const QuotationDetails = () => {
         }
       },
     });
-  }, [modal, quotation, quotationDetails]);
+  }, [modal, quotation, quotationDetails, navigate]);
 
   if (!quotation) return null;
 

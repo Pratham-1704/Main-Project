@@ -75,6 +75,25 @@ router.put("/:id", async (req, res) => {
     }
 });
 
+// ➤ Batch update order details by order ID
+router.put("/byorder/:orderid", async (req, res) => {
+  try {
+    const details = req.body; // array of order detail objects
+    const results = [];
+    for (const detail of details) {
+      if (detail._id) {
+        // Update existing order detail
+        const updated = await OrderDetail.findByIdAndUpdate(detail._id, detail, { new: true, runValidators: true });
+        results.push(updated);
+      }
+      // Optionally, handle new details (no _id) here if needed
+    }
+    res.json({ status: "success", data: results });
+  } catch (err) {
+    res.status(400).json({ status: "error", message: err.message });
+  }
+});
+
 // ➤ Delete an order detail by ID
 router.delete("/:id", async (req, res) => {
     try {
