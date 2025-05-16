@@ -9,6 +9,7 @@ import {
   Row,
   Col,
   Spin,
+  Select,
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useParams, Link } from "react-router-dom";
@@ -117,14 +118,14 @@ const DOrder = () => {
       prev.map((row) =>
         row.key === key
           ? {
-              ...row,
-              [field]: value,
-              total:
-                field === "rate" || field === "req"
-                  ? (parseFloat(field === "rate" ? value : row.rate) || 0) *
-                    (parseFloat(field === "req" ? value : row.req) || 0)
-                  : row.total,
-            }
+            ...row,
+            [field]: value,
+            total:
+              field === "rate" || field === "req"
+                ? (parseFloat(field === "rate" ? value : row.rate) || 0) *
+                (parseFloat(field === "req" ? value : row.req) || 0)
+                : row.total,
+          }
           : row
       )
     );
@@ -172,13 +173,16 @@ const DOrder = () => {
         rate: row.rate,
         amount: row.total,
         narration: row.narration,
+        paymentMode: formValues.paymentMode,
       }));
 
       // Update order
       await axios.put(`http://localhost:8081/order/${orderId}`, orderPayload);
 
+      console.log("Order updated successfully:", orderPayload);
       // Update order details (assuming batch update endpoint)
       await axios.put(`http://localhost:8081/orderDetail/byorder/${orderId}`, detailsPayload);
+      console.log("Order details updated successfully:", detailsPayload);
 
       messageApi.success("Order and details updated successfully!");
     } catch (err) {
@@ -305,10 +309,21 @@ const DOrder = () => {
                 </Form.Item>
               </Col>
               <Col span={5}>
-                <Form.Item label="Address" name="address">
-                  <Input readOnly />
+                <Form.Item
+                  label="Payment Mode"
+                  name="paymentMode"
+                  rules={[{ required: true, message: 'Please select a payment method' }]}
+                >
+                  <Select placeholder="Select payment method">
+                    <Select.Option value="cash">Cash</Select.Option>
+                    <Select.Option value="cheque">Cheque</Select.Option>
+                    <Select.Option value="neft/rtgs">NEFT/RTGS</Select.Option>
+                    <Select.Option value="against delivery">Against Delivery</Select.Option>
+                    <Select.Option value="other">Other</Select.Option>
+                  </Select>
                 </Form.Item>
               </Col>
+
               <Col span={4}>
                 <Form.Item label="Order Date" name="orderdate">
                   <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" disabled />
@@ -344,7 +359,7 @@ const DOrder = () => {
             >
               Update
             </Button>
-            <Link to="/order/list">
+            <Link to="/quotation/quotations">
               <Button type="default" danger style={{ marginTop: "8px" }}>
                 Cancel
               </Button>

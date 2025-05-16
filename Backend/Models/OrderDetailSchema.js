@@ -11,7 +11,8 @@ const OrderDetailSchema = new mongoose.Schema({
   weight: { type: Number, required: true },
   rate: { type: Number, required: true },
   amount: { type: Number, required: true },
-  narration: { type: String, default: "" }
+  narration: { type: String, default: "" },
+  paymentMode : { type: String ,default: "" },
 }, { timestamps: true });
 
 module.exports = mongoose.model("orderDetail", OrderDetailSchema);
