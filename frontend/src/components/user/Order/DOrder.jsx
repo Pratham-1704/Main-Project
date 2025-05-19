@@ -359,19 +359,21 @@ const DOrder = () => {
             )}
           />
           <div className="text-end mt-2">
+            <Link to="/quotation/quotations">
             <Button
               type="primary"
               style={{ marginRight: "8px", marginTop: "8px" }}
               onClick={handleUpdate}
               loading={loading}
             >
-              Update
+              Submit
             </Button>
-            <Link to="/quotation/quotations">
+            </Link>
+            {/* <Link to="/quotation/quotations">
               <Button type="default" danger style={{ marginTop: "8px" }}>
                 Cancel
               </Button>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </section>
