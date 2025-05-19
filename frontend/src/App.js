@@ -27,6 +27,7 @@ import QuotationDetails from './components/user/Quotation/QuotationDetails';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import OrderDetails from './components/user/Order/orderDetails';
 import DOrder from './components/user/Order/DOrder';
+import ModifyQuotation from './components/user/Quotation/ModifyQuotation';
 
 
 
@@ -104,6 +105,7 @@ function App() {
             <Route path="quotation-details/:id" element={<QuotationDetails/>} />
             <Route path="dOrder" element={<DOrder />} />
             <Route path="dOrder/:id" element={<DOrder />} />
+            <Route path="modifyQtation/:id" element={<ModifyQuotation />} />
             
             {/* <Route path="order" element={<Order />} /> */}
 

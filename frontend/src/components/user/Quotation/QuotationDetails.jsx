@@ -44,7 +44,7 @@ const QuotationDetails = () => {
   const handleEdit = () => {
     localStorage.setItem("quotationId", id);
     localStorage.setItem("quotationDetail", id);
-    navigate(`/lead/sbq/${id}`);
+    navigate(`/quotation/modifyQtation/${id}`);
   };
 
   useEffect(() => {

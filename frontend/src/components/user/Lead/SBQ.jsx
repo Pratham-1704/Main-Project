@@ -11,7 +11,7 @@ import {
   Col,
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
 
@@ -308,6 +308,7 @@ const SBQ = () => {
       await axios.post('http://localhost:8081/quotationdetail', detailsPayload);
 
       message.success("Quotation and details saved successfully!");
+    //  Navigate("/quotation/quotations");
     } catch (error) {
       console.error("Error saving quotation:", error);
       message.error("Failed to save quotation or details.");

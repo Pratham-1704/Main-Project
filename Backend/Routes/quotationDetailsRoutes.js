@@ -104,4 +104,14 @@ router.delete("/:id", async (req, res) => {
     }
 });
 
+router.delete("/byquotation/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await QuotationDetail.deleteMany({ quotationid: id });
+    res.json({ status: "success", data: result });
+  } catch (err) {
+    res.status(500).json({ status: "error", data: err.message });
+  }
+});
+
 module.exports = router;
