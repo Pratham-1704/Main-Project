@@ -94,6 +94,8 @@ const DOrder = () => {
           rate: item.rate ?? "",
           total: item.amount ?? "",
           narration: item.narration || "",
+          singleweight: item.singleweight ?? "", // <-- ADD THIS
+          weight: item.weight ?? "",             // <-- ADD THIS
         }));
         setTableData(tableRows);
       } catch (err) {
@@ -149,6 +151,7 @@ const DOrder = () => {
       const subtotal = tableData.reduce((sum, row) => sum + (parseFloat(row.total) || 0), 0);
       const gstamount = subtotal * 0.18;
       const total = subtotal + gstamount;
+      const totalweight = tableData.reduce((sum, row) => sum + (parseFloat(row.weight) || 0), 0);
 
       // Prepare order payload
       const orderPayload = {
@@ -160,6 +163,8 @@ const DOrder = () => {
         subtotal,
         gstamount,
         total,
+        totalweight // <-- ADD THIS
+
       };
       // Prepare order details payload
       const detailsPayload = tableData.map(row => ({
@@ -170,10 +175,13 @@ const DOrder = () => {
         brandname: row.brand,
         quantity: row.req,
         estimationin: row.estimationin,
+
         rate: row.rate,
         amount: row.total,
         narration: row.narration,
         paymentMode: formValues.paymentMode,
+        singleweight: row.singleweight, // <-- ADD THIS
+        weight: row.weight,             // <-- ADD THIS
       }));
 
       // Update order

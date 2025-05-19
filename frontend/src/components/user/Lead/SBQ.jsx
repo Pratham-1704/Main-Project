@@ -11,7 +11,7 @@ import {
   Col,
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
 
@@ -22,16 +22,16 @@ const SBQ = () => {
   const [form] = Form.useForm();
   const [brandProductData, setBrandProductData] = useState([]);
   const [categories, setCategories] = useState([]);
-
+  const [products, setProducts] = useState([]);
 
   const fetchBrands = async () => {
     try {
       const res = await axios.get("http://localhost:8081/brand");
       const options = Array.isArray(res.data.data)
         ? res.data.data.map((brand) => ({
-          value: brand._id,
-          label: brand.name,
-        }))
+            value: brand._id,
+            label: brand.name,
+          }))
         : [];
       setBrandOptions(options);
     } catch (err) {
@@ -43,10 +43,12 @@ const SBQ = () => {
   const fetchCategories = async () => {
     try {
       const res = await axios.get("http://localhost:8081/category");
+      setCategories(res.data.data || []);
       return res.data.data || [];
     } catch (err) {
       console.error("Failed to fetch categories:", err);
       message.error("Failed to load categories");
+      setCategories([]);
       return [];
     }
   };
@@ -54,10 +56,12 @@ const SBQ = () => {
   const fetchProducts = async () => {
     try {
       const res = await axios.get("http://localhost:8081/product");
+      setProducts(res.data.data || []);
       return res.data.data || [];
     } catch (err) {
       console.error("Failed to fetch products:", err);
       message.error("Failed to load products");
+      setProducts([]);
       return [];
     }
   };
@@ -65,8 +69,7 @@ const SBQ = () => {
   const fetchBrandProducts = async () => {
     try {
       const res = await axios.get("http://localhost:8081/brandproduct");
-      console.log("BrandProduct Data:", res.data.data); // Debugging
-      setBrandProductData(res.data.data || []); // Store brandproduct data
+      setBrandProductData(res.data.data || []);
     } catch (err) {
       console.error("Failed to fetch brand products:", err);
       message.error("Failed to load brand products");
@@ -80,8 +83,6 @@ const SBQ = () => {
 
       const res = await axios.get(`http://localhost:8081/lead/${leadId}`);
       const leadData = res.data.data;
-
-      console.log("Lead Data:", leadData); // Debugging: Check the structure of the lead data
 
       // Fetch customer details if needed
       let customerDetails = {};
@@ -103,13 +104,13 @@ const SBQ = () => {
 
       // Map API response keys to form field names
       form.setFieldsValue({
-        name: customerDetails.name || "", // Customer name from customer API
-        mobile: customerDetails.mobileno1 || "", // Mobile from customer API
-        city: customerDetails.city || "", // City from customer API
-        state: customerDetails.state || "", // State from customer API
-        address: customerDetails.address || "", // Address from customer API
-        source: sourceDetails.name || "", // Source name from source API
-        leaddate: leadData.leaddate ? dayjs(leadData.leaddate) : null, // Lead date
+        name: customerDetails.name || "",
+        mobile: customerDetails.mobileno1 || "",
+        city: customerDetails.city || "",
+        state: customerDetails.state || "",
+        address: customerDetails.address || "",
+        source: sourceDetails.name || "",
+        leaddate: leadData.leaddate ? dayjs(leadData.leaddate) : null,
       });
 
       const itemsArray = Array.isArray(leadData?.items) ? leadData.items : [];
@@ -123,16 +124,22 @@ const SBQ = () => {
         const category = categories.find((cat) => cat._id === item.categoryid);
         const product = products.find((prod) => prod._id === item.productid);
 
+        const singleweight = product ? Number(product.weight) : 0;
+        const quantity = item.quantity || 0;
+        const totalWeight = singleweight * quantity;
+
         return {
           key: item._id || `row-${index}`,
           category: category ? category.name : "Unknown Category",
           product: product ? product.name : "Unknown Product",
-          productid: product ? product._id : null, // Include productid
+          productid: product ? product._id : null,
           brand: null,
-          req: item.quantity || "",
+          req: quantity,
           estimationin: item.estimationin || "",
           rate: item.rate || "",
-          total: (item.quantity || 0) * (item.rate || 0),
+          total: quantity * (item.rate || 0),
+          singleweight,
+          weight: totalWeight,
         };
       });
 
@@ -155,10 +162,10 @@ const SBQ = () => {
           params: { brandid, productid },
         }
       );
-      return response.data.rate || 0; // Return the rate or default to 0
+      return response.data.rate || 0;
     } catch (error) {
       console.error("Failed to fetch rate:", error);
-      return 0; // Default rate in case of error
+      return 0;
     }
   };
 
@@ -168,14 +175,17 @@ const SBQ = () => {
         if (row.key === key) {
           const updatedRow = { ...row, [field]: value };
 
+          // If req or singleweight is updated, recalculate weight
+          const req = parseFloat(field === "req" ? value : updatedRow.req) || 0;
+          const singleweight =
+            parseFloat(field === "singleweight" ? value : updatedRow.singleweight) || 0;
+          updatedRow.weight = req * singleweight;
+
           // If brand is updated, fetch the rate
           if (field === "brand") {
-            console.log("Selected Brand ID:", value);
-            console.log("Product ID:", row.productid);
-
             fetchRate(value, row.productid).then((rate) => {
-              updatedRow.rate = rate || 0; // Update rate dynamically
-              updatedRow.total = (updatedRow.req || 0) * updatedRow.rate; // Recalculate total
+              updatedRow.rate = rate || 0;
+              updatedRow.total = req * updatedRow.rate;
               setTableData((prev) =>
                 prev.map((r) => (r.key === key ? updatedRow : r))
               );
@@ -184,9 +194,8 @@ const SBQ = () => {
 
           // If req or rate is updated, recalculate total
           if (field === "req" || field === "rate") {
-            const req = parseFloat(field === "req" ? value : updatedRow.req) || 0;
             const rate = parseFloat(field === "rate" ? value : updatedRow.rate) || 0;
-            updatedRow.total = req * rate; // Recalculate total
+            updatedRow.total = req * rate;
           }
 
           return updatedRow;
@@ -197,18 +206,14 @@ const SBQ = () => {
   };
 
   useEffect(() => {
-
-    
     window.scrollTo(0, 0);
 
     fetchBrands();
-    fetchBrandProducts(); // Fetch brandproduct data
-    fetchCategories().then((data) => {
-      setCategories(data);
-    });
+    fetchBrandProducts();
+    fetchCategories();
+    fetchProducts();
 
     const storedLeadId = localStorage.getItem("selectedLeadId");
-    console.log("Stored Lead ID:", storedLeadId); // Debugging: Check stored lead ID
     if (!storedLeadId) {
       message.error("No leadId found in localStorage");
       return;
@@ -248,27 +253,16 @@ const SBQ = () => {
         sourceid,
         customerid,
         quotationno: quotationNo,
-        
         quotationdate: formData.leaddate ? formData.leaddate.format("YYYY-MM-DD") : null,
         baddress: formData.address || "",
         saddress: formData.address || "",
         createdon: new Date().toISOString(),
         adminid,
-        totalweight: tableData.reduce((sum, row) => sum + (row.req || 0), 0),
+        totalweight: tableData.reduce((sum, row) => sum + (row.weight || 0), 0),
         subtotal: tableData.reduce((sum, row) => sum + (row.total || 0), 0),
         gstamount: 0,
         total: tableData.reduce((sum, row) => sum + (row.total || 0), 0),
         quotationtype: "Sample",
-        // items: tableData.map(row => ({
-        //   category: row.category,
-        //   product: row.product,
-        //   productid: row.productid,
-        //   brand: row.brand,
-        //   req: row.req,
-        //   estimationin: row.estimationin,
-        //   rate: row.rate,
-        //   total: row.total,
-        // }))
       };
 
       // Step 5: Save quotation
@@ -282,13 +276,10 @@ const SBQ = () => {
 
       // Step 6: Prepare quotation details payload
       const detailsPayload = tableData.map((row) => {
-        const categoryId = categories.find((cat) => cat.name === row.category)?._id || ''; // Find category ID by matching name
-
-        console.log("Category ID:", categoryId); // Debugging: Log category ID instead of category name
-
+        const categoryId = categories.find((cat) => cat.name === row.category)?._id || '';
         return {
           quotationid: quotationId,
-          categoryid: categoryId,  // Store category ID instead of name
+          categoryid: categoryId,
           productid: row.productid ?? '',
           brandid: row.brand ?? '',
           estimationin: row.estimationin ?? '',
@@ -301,23 +292,18 @@ const SBQ = () => {
         };
       });
 
-      console.log("Quotation Details Payload:", detailsPayload); // Debugging: Log the entire detailsPayload
-
-
       // Step 7: Save quotation details
       await axios.post('http://localhost:8081/quotationdetail', detailsPayload);
 
       message.success("Quotation and details saved successfully!");
-    //  Navigate("/quotation/quotations");
+      // Navigate("/quotation/quotations");
     } catch (error) {
       console.error("Error saving quotation:", error);
       message.error("Failed to save quotation or details.");
     }
   };
 
-
-  const handleUpdate = async () => {
-  };
+  const handleUpdate = async () => {};
 
   const formFields = (
     <Form form={form} layout="vertical">
@@ -416,6 +402,22 @@ const SBQ = () => {
       ),
     },
     {
+      title: "Single Weight",
+      dataIndex: "singleweight",
+      key: "singleweight",
+      render: (_, record) => (
+        <Input value={record.singleweight} readOnly style={{ backgroundColor: "#f5f5f5" }} />
+      ),
+    },
+    {
+      title: "Total Weight",
+      dataIndex: "weight",
+      key: "weight",
+      render: (_, record) => (
+        <Input value={record.weight} readOnly style={{ backgroundColor: "#f5f5f5" }} />
+      ),
+    },
+    {
       title: "Unit",
       dataIndex: "estimationin",
       key: "estimationin",
@@ -488,17 +490,7 @@ const SBQ = () => {
         <div className="card p-3 mt-3">
           <Table
             dataSource={tableData}
-            columns={[
-              // {
-              //   title: "Category",
-              //   dataIndex: "category",
-              //   key: "category",
-              //   render: (text) => (
-              //     <Input value={text} readOnly style={{ backgroundColor: "#f5f5f5" }} />
-              //   ),
-              // },
-              ...commonColumns,
-            ]}
+            columns={commonColumns}
             rowKey="key"
             pagination={false}
             footer={() => (

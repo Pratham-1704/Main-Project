@@ -140,7 +140,7 @@ const OrderDetails = () => {
   if (!order) return <div>No order found.</div>;
 
   return (
-    <div style={{ padding: 0, marginLeft: 180 , marginTop: 50 }}>
+    <div style={{ padding: 0, marginLeft: 180, marginTop: 50 }}>
       {contextHolder}
       {modalContextHolder}
       <div style={{ maxWidth: 950, margin: "auto", background: "#fff" }}>
@@ -174,8 +174,12 @@ const OrderDetails = () => {
 
           {/* Bill To / Ship To */}
           <Row gutter={16} style={{ marginBottom: 12 }}>
-            <Col span={12}>
-              <Card size="small" title="Bill To">
+            <Col span={8}>
+              <Card
+                size="small"
+                title="Bill To"
+                style={{ minHeight: 180, height: 180, display: "flex", flexDirection: "column", justifyContent: "center" }}
+              >
                 <Text>{customer?.name}</Text>
                 <br />
                 <Text>{customer?.mobileno1}</Text>
@@ -183,48 +187,55 @@ const OrderDetails = () => {
                 <Text>{customer?.address}</Text>
               </Card>
             </Col>
-            <Col span={12}>
-              <Card size="small" title="Ship To">
+            <Col span={8}>
+              <Card
+                size="small"
+                title="Ship To"
+                style={{ minHeight: 180, height: 180, display: "flex", flexDirection: "column", justifyContent: "center" }}
+              >
                 <Text>{customer?.name}</Text>
                 <br />
                 <Text>{customer?.mobileno1}</Text>
                 <br />
                 <Text>{customer?.address}</Text>
+              </Card>
+            </Col>
+            <Col span={8}>
+              <Card
+                size="small"
+                title="Order Info"
+                style={{ minHeight: 180, height: 180, display: "flex", flexDirection: "column", justifyContent: "center" }}
+              >
+                <Text>
+                  <b>Order No:</b> {order.orderno}
+                </Text>
+                <br />
+                <Text>
+                  <b>D. O. Date:</b>{" "}
+                  {order.orderdate ? dayjs(order.orderdate).format("DD-MM-YYYY") : ""}
+                </Text>
+                <br />
+                <Text>
+                  <b>Payment Mode:</b> {orderDetails[0]?.paymentMode || orderDetails[0]?.paymentmode || "N/A"}
+                </Text>
+                <br />
+                <Text>
+                  <b>Payment Term:</b> 15 Days
+                </Text>
+                <br />
+                <Text>
+                  <b>Owner:</b> {order.owner || "N/A"}
+                </Text>
+                <br />
+                <Text>
+                  <b>CRM:</b> Sagar Khanvilkar
+                </Text>
               </Card>
             </Col>
           </Row>
 
           {/* Order Info */}
-          <Row gutter={16}>
-            <Col span={6}>
-              <Text>
-                <b>Order No:</b> {order.orderno}
-              </Text>
-              <br />
-              <Text>
-                <b>D. O. Date:</b>{" "}
-                {order.orderdate ? dayjs(order.orderdate).format("DD-MM-YYYY") : ""}
-              </Text>
-            </Col>
-            <Col span={6}>
-              <Text>
-                <b>Payment Mode:</b> NEFT / RTGS
-              </Text>
-              <br />
-              <Text>
-                <b>Payment Term:</b> 15 Days
-              </Text>
-            </Col>
-            <Col span={6}>
-              <Text>
-                <b>Owner:</b> {order.owner || "N/A"}
-              </Text>
-              <br />
-              <Text>
-                <b>CRM:</b> Sagar Khanvilkar
-              </Text>
-            </Col>
-          </Row>
+          
 
           <Divider />
 
@@ -268,7 +279,7 @@ const OrderDetails = () => {
                   <Text strong>Total wt:</Text>
                 </Col>
                 <Col>
-                  <Text strong>{order.total} Kgs</Text>
+                  <Text strong>{order.totalweight} Kgs</Text>
                 </Col>
               </Row>
             </Col>
