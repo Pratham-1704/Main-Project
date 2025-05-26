@@ -15,29 +15,23 @@ function Header() {
 
   return (
     <>
-      <header id="header" className="header fixed-top d-flex align-items-center">
+      <header id="header" className="header fixed-top d-flex align-items-center" style={{ backgroundColor:"orange"}}>
         <div className="d-flex align-items-center justify-content-between">
           <a href="index.html" className="logo d-flex align-items-center">
             <img src="assets/img/Companylogo.png" style={{ textAlign: "left" }}
               alt="" />
+              <h4 style={{marginTop:"10px", color:"black",marginLeft:"15px"}}>Parshwanath Steel</h4>
             <span className="d-none d-lg-block"></span>
           </a>
-          <i className="bi bi-list toggle-sidebar-btn"></i>
+          {/* <i className="bi bi-list toggle-sidebar-btn"></i> */}
         </div>
 
         <div className="search-bar">
-          <h5>Welcome {name}</h5>
+          <h5 style={{marginTop:"10px", marginLeft:"400px"}}>Welcome {name}</h5>
         </div>
 
         <nav className="header-nav ms-auto">
           <ul className="d-flex align-items-center">
-            <li className="nav-item dropdown">
-              <a className="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-                <i className="bi bi-bell"></i>
-                <span className="badge bg-primary badge-number">4</span>
-              </a>
-            </li>
-
             <li className="nav-item dropdown pe-3">
               <a
                 className="nav-link nav-profile d-flex align-items-center pe-0"

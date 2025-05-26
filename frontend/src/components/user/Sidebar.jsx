@@ -11,8 +11,8 @@ function Sidebar() {
   }
 
   return (
-    <aside id="sidebar" className="sidebar">
-      <ul className="sidebar-nav" id="sidebar-nav">
+    <aside id="sidebar" className="sidebar" style={{backgroundColor:"GrayText"}}>
+      <ul className="sidebar-nav" id="sidebar-nav" style={{backgroundColor:"beige"}}>
         
         {/* Dashboard */}
         <li className="nav-item">
@@ -34,7 +34,7 @@ function Sidebar() {
             <span>Masters</span>
             <i className="bi bi-chevron-down ms-auto"></i>
           </a>
-          <ul id="masters-nav" className="nav-content collapse" data-bs-parent="#sidebar-nav">
+          <ul id="masters-nav" className="nav-content " data-bs-parent="#sidebar-nav">
             <li>
               <Link to={"/master/Admin"}>
                 <i className="bi bi-circle"></i>

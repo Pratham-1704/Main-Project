@@ -20,11 +20,12 @@
   }
   
  .custom-table .ant-table-thead > tr > th {
-  background-color: #bcd4f6;
+  background-color: #bcd4f6; /* //lower tbl header */
   color: #1f2937;
 }
 .custom-table .ant-table-tbody > tr > td {
-  background-color: #eef4fb;
+  background-color: #eef4fb; /* lower rows
+  */
   color: #1f2937;
 }
 .custom-table .ant-table-tbody > tr:hover > td {
@@ -32,7 +33,7 @@
 }
 
 .p-3 {
-  background-color: hsl(105, 25%, 84%); /* Light Lavender */
+  background-color: hsl(64, 47%, 69%); /* Light Lavender */
   border-radius: 8px;
   color: #c0b6b6; /* Charcoal text for readability */
 }
