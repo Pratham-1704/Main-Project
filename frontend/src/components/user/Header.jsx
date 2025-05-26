@@ -18,8 +18,9 @@ function Header() {
       <header id="header" className="header fixed-top d-flex align-items-center">
         <div className="d-flex align-items-center justify-content-between">
           <a href="index.html" className="logo d-flex align-items-center">
-            <img src="assets/img/logo.png" alt="" />
-            <span className="d-none d-lg-block">Steel Trading</span>
+            <img src="assets/img/Companylogo.png" style={{ textAlign: "left" }}
+              alt="" />
+            <span className="d-none d-lg-block"></span>
           </a>
           <i className="bi bi-list toggle-sidebar-btn"></i>
         </div>
@@ -49,7 +50,7 @@ function Header() {
                   className="rounded-circle"
                 />
                 <span className="d-none d-md-block dropdown-toggle ps-2">
-                  {name} 
+                  {name}
                   {/* ({role}) */}
                 </span>
               </a>

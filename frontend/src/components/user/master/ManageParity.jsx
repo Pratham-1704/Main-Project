@@ -277,7 +277,9 @@ console.log("Location state:", location.state); //
                     dataSource={tableData}
                     loading={loading}
                     rowKey="key"
-                    pagination={{ pageSize: 10 }}
+                    pagination ={{
+                      pageSize: 10
+                    }}
                   />
                 </div>
 

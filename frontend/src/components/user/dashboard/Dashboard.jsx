@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Card, Row, Col, Badge } from "antd";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+import { Card, Row, Col, Badge, Statistic, Avatar, Tooltip, Table } from "antd";
+import { BarChart, Bar, XAxis, YAxis, Tooltip as ReTooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 import { Link } from "react-router-dom";
+import { ShopOutlined, AppstoreOutlined, ShoppingOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+// import logo from "../../../assets/logo.png"; // Place your logo in src/assets/logo.png
 
 function Dashboard() {
   const [brands, setBrands] = useState([]);
@@ -11,11 +13,19 @@ function Dashboard() {
   const [parityData, setParityData] = useState([]);
   const [leadStats, setLeadStats] = useState([]);
   const [parityStats, setParityStats] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [recentDOOrders, setRecentDOOrders] = useState([]);
+  const [customers, setCustomers] = useState([]); // New state for customers
 
   useEffect(() => {
     fetchBrands();
+    fetchCategories();
+    fetchProducts();
     fetchLeadRecords();
     fetchParityRecords();
+    fetchRecentDOOrders();
+    fetchCustomers(); // Fetch customers on mount
   }, []);
 
   // Fetch Brands
@@ -25,6 +35,26 @@ function Dashboard() {
       setBrands(res.data.data || []);
     } catch (error) {
       console.error("Error fetching brands:", error);
+    }
+  };
+
+  // Fetch Categories
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/category");
+      setCategories(res.data.data || []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  // Fetch Products
+  const fetchProducts = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/product");
+      setProducts(res.data.data || []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
     }
   };
 
@@ -52,6 +82,29 @@ function Dashboard() {
     }
   };
 
+  // Fetch Recent DO Orders
+  const fetchRecentDOOrders = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/order");
+      // Filter for DO prepared orders
+      const filtered = (res.data.data || [])
+        .filter(order => String(order.do_prepared).toLowerCase() === "yes")
+        .sort((a, b) => new Date(b.orderdate) - new Date(a.orderdate))
+        .slice(0, 5); // Show only 5 most recent
+      setRecentDOOrders(filtered);
+    } catch (err) {
+      // Optionally show error
+    }
+  };
+
+  // Fetch Customers
+  const fetchCustomers = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/customer");
+      setCustomers(res.data.data || []);
+    } catch (err) {}
+  };
+
   // Process Lead Data
   const processLeadData = (leads) => {
     const stats = {};
@@ -76,21 +129,119 @@ function Dashboard() {
 
   return (
     <>
-      <main id="main" className="main">
-        <div className="pagetitle">
-          <h1>Dashboard</h1>
+      <main id="main" className="main" style={{ background: "#f4f6fa", minHeight: "100vh" }}>
+        <div className="pagetitle" style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {/* <img src={''} alt="Logo" style={{ height: 48, marginRight: 16 }} /> */}
+          <h1 style={{ margin: 0, fontWeight: 700, letterSpacing: 1 }}>Dashboard</h1>
         </div>
+
+        {/* Stylish Summary Row */}
+        <Row gutter={24} style={{ marginBottom: 32, marginTop: 16 }} justify="center">
+          <Col xs={24} sm={8}>
+            <Card
+              hoverable
+              style={{ borderRadius: 16, boxShadow: "0 2px 8px #e0e0e0" }}
+              bodyStyle={{ padding: 24, textAlign: "center" }}
+            >
+              <Tooltip title="Total Brands">
+                <Avatar size={48} style={{ background: "#2E86C1" }} icon={<ShopOutlined />} />
+              </Tooltip>
+              <Statistic
+                title={<span style={{ fontWeight: 600 }}>Brands</span>}
+                value={brands.length}
+                valueStyle={{ fontSize: 32, color: "#2E86C1" }}
+                style={{ marginTop: 8 }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={8}>
+            <Card
+              hoverable
+              style={{ borderRadius: 16, boxShadow: "0 2px 8px #e0e0e0" }}
+              bodyStyle={{ padding: 24, textAlign: "center" }}
+            >
+              <Tooltip title="Total Categories">
+                <Avatar size={48} style={{ background: "#52c41a" }} icon={<AppstoreOutlined />} />
+              </Tooltip>
+              <Statistic
+                title={<span style={{ fontWeight: 600 }}>Categories</span>}
+                value={categories.length}
+                valueStyle={{ fontSize: 32, color: "#52c41a" }}
+                style={{ marginTop: 8 }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={8}>
+            <Card
+              hoverable
+              style={{ borderRadius: 16, boxShadow: "0 2px 8px #e0e0e0" }}
+              bodyStyle={{ padding: 24, textAlign: "center" }}
+            >
+              <Tooltip title="Total Products">
+                <Avatar size={48} style={{ background: "#faad14" }} icon={<ShoppingOutlined />} />
+              </Tooltip>
+              <Statistic
+                title={<span style={{ fontWeight: 600 }}>Products</span>}
+                value={products.length}
+                valueStyle={{ fontSize: 32, color: "#faad14" }}
+                style={{ marginTop: 8 }}
+              />
+            </Card>
+          </Col>
+        </Row>
 
         <section className="section dashboard">
           <div className="row">
-            {/* Analytics Summary */}
-            <div className="col-lg-4">
+            {/* Business Summary */}
+            {/* <div className="col-lg-4">
               <div className="card p-3">
                 <h5>Business Summary</h5>
                 <p><strong>Total Brands:</strong> {brands.length}</p>
                 <p><strong>Today's Leads:</strong> {leadStats.find(l => l.date === dayjs().format("YYYY-MM-DD"))?.count || 0}</p>
                 <p><strong>Parity Issues:</strong> {parityStats.find(p => p.month === dayjs().format("YYYY-MM"))?.count || 0}</p>
               </div>
+            </div> */}
+
+            {/* Recent DO Prepared Orders */}
+            <div className="col-lg-6">
+              <Card
+                title="Recent DO Prepared Orders"
+                style={{ marginTop: 24, borderRadius: 12 }}
+                bodyStyle={{ padding: 8 }}
+              >
+                <Table
+                  dataSource={recentDOOrders}
+                  rowKey="_id"
+                  size="small"
+                  pagination={false}
+                  columns={[
+                    {
+                      title: "Order No",
+                      dataIndex: "orderno",
+                      key: "orderno",
+                      render: (text, record) => (
+                        <Link to={`/order/order-details/${record._id}`}>{text}</Link>
+                      ),
+                    },
+                    {
+                      title: "Date",
+                      dataIndex: "orderdate",
+                      key: "orderdate",
+                      render: (text) => dayjs(text).format("DD-MM-YYYY"),
+                    },
+                    {
+                      title: "Customer",
+                      dataIndex: "customerid",
+                      key: "customerid",
+                      render: (id) => {
+                        const customer = customers.find((c) => c._id === id);
+                        return customer ? customer.name : "N/A";
+                      },
+                    },
+                  ]}
+                  locale={{ emptyText: "No DO prepared orders found" }}
+                />
+              </Card>
             </div>
 
             {/* Lead Trends */}
@@ -102,47 +253,15 @@ function Dashboard() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
                     <YAxis />
-                    <Tooltip />
+                    <ReTooltip />
                     <Bar dataKey="count" fill="#2E86C1" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
-
-            {/* Parity-Based Product Analysis */}
-            <div className="col-lg-4">
-              <div className="card p-3">
-                <h5>Parity-Based Products</h5>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={parityStats}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#E74C3C" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
           </div>
 
-          {/* Brand Overview */}
-          <div className="card p-3 mt-4">
-            <h5>Brand Overview</h5>
-            <Row gutter={[16, 16]}>
-              {brands.map((brand) => (
-                <Col key={brand._id} xs={24} sm={12} md={8} lg={6}>
-                  <Card
-                    title={brand.name}
-                    extra={<Link to={`/brands/${brand._id}`}>View</Link>}
-                    bordered={false}
-                  >
-                    <p><strong>Serial No:</strong> {brand.srno}</p>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </div>
+         
 
           {/* Notifications Section */}
           <div className="card p-3 mt-4">
