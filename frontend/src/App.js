@@ -28,6 +28,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import OrderDetails from './components/user/Order/orderDetails';
 import DOrder from './components/user/Order/DOrder';
 import ModifyQuotation from './components/user/Quotation/ModifyQuotation';
+import AdminProfile from './components/user/dashboard/AdminProfile';
 
 
 
@@ -50,6 +51,8 @@ function App() {
             }
           >
             <Route path="" element={<Dashboard />} />
+            <Route path="admin-profile" element={<AdminProfile />} />
+            {/* <Route path="admin-profile" element={<AdminProfile />} /> */}
           </Route>
 
           <Route

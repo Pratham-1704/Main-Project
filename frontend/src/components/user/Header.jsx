@@ -66,7 +66,7 @@ function Header() {
 
                 <li>
                   {/* Navigate to AdminProfile.jsx */}
-                  <Link to="/admin-profile" className="dropdown-item d-flex align-items-center">
+                  <Link to="/dashboard/admin-profile" className="dropdown-item d-flex align-items-center">
                     <i className="bi bi-person"></i>
                     <span>My Profile</span>
                   </Link>

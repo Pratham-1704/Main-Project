@@ -21,8 +21,7 @@ const AdminSchema = new mongoose.Schema(
             type: String, 
             required: [true, "Password is required"],
             minlength: [6, "Password must be at least 6 characters long"]
-        }, // Store plain text passwords (not recommended for production)
-        
+        },
         mobileno: { 
             type: String, 
             required: [true, "Mobile number is required"], 
@@ -45,6 +44,10 @@ const AdminSchema = new mongoose.Schema(
                 values: ["active", "inactive"],
                 message: "Status must be either 'active' or 'inactive'"
             }
+        },
+        profilePic: {
+            type: String, // Store the file path or URL
+            default: ""
         }
     }, 
     { timestamps: true }
