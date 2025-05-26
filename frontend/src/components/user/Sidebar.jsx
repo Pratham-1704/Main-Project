@@ -71,12 +71,12 @@ function Sidebar() {
                 <span>Customers</span>
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link to={"/master/brandproduct"}>
                 <i className="bi bi-circle"></i>
                 <span>Brand Product</span>
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link to={"/master/Parities"}>
                 <i className="bi bi-circle"></i>
