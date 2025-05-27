@@ -42,12 +42,7 @@
 }
 
 .p-3 {
-<<<<<<< HEAD
-  background-color: hsl(64, 50%, 76%); /* Light Lavender */
-=======
-  background-color: hsl(64, 47%, 69%);
-  /* Light Lavender */
->>>>>>> bda9192104d0d4800ee289f6f8dc9868e0b1f07a
+  background-color: hsl(64, 47%, 69%); /* Light Lavender */
   border-radius: 8px;
   color: #c0b6b6;
   /* Charcoal text for readability */
