@@ -16,6 +16,7 @@ function Sidebar() {
     cancelButtonText: 'Cancel',
     width: '300px',
     customClass: {
+    popup: 'compact-swal'
   }
   }).then((result) => {
     if (result.isConfirmed) {
