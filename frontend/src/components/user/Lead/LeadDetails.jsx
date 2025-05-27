@@ -250,17 +250,17 @@ const LeadDetails = () => {
             <div style={{ textAlign: "right", marginTop: 10 }}>
               <Text strong>Total Weight: {totalWeight.toFixed(1)} Kg</Text>
             </div>
-          </div>
 
-          {/* Footer Branding */}
-          <div style={{ textAlign: "center" }}>
-            <Text type="secondary">One Stop Solution for Variety of Branded Steel</Text>
-            <br />
-            <img
-              src="/assets/img/Companylist.png"
-              alt="Steel Logos"
-              style={{ maxHeight: 120 }}
-            />
+            {/* Footer Branding */}
+            <div style={{ textAlign: "center", marginTop:"50px" }}>
+              <Text type="secondary">One Stop Solution for Variety of Branded Steel</Text>
+              <br />
+              <img
+                src="/assets/img/Companylist.png"
+                alt="Steel Logos"
+                style={{ maxHeight: 120, marginTop:"10px"}}
+              />
+            </div>
           </div>
 
           {/* Buttons */}
