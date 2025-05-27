@@ -140,25 +140,26 @@ const OrderDetails = () => {
   if (!order) return <div>No order found.</div>;
 
   return (
-    <div style={{ padding: 0, marginLeft: 180, marginTop: 50 }}>
+    <div style={{ padding: 0, marginLeft: 180, marginTop: 100 }}>
       {contextHolder}
       {modalContextHolder}
       <div style={{ maxWidth: 950, margin: "auto", background: "#fff" }}>
         <div id="order-print-area" style={{ padding: 20 }}>
           {/* Header */}
-          <Row>
+
+          <Row style={{ marginLeft: "10px" }}>
             <Col span={4}>
-              <img src="/logo192.png" alt="Logo" style={{ height: 80 }} />
+              <img src="/assets/img/Companylogo.png" alt="Logo" style={{ height: 80 }} />
             </Col>
-            <Col span={20}>
-              <Title level={4} style={{ color: "red", marginBottom: 4 }}>
-                PRITAM STEEL PVT LTD
+            <Col style={{ textAlign: "center", marginLeft: "80px" }} span={12}>
+              <Title level={4} style={{ color: "red", marginBottom: 4, }}>
+                PARSHWANATH STEEL Pvt Ltd
               </Title>
-              <Text>Nagaon, Kolhapur - 416122</Text>
+              <Text>Shiroli(P), Kolhapur - 416122</Text>
               <br />
-              <Text>Email: sales@pritamsteel.com / adminparshwa@gmail.com</Text>
+              <Text>Email: sales@parshwanathsteel.com / purchase@parshwanathsteel.com</Text>
               <br />
-              <Text>Tel: (0230) 2461285, 2460009 Mob: 96078 15933</Text>
+              <Text>Tel: (0230) 2461285, 2460009 Mob: +91 9607815933</Text>
               <br />
               <Text>
                 <b>GSTIN:</b> 27AALCP1877G1Z1
@@ -235,7 +236,7 @@ const OrderDetails = () => {
           </Row>
 
           {/* Order Info */}
-          
+
 
           <Divider />
 
@@ -310,9 +311,9 @@ const OrderDetails = () => {
             <Text type="secondary">One Stop Solution for Variety of Branded Steel</Text>
             <br />
             <img
-              src="https://i.imgur.com/mZTrYHY.png"
+              src="/assets/img/Companylist.png"
               alt="Steel Logos"
-              style={{ maxHeight: 40 }}
+              style={{ maxHeight: 120 }}
             />
           </div>
         </div>
