@@ -205,7 +205,7 @@ function Dashboard() {
             {/* Recent DO Prepared Orders */}
             <div className="col-lg-6">
               <Card
-                title="Recent DO Prepared Orders"
+                title="Recent DO Prepared Quotations"
                 style={{ marginTop: 24, borderRadius: 12 }}
                 bodyStyle={{ padding: 8 }}
               >
@@ -250,9 +250,9 @@ function Dashboard() {
                 <h5>Lead Trends</h5>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={leadStats}>
-                    <CartesianGrid strokeDasharray="3 3" />
+                    <CartesianGrid strokeDasharray="3 5" />
                     <XAxis dataKey="date" />
-                    <YAxis />
+                    <YAxis allowDecimals={false} />
                     <ReTooltip />
                     <Bar dataKey="count" fill="#2E86C1" />
                   </BarChart>
