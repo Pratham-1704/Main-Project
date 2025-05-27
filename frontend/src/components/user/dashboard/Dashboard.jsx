@@ -86,11 +86,11 @@ function Dashboard() {
   // Fetch Recent DO Orders
   const fetchRecentDOOrders = async () => {
     try {
-      const res = await axios.get("http://localhost:8081/order");
-      // Filter for DO prepared orders
+      const res = await axios.get("http://localhost:8081/quotation");
+      // Filter for DO prepared quotations
       const filtered = (res.data.data || [])
-        .filter(order => String(order.do_prepared).toLowerCase() === "yes")
-        .sort((a, b) => new Date(b.orderdate) - new Date(a.orderdate))
+        .filter(qt => String(qt.do_prepared).toLowerCase() === "yes")
+        .sort((a, b) => new Date(b.quotationdate) - new Date(a.quotationdate))
         .slice(0, 5); // Show only 5 most recent
       setRecentDOOrders(filtered);
     } catch (err) {
@@ -206,7 +206,7 @@ function Dashboard() {
             {/* Recent DO Prepared Orders */}
             <div className="col-lg-6">
               <Card
-                title="Recent DO Prepared Orders"
+                title="Recent DO Prepared Quotations"
                 style={{ marginTop: 24, borderRadius: 12 }}
                 bodyStyle={{ padding: 8 }}
               >
@@ -217,17 +217,17 @@ function Dashboard() {
                   pagination={false}
                   columns={[
                     {
-                      title: "Order No",
-                      dataIndex: "orderno",
-                      key: "orderno",
+                      title: "Quotation No",
+                      dataIndex: "quotationno",
+                      key: "quotationno",
                       render: (text, record) => (
-                        <Link to={`/order/order-details/${record._id}`}>{text}</Link>
+                        <Link to={`/quotation/quotation-details/${record._id}`}>{text}</Link>
                       ),
                     },
                     {
                       title: "Date",
-                      dataIndex: "orderdate",
-                      key: "orderdate",
+                      dataIndex: "quotationdate",
+                      key: "quotationdate",
                       render: (text) => dayjs(text).format("DD-MM-YYYY"),
                     },
                     {
@@ -240,7 +240,7 @@ function Dashboard() {
                       },
                     },
                   ]}
-                  locale={{ emptyText: "No DO prepared orders found" }}
+                  locale={{ emptyText: "No DO prepared quotations found" }}
                 />
               </Card>
             </div>
@@ -251,9 +251,9 @@ function Dashboard() {
                 <h5>Lead Trends</h5>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={leadStats}>
-                    <CartesianGrid strokeDasharray="3 3" />
+                    <CartesianGrid strokeDasharray="3 5" />
                     <XAxis dataKey="date" />
-                    <YAxis />
+                    <YAxis allowDecimals={false} />
                     <ReTooltip />
                     <Bar dataKey="count" fill="#2E86C1" />
                   </BarChart>
