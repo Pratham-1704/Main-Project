@@ -27,6 +27,7 @@ const ModifyQuotation = () => {
 
   // Fetch brands, categories, products
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchAll = async () => {
       try {
         const [brandRes, catRes, prodRes] = await Promise.all([
@@ -278,6 +279,7 @@ const ModifyQuotation = () => {
           type="link"
           icon={<DeleteOutlined />}
           danger
+          className="action-button delete-button"
           onClick={() => deleteRow(record.key)}
         />
       ),

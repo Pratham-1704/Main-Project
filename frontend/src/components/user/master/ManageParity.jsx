@@ -22,6 +22,7 @@ function ManageParity() {
 
   // Fetch brands
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchBrands = async () => {
       setLoading(true);
       try {

@@ -1,14 +1,29 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2';
 
 function Sidebar() {
   let navigate = useNavigate();
 
   function logout(e) {
-    e.preventDefault();
-    localStorage.clear();
-    navigate("/");
+  e.preventDefault();
+  Swal.fire({
+    title: 'Confirm Logout',
+    text: 'Do you really want to logout?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, logout',
+    cancelButtonText: 'Cancel',
+    width: '300px',
+    customClass: {
   }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.clear();
+      navigate('/');
+    }
+  });
+}
 
   return (
     <aside id="sidebar" className="sidebar" style={{backgroundColor:"GrayText"}}>

@@ -19,6 +19,7 @@ function Dashboard() {
   const [customers, setCustomers] = useState([]); // New state for customers
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     fetchBrands();
     fetchCategories();
     fetchProducts();

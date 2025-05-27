@@ -14,6 +14,7 @@ const Quotations = () => {
 
   // Fetch data on component mount
   useEffect(() => {
+    window.scrollTo(0, 0);
     fetchQuotations();
     fetchCustomers();
     fetchSources();
@@ -126,20 +127,19 @@ const Quotations = () => {
             icon={<EditOutlined />}
             type="link"
             onClick={() => handleUpdate(record)}
-            className="action-button delete-button"
+            className="action-button edit-button"
           />
           <Popconfirm
             title="Are you sure you want to delete this quotation?"
             onConfirm={() => handleDelete(record._id)}
             okText="Yes"
             cancelText="No"
-            className="action-button delete-button"
           >
-            <Button 
-            type="link"
-            danger 
-            icon={<DeleteOutlined />} size="small"
-            className="action-button delete-button" />
+            <Button
+              type="link"
+              danger
+              icon={<DeleteOutlined />}
+              className="action-button delete-button" />
           </Popconfirm>
         </div>
       ),

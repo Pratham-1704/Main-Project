@@ -38,6 +38,7 @@ const DOrder = () => {
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (!orderId) {
       setNoOrderId(true);
       setLoading(false);

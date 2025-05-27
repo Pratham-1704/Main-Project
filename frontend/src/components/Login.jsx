@@ -39,7 +39,7 @@ function Login() {
 
   return (
     <main>
-      <div className="container" style={{backgroundColor: "#d7d8d7",borderRadius: "20px", padding: "0rem", marginTop: "0rem"}}>
+      <div className="" style={{backgroundColor: "#d7d8d7",borderRadius: "20px", padding: "0rem", marginTop: "0rem"}}>
         <section className="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4" style={{borderRadius: "20px"}}>
           <div className="col-lg-4 col-md-6" style={{backgroundColor: "white", borderRadius: "20px"}}>
             <div className="card mb-0" style={{borderRadius: "20px"}}>

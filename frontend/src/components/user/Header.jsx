@@ -7,6 +7,7 @@ function Header() {
 
   // Retrieve name and role from localStorage on component mount
   useEffect(() => {
+    window.scrollTo(0, 0);
     const storedName = localStorage.getItem("name");
     const storedRole = localStorage.getItem("role");
     setName(storedName || "User"); // Default to "User" if no name is found

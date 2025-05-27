@@ -17,6 +17,7 @@ const Order = () => {
   const orderId = "ORDER_ID";  
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchOrder = async () => {
       try {
         const { data } = await axios.get(`http://localhost:8081/order/${orderId}`);

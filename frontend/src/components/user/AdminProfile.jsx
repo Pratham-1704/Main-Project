@@ -5,6 +5,7 @@ const AdminProfile = () => {
   const [admin, setAdmin] = useState(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     // Fetch admin details from localStorage
     const storedAdmin = {
       name: localStorage.getItem("name"),
