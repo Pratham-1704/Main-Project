@@ -119,8 +119,8 @@ const LeadRecord = () => {
         <div style={{ display: "flex", justifyContent: "center", gap: "8px" }}>
           <Button
             icon={<EditOutlined />}
-            size="small"
-            type="primary"
+            className="action-button delete-button"
+            type="link"
             onClick={() => handleUpdate(record)}
           />
           <Popconfirm
@@ -129,7 +129,11 @@ const LeadRecord = () => {
             okText="Yes"
             cancelText="No"
           >
-            <Button danger icon={<DeleteOutlined />} size="small" />
+            <Button 
+            type="link"
+            danger 
+            icon={<DeleteOutlined />} 
+            className="action-button delete-button" />
           </Popconfirm>
         </div>
       ),
