@@ -85,11 +85,11 @@ function Dashboard() {
   // Fetch Recent DO Orders
   const fetchRecentDOOrders = async () => {
     try {
-      const res = await axios.get("http://localhost:8081/order");
-      // Filter for DO prepared orders
+      const res = await axios.get("http://localhost:8081/quotation");
+      // Filter for DO prepared quotations
       const filtered = (res.data.data || [])
-        .filter(order => String(order.do_prepared).toLowerCase() === "yes")
-        .sort((a, b) => new Date(b.orderdate) - new Date(a.orderdate))
+        .filter(qt => String(qt.do_prepared).toLowerCase() === "yes")
+        .sort((a, b) => new Date(b.quotationdate) - new Date(a.quotationdate))
         .slice(0, 5); // Show only 5 most recent
       setRecentDOOrders(filtered);
     } catch (err) {
@@ -216,17 +216,17 @@ function Dashboard() {
                   pagination={false}
                   columns={[
                     {
-                      title: "Order No",
-                      dataIndex: "orderno",
-                      key: "orderno",
+                      title: "Quotation No",
+                      dataIndex: "quotationno",
+                      key: "quotationno",
                       render: (text, record) => (
-                        <Link to={`/order/order-details/${record._id}`}>{text}</Link>
+                        <Link to={`/quotation/quotation-details/${record._id}`}>{text}</Link>
                       ),
                     },
                     {
                       title: "Date",
-                      dataIndex: "orderdate",
-                      key: "orderdate",
+                      dataIndex: "quotationdate",
+                      key: "quotationdate",
                       render: (text) => dayjs(text).format("DD-MM-YYYY"),
                     },
                     {
@@ -239,7 +239,7 @@ function Dashboard() {
                       },
                     },
                   ]}
-                  locale={{ emptyText: "No DO prepared orders found" }}
+                  locale={{ emptyText: "No DO prepared quotations found" }}
                 />
               </Card>
             </div>

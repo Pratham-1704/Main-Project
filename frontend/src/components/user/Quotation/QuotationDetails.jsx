@@ -155,6 +155,12 @@ const QuotationDetails = () => {
           }
 
           await createOrderDetails(orderId);
+
+          // Update do_prepared status in quotation table
+          await axios.patch(`http://localhost:8081/quotation/${quotation._id}`, {
+            do_prepared: "yes",
+          });
+
           localStorage.setItem("orderId", orderId);
           messageApi.success("Delivery Order prepared successfully!");
           // Redirect to dOrder page
