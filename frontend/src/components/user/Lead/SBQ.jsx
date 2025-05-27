@@ -14,6 +14,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 const SBQ = () => {
   const { quotationid } = useParams();
@@ -23,6 +24,7 @@ const SBQ = () => {
   const [brandProductData, setBrandProductData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
 
   const fetchBrands = async () => {
     try {
@@ -296,6 +298,9 @@ const SBQ = () => {
       await axios.post('http://localhost:8081/quotationdetail', detailsPayload);
 
       message.success("Quotation and details saved successfully!");
+      // Optionally, redirect to another page
+
+      navigate("/quotation/quotations");
       // Navigate("/quotation/quotations");
     } catch (error) {
       console.error("Error saving quotation:", error);

@@ -116,13 +116,11 @@
   min-height: auto !important;
 }
 
-
-
   .section .ant-input,
 .section .ant-select-selector {
   border-radius:5px;
   box-shadow: none;
 }
-.section{
-
+.do-prepared-row {
+  background-color: #e6ffe6 !important; /* or any color you like */
 }

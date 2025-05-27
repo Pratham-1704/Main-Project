@@ -57,7 +57,6 @@ const Quotations = () => {
       messageApi.success("Quotation deleted successfully!");
       fetchQuotations();
     } catch (error) {
-      console.error("Error deleting quotation:", error);
       messageApi.error("Failed to delete quotation!");
     }
   };
@@ -112,11 +111,20 @@ const Quotations = () => {
       key: "sourceid",
       render: (id) => sources.find((s) => s._id === id)?.name || "N/A",
     },
-    // {
-    //   title: "DO Prepared",
-    //   dataIndex: "do_prepared",
-    //   key: "do_prepared",
-    // },
+    {
+      title: "DO Prepared",
+      dataIndex: "do_prepared",
+      key: "do_prepared",
+      align: "center",
+      render: (value) =>
+        value === "yes" ? (
+          <span style={{ color: "green", fontSize: 18 }} title="Prepared">
+            &#10003;
+          </span>
+        ) : (
+          ""
+        ),
+    },
     {
       title: "Action",
       key: "action",
@@ -139,7 +147,8 @@ const Quotations = () => {
               type="link"
               danger
               icon={<DeleteOutlined />}
-              className="action-button delete-button" />
+              className="action-button delete-button"
+            />
           </Popconfirm>
         </div>
       ),
@@ -172,13 +181,6 @@ const Quotations = () => {
                 record.do_prepared === "yes" ? "do-prepared-row" : ""
               }
             />
-            <style>
-              {`
-                .do-prepared-row {
-                  background-color:rgb(5, 12, 5) !important;
-                }
-              `}
-            </style>
           </div>
         </section>
       </main>

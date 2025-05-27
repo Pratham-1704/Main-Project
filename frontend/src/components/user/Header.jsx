@@ -18,7 +18,7 @@ function Header() {
     <>
       <header id="header" className="header fixed-top d-flex align-items-center" style={{ backgroundColor: "orange" }}>
         <div className="d-flex align-items-center justify-content-between">
-          <a href="index.html" className="logo d-flex align-items-center">
+          <a href="" className="logo d-flex align-items-center">
             <img src="assets/img/Companylogo.png" style={{ textAlign: "left" }}
               alt="" />
             <h4 style={{ marginTop: "10px", color: "black", marginLeft: "15px" }}>Parshwanath Steel</h4>
@@ -36,7 +36,7 @@ function Header() {
             <li className="nav-item dropdown pe-3">
               <a
                 className="nav-link nav-profile d-flex align-items-center pe-0"
-                href="#"
+                // href="#"
                 data-bs-toggle="dropdown"
               >
                 <img

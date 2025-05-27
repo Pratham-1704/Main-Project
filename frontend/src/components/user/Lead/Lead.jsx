@@ -199,6 +199,7 @@ const Leads = () => {
 
       // Redirect to LeadRecord page
       navigate("/lead/lead-record");
+      
     } catch (err) {
       console.error("Error saving/updating lead:", err);
       message.error("Failed to save/update lead.");
