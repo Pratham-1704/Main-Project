@@ -98,57 +98,57 @@ const LeadDetails = () => {
   ];
 
 
- const generatePDF = async () => {
-  const input = document.getElementById("lead-print-area");
-  const buttons = document.getElementById("pdf-buttons");
+  const generatePDF = async () => {
+    const input = document.getElementById("lead-print-area");
+    const buttons = document.getElementById("pdf-buttons");
 
-  if (!input) return;
+    if (!input) return;
 
-  if (buttons) buttons.style.display = "none";
+    if (buttons) buttons.style.display = "none";
 
-  try {
-    const canvas = await html2canvas(input, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#fff",
-      scrollY: -window.scrollY,
-    });
+    try {
+      const canvas = await html2canvas(input, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#fff",
+        scrollY: -window.scrollY,
+      });
 
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgHeight = (canvas.height * pageWidth) / canvas.width;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgHeight = (canvas.height * pageWidth) / canvas.width;
 
-    let heightLeft = imgHeight;
-    let position = 0;
+      let heightLeft = imgHeight;
+      let position = 0;
 
-    pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
-    heightLeft -= pageHeight;
-
-    while (heightLeft > 0) {
-      position -= pageHeight;
-      pdf.addPage();
       pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
       heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position -= pageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const pdfBlob = pdf.output("blob");
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+
+      // window.open(pdfUrl); // ⬅️ This opens the preview in a new tab
+      window.open(
+        pdfUrl,
+        "_blank",
+        "width=900,height=700,left=100,top=100,scrollbars=yes,resizable=yes"
+      );
+    } catch (error) {
+      messageApi.error("Failed to generate PDF preview");
+    } finally {
+      if (buttons) buttons.style.display = "flex";
     }
-
-    const pdfBlob = pdf.output("blob");
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-
-    // window.open(pdfUrl); // ⬅️ This opens the preview in a new tab
-    window.open(
-  pdfUrl,
-  "_blank",
-  "width=900,height=700,left=100,top=100,scrollbars=yes,resizable=yes"
-);
-  } catch (error) {
-    messageApi.error("Failed to generate PDF preview");
-  } finally {
-    if (buttons) buttons.style.display = "flex";
-  }
-};
+  };
 
 
 
@@ -180,7 +180,7 @@ const LeadDetails = () => {
 
       <>
         {contextHolder}
-      <div style={{ paddingTop: "60px", maxWidth: 850, margin: "auto", background: "#fff" }}>
+        <div style={{ paddingTop: "60px", maxWidth: 850, margin: "auto", background: "#fff" }}>
           <div
             id="lead-print-area"
             style={{
@@ -190,22 +190,23 @@ const LeadDetails = () => {
               margin: "auto",
             }}
           >
-            <Row justify="center" gutter={16}>
+            <Row>
               <Col span={6}>
-                <img
-                  src="https://th.bing.com/th/id/OIP.nOL8HH_1fafIVupyd9raegAAAA?rs=1&pid=ImgDetMain"
-                  alt="Logo"
-                  style={{ maxHeight: "100px" }}
-                />
+                <img src="/assets/img/Companylogo.png" alt="Logo" style={{ height: 80 }} />
               </Col>
-              <Col span={18}>
-                <Title level={4} style={{ color: "orange" }}>
-                  PARSHWANATH ISPAT PVT LTD
+              <Col style={{ textAlign: "center", marginRight: "100px" }} span={15}>
+                <Title level={4} style={{ color: "red", marginBottom: 4, }}>
+                  PARSHWANATH STEEL Pvt Ltd
                 </Title>
-                <Text>120/1, P.B.Road, N.H.4, SHIROLI(P), KOLHAPUR</Text><br />
-                <Text>Email - purchase@parshwanathsteel.com</Text><br />
-                <Text>Tel - (0230) 2461285, 2460009 Mob - 96078 15933</Text><br />
-                <Text><b>GSTIN</b>: 27AAFCP4825L1Z2</Text>
+                <Text>Shiroli(P), Kolhapur - 416122</Text>
+                <br />
+                <Text>Email: sales@parshwanathsteel.com / purchase@parshwanathsteel.com</Text>
+                <br />
+                <Text>Tel: (0230) 2461285, 2460009 Mob: +91 9607815933</Text>
+                <br />
+                <Text>
+                  <b>GSTIN:</b> 27AALCP1877G1Z1
+                </Text>
               </Col>
             </Row>
 
@@ -251,6 +252,17 @@ const LeadDetails = () => {
             </div>
           </div>
 
+          {/* Footer Branding */}
+          <div style={{ textAlign: "center" }}>
+            <Text type="secondary">One Stop Solution for Variety of Branded Steel</Text>
+            <br />
+            <img
+              src="/assets/img/Companylist.png"
+              alt="Steel Logos"
+              style={{ maxHeight: 120 }}
+            />
+          </div>
+
           {/* Buttons */}
           <Row id="pdf-buttons" justify="end" gutter={8} style={{ marginTop: 20 }}>
             <Col><Button onClick={() => navigate(-1)}>Back</Button></Col>
@@ -260,8 +272,8 @@ const LeadDetails = () => {
             <Col><Button onClick={generatePDF}>Generate PDF</Button></Col>
           </Row>
         </div>
-      
-    </>
+
+      </>
     </div>
   );
 
