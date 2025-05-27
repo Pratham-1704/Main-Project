@@ -101,6 +101,7 @@ const FinancialYears = () => {
   };
 
   const handleEdit = (record) => {
+    window.scrollTo(0, 0);
     const formattedRecord = {
       ...record,
       startDate: dayjs(record.startDate),

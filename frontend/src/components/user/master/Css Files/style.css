@@ -1,134 +1,115 @@
 /* Table header */
-.custom-table .ant-table-thead>tr>th1 {
-  background-color: #c7b1ec;
-  /* Lavender Purple */
-  color: #5f3131;
-  /* White Text */
-  font-weight: bold;
-  font-size: 14px;
+.custom-table .ant-table-thead > tr > th1 {
+    background-color: #c7b1ec; /* Lavender Purple */
+    color: #5f3131; /* White Text */
+    font-weight: bold;
+    font-size: 14px;
 
-}
-
-/* Table body rows */
-.custom-table .ant-table-tbody>tr>td1 {
-  background-color: #e4ebff;
-  /* Soft Icy Blue */
-  color: #2f2f2f;
-  /* Dark Gray Text */
-  font-size: 12px;
-}
-
-/* Hovered row */
-.custom-table .ant-table-tbody>tr:hover>td1 {
-  background-color: #ecf0c8;
-  /* Light Lavender */
-}
-
-.custom-table .ant-table-thead>tr>th {
-  background-color: #bcd4f6;
-  /* //lower tbl header */
+  }
+  
+  /* Table body rows */
+  .custom-table .ant-table-tbody > tr > td1 {
+    background-color: #e4ebff; /* Soft Icy Blue */
+    color: #2f2f2f; /* Dark Gray Text */
+    font-size: 12px;
+  }
+  
+  /* Hovered row */
+  .custom-table .ant-table-tbody > tr:hover > td1 {
+    background-color: #ecf0c8; /* Light Lavender */
+  }
+  
+ .custom-table .ant-table-thead > tr > th {
+  background-color: #bcd4f6; /* //lower tbl header */
   color: #1f2937;
 }
-
-.custom-table .ant-table-tbody>tr>td {
-  background-color: #eef4fb;
-  /* lower rows
+.custom-table .ant-table-tbody > tr > td {
+  background-color: #eef4fb; /* lower rows
   */
   color: #1f2937;
 }
-
-.custom-table .ant-table-tbody>tr:hover>td {
+.custom-table .ant-table-tbody > tr:hover > td {
   background-color: #dbeafe;
 }
 
 .p-3 {
   background-color: hsl(64, 47%, 69%); /* Light Lavender */
   border-radius: 8px;
-  color: #c0b6b6;
-  /* Charcoal text for readability */
+  color: #c0b6b6; /* Charcoal text for readability */
 }
 
-/* Action buttons (shared style) */
-.action-button {
-  font-size: 18px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 6px;
-  margin-right: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  transition: all 0.3s ease;
-}
+  /* Action buttons (shared style) */
+  .action-button {
+    font-size: 18px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 6px;
+    margin-right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    transition: all 0.3s ease;
+  }
+  
 
 
+  
+  /* Hover effect for action buttons */
+  .action-button:hover {
+    border-color: #9575cd; /* Soft purple border */
+    background-color: #ede7f6; /* Pale lavender background */
+  }
+  
+  /* Edit button */
+  .edit-button {
+    color: #3949ab; /* Indigo */
+    /* background-color: #e8eaf6; Light Indigo */
+     border-color: #e1e4fc; /*Indigo border */
+  }
+  
+  /* Delete button */
+  .delete-button {
+    color: #c62828; /* Muted Red */
+    /* background-color: #ffebee; Light Red */
+     border-color: #f5dcdc; /* Muted Red border */
+  }
+  
+ 
 
 
-/* Hover effect for action buttons */
-.action-button:hover {
-  border-color: #9575cd;
-  /* Soft purple border */
-  background-color: #ede7f6;
-  /* Pale lavender background */
-}
-
-/* Edit button */
-.edit-button {
-  color: #3949ab;
-  /* Indigo */
-  /* background-color: #e8eaf6; Light Indigo */
-  border-color: #e1e4fc;
-  /*Indigo border */
-}
-
-/* Delete button */
-.delete-button {
-  color: #c62828;
-  /* Muted Red */
-  /* background-color: #ffebee; Light Red */
-  border-color: #f5dcdc;
-  /* Muted Red border */
-}
-
-
-
-
-/* Target form labels */
-.section .ant-form-item-label>label {
-  font-size: 14px;
-  /* Bigger label text */
-  font-weight: 500;
-}
-
-/* Input and select text size */
-.section .ant-input,
-.section .ant-select-selector {
-  font-size: 16px;
-  /* Bigger input and dropdown text */
-  height: 30px !important;
-  /* Taller inputs */
-  padding: 6px 10px;
-}
-
-/* Dropdown selected value */
-.section .ant-select-selection-item {
-  font-size: 14px;
-}
-
-/* Dropdown placeholder */
-.section .ant-select-selection-placeholder {
-  font-size: 14px;
-}
-
-/* Button text size */
-.section .ant-btn {
-  font-size: 14px;
-  height: 38px;
-  padding: 6px 20px;
-}
-
+  /* Target form labels */
+.section .ant-form-item-label > label {
+    font-size: 14px; /* Bigger label text */
+    font-weight: 500;
+  }
+  
+  /* Input and select text size */
+  .section .ant-input,
+  .section .ant-select-selector {
+    font-size: 16px; /* Bigger input and dropdown text */
+    height: 30px !important; /* Taller inputs */
+    padding: 6px 10px;
+  }
+  
+  /* Dropdown selected value */
+  .section .ant-select-selection-item {
+    font-size: 14px;
+  }
+  
+  /* Dropdown placeholder */
+  .section .ant-select-selection-placeholder {
+    font-size: 14px;
+  }
+  
+  /* Button text size */
+  .section .ant-btn {
+    font-size: 14px;
+    height: 38px;
+    padding: 6px 20px;
+  }
+  
 .swal2-popup.compact-swal {
   padding: 1rem !important;
   font-size: 0.85rem;
@@ -137,10 +118,11 @@
 
 
 
-.section .ant-input,
+  .section .ant-input,
 .section .ant-select-selector {
-  border-radius: 5px;
+  border-radius:5px;
   box-shadow: none;
 }
+.section{
 
-.section {}
+}

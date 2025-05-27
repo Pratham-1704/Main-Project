@@ -112,6 +112,7 @@ const Brand = () => {
   };
 
   const handleEdit = (record) => {
+    window.scrollTo(0, 0);  
     form.setFieldsValue({ srno: record.srno, name: record.name }); // Only set the editable fields
     setEditingId(record._id);
     setInitialValues(record); // Save original data
