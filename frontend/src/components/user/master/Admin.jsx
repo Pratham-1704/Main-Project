@@ -22,7 +22,6 @@ const Admin = () => {
       const res = await axios.get("http://localhost:8081/admin");
       setAdminList(res.data.status === "success" ? res.data.data : []);
     } catch (error) {
-      console.error("Error fetching admins:", error);
       messageApi.error("Failed to fetch admin list!");
       setAdminList([]);
     }
@@ -38,7 +37,6 @@ const Admin = () => {
         }, 5000);
         return Promise.reject(new Error(message));
       }
-
       if (field === "username") {
         return new Promise((resolve, reject) => {
           clearTimeout(debounceTimer);
@@ -47,7 +45,6 @@ const Admin = () => {
               const res = await axios.get("http://localhost:8081/admin/check-username", {
                 params: { username: value },
               });
-
               const isSameAsOriginal = value === initialValues?.username;
               if (res.data.exists && !isSameAsOriginal) {
                 setTimeout(() => {
@@ -60,10 +57,9 @@ const Admin = () => {
             } catch (err) {
               reject(new Error("Username check failed. Try again!"));
             }
-          }, 300); // Debounce delay
+          }, 300);
         });
       }
-
       return Promise.resolve();
     },
   });
@@ -71,11 +67,13 @@ const Admin = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-
       const formData = new FormData();
       Object.keys(values).forEach(key => {
-        if (key === "profilePic" && values.profilePic && values.profilePic[0]) {
-          formData.append("profilePic", values.profilePic[0].originFileObj);
+        if (key === "profilePic" && values.profilePic && values.profilePic.length > 0) {
+          // Only append if a new file is selected or changed
+          if (values.profilePic[0].originFileObj) {
+            formData.append("profilePic", values.profilePic[0].originFileObj);
+          }
         } else {
           formData.append(key, values[key]);
         }
@@ -89,7 +87,6 @@ const Admin = () => {
           messageApi.info("No changes made.");
           return;
         }
-
         await axios.put(`http://localhost:8081/admin/${editingId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" }
         });
@@ -102,11 +99,9 @@ const Admin = () => {
         });
         messageApi.success("Admin added successfully!");
       }
-
       form.resetFields();
       fetchAdmins();
     } catch (error) {
-      console.error("Error submitting form:", error);
       const errorMsg =
         error.response?.data?.message ||
         error.message ||
@@ -140,7 +135,6 @@ const Admin = () => {
       messageApi.success("Admin deleted successfully!");
       fetchAdmins();
     } catch (error) {
-      console.error("Error deleting admin:", error);
       const errorMsg =
         error.response?.data?.message ||
         error.message ||
@@ -166,6 +160,7 @@ const Admin = () => {
             src={`http://localhost:8081${pic}`}
             alt="Profile"
             style={{ width: 40, height: 40, borderRadius: "50%" }}
+            onError={e => { e.target.onerror = null; e.target.src = "/default-profile.png"; }}
           />
         ) : (
           "—"
