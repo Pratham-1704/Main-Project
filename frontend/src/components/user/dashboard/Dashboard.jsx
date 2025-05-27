@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip as ReTooltip, CartesianGrid, Respo
 import { Link } from "react-router-dom";
 import { ShopOutlined, AppstoreOutlined, ShoppingOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { PieChart, Pie, Cell, Legend } from "recharts";
 // import logo from "../../../assets/logo.png"; // Place your logo in src/assets/logo.png
 
 function Dashboard() {
@@ -128,6 +129,14 @@ function Dashboard() {
     setParityStats(Object.entries(stats).map(([month, count]) => ({ month, count })));
   };
 
+  // Prepare data for Product Category Distribution Pie Chart
+  const categoryDistribution = categories.map(cat => ({
+    name: cat.name,
+    value: products.filter(prod => prod.categoryid === cat._id).length,
+  })).filter(item => item.value > 0);
+
+  const PIE_COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28EFF", "#FF6699", "#33CC99"];
+
   return (
     <>
       <main id="main" className="main" style={{ background: "#f4f6fa", minHeight: "100vh" }}>
@@ -245,24 +254,64 @@ function Dashboard() {
               </Card>
             </div>
 
-            {/* Lead Trends */}
-            <div className="col-lg-4">
-              <div className="card p-3">
-                <h5>Lead Trends</h5>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={leadStats}>
-                    <CartesianGrid strokeDasharray="3 5" />
-                    <XAxis dataKey="date" />
-                    <YAxis allowDecimals={false} />
-                    <ReTooltip />
-                    <Bar dataKey="count" fill="#2E86C1" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            
           </div>
 
-         
+        <div className="container">
+  <div className="row">
+    {/* Product Category Distribution Pie Chart */}
+    <div className="col-lg-8 col-md-12 mb-3">
+      <Card
+        title="Product Category Distribution"
+        style={{ marginTop: 24, borderRadius: 12 }}
+        bodyStyle={{ padding: 8 }}
+      >
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={categoryDistribution}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={80}
+              label
+            >
+              {categoryDistribution.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={PIE_COLORS[index % PIE_COLORS.length]}
+                />
+              ))}
+            </Pie>
+            <ReTooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </Card>
+    </div>
+
+    {/* Lead Trends */}
+    <div className="col-lg-4 col-md-12 mb-3">
+      <Card
+        title="Lead Trends"
+        style={{ marginTop: 24, borderRadius: 12 }}
+        bodyStyle={{ padding: 16 }}
+      >
+        <ResponsiveContainer width="100%" height={250}>
+          <BarChart data={leadStats}>
+            <CartesianGrid strokeDasharray="3 5" />
+            <XAxis dataKey="date" />
+            <YAxis allowDecimals={false} />
+            <ReTooltip />
+            <Bar dataKey="count" fill="#2E86C1" />
+          </BarChart>
+        </ResponsiveContainer>
+      </Card>
+    </div>
+  </div>
+</div>
+
 
           {/* Notifications Section */}
           <div className="card p-3 mt-4">
