@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // <-- Add this import
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  // const [mobileno, setMobileno] = useState("");
-  // const [role, setRole] = useState("");
-  // const [name, setName] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // For show/hide password
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
@@ -16,36 +15,35 @@ function Login() {
     e.preventDefault();
 
     try {
-        const res = await axios.post("http://localhost:8081/admin/login", {
-            username,
-            password,
-        });
+      const res = await axios.post("http://localhost:8081/admin/login", {
+        username,
+        password,
+      });
 
-        if (res.data.status === "success") {
-            // Store admin details in localStorage
-            localStorage.setItem("adminid", res.data.data.adminid); // Store admin ID
-            localStorage.setItem("name", res.data.data.name); // Store admin name
-            localStorage.setItem("role", res.data.data.role); // Store admin role
-            localStorage.setItem("username", res.data.data.username); 
-            localStorage.setItem("mobileno", res.data.data.mobileno); 
-
-            // Navigate to the dashboard
-            navigate("/dashboard");
-        } else {
-            setError("Invalid credentials");
-        }
+      if (res.data.status === "success") {
+        localStorage.setItem("adminid", res.data.data.adminid);
+        localStorage.setItem("name", res.data.data.name);
+        localStorage.setItem("role", res.data.data.role);
+        localStorage.setItem("username", res.data.data.username);
+        localStorage.setItem("mobileno", res.data.data.mobileno);
+        navigate("/dashboard");
+      } else {
+        setError("Incorrect username or password");
+        setTimeout(() => setError(""), 2000); // Hide after 2 seconds
+      }
     } catch (err) {
-        setError(err.response?.data?.message || "Login failed");
+      setError(err.response?.data?.message || "Login failed");
+      setTimeout(() => setError(""), 2000); // Hide after 2 seconds
     }
-};
+  };
 
   return (
     <main>
-      <div className="container">
-        <section className="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
-          <div className="col-lg-4 col-md-6">
-            <div className="card mb-3">
-              <div className="card-body">
+      <div className="container" style={{backgroundColor: "#d7d8d7",borderRadius: "20px", padding: "0rem", marginTop: "0rem"}}>
+        <section className="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4" style={{borderRadius: "20px"}}>
+          <div className="col-lg-4 col-md-6" style={{backgroundColor: "white", borderRadius: "20px"}}>
+            <div className="card mb-0" style={{borderRadius: "20px"}}>
+              <div className="card-body" style={{padding: "2rem", backgroundColor: "#e3f0ae", borderRadius: "20px"}}>
                 <h5 className="card-title text-center pb-0 fs-4">Login</h5>
                 <p className="text-center small">Enter username & password</p>
 
@@ -65,13 +63,23 @@ function Login() {
 
                   <div className="col-12">
                     <label className="form-label">Password</label>
-                    <input
-                      type="password"
-                      className="form-control"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
+                    <div className="input-group">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        className="form-control"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                      />
+                      <span
+                        className="input-group-text"
+                        style={{ cursor: "pointer", background: "white" }}
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        tabIndex={-1}
+                      >
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="col-12">

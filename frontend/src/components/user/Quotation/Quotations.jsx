@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button, Table, message, Popconfirm } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
@@ -10,6 +10,7 @@ const Quotations = () => {
   const [customers, setCustomers] = useState([]);
   const [sources, setSources] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
+  const navigate = useNavigate();
 
   // Fetch data on component mount
   useEffect(() => {
@@ -62,8 +63,7 @@ const Quotations = () => {
 
   // Handle update action
   const handleUpdate = (record) => {
-    console.log("Update Quotation:", record);
-    // Add your update logic here
+    navigate(`/quotation/modifyQtation/${record._id}`);
   };
 
   // Table columns

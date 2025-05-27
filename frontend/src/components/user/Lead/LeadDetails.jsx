@@ -253,9 +253,9 @@ const LeadDetails = () => {
           {/* Buttons */}
           <Row id="pdf-buttons" justify="end" gutter={8} style={{ marginTop: 20 }}>
             <Col><Button onClick={() => navigate(-1)}>Back</Button></Col>
-            <Col><Button type="primary" onClick={() => window.print()}>Print</Button></Col>
+            {/* <Col><Button type="primary" onClick={() => window.print()}>Print</Button></Col> */}
             <Col><Link to="/lead/sbq"><Button type="dashed">SBQ</Button></Link></Col>
-            <Col><Link to="/lead/mbq"><Button type="dashed">MBQ</Button></Link></Col>
+            {/* <Col><Link to="/lead/mbq"><Button type="dashed">MBQ</Button></Link></Col> */}
             <Col><Button onClick={generatePDF}>Generate PDF</Button></Col>
           </Row>
         </div>
