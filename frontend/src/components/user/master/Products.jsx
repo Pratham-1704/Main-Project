@@ -93,6 +93,7 @@ const Products = () => {
   };
 
   const handleEdit = (record) => {
+    window.scrollTo(0, 0);
     form.setFieldsValue(record);
     setEditingId(record._id);
     setInitialValues(record);

@@ -16,19 +16,19 @@ function Header() {
 
   return (
     <>
-      <header id="header" className="header fixed-top d-flex align-items-center" style={{ backgroundColor:"orange"}}>
+      <header id="header" className="header fixed-top d-flex align-items-center" style={{ backgroundColor: "orange" }}>
         <div className="d-flex align-items-center justify-content-between">
           <a href="index.html" className="logo d-flex align-items-center">
             <img src="assets/img/Companylogo.png" style={{ textAlign: "left" }}
               alt="" />
-              <h4 style={{marginTop:"10px", color:"black",marginLeft:"15px"}}>Parshwanath Steel</h4>
+            <h4 style={{ marginTop: "10px", color: "black", marginLeft: "15px" }}>Parshwanath Steel</h4>
             <span className="d-none d-lg-block"></span>
           </a>
           {/* <i className="bi bi-list toggle-sidebar-btn"></i> */}
         </div>
 
         <div className="search-bar">
-          <h5 style={{marginTop:"10px", marginLeft:"400px"}}>Welcome {name}</h5>
+          <h5 style={{ marginTop: "10px", marginLeft: "400px" }}>Welcome {name}</h5>
         </div>
 
         <nav className="header-nav ms-auto">
@@ -73,7 +73,7 @@ function Header() {
                 <li>
                   <a
                     className="dropdown-item d-flex align-items-center"
-                    href="users-profile.html"
+                    // href="users-profile.html"
                   >
                     <i className="bi bi-gear"></i>
                     <span>Account Settings</span>
@@ -86,7 +86,7 @@ function Header() {
                 <li>
                   <a
                     className="dropdown-item d-flex align-items-center"
-                    href="pages-faq.html"
+                    // href="pages-faq.html"
                   >
                     <i className="bi bi-question-circle"></i>
                     <span>Need Help?</span>

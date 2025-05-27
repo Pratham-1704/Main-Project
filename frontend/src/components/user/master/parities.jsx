@@ -108,6 +108,7 @@ const Parities = () => {
   };
 
   const handleEdit = (record) => {
+    window.scrollTo(0, 0);
     form.setFieldsValue({ name: record.name, baserate: record.baserate });
     setEditingId(record._id);
     setInitialValues(record);

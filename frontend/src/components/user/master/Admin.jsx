@@ -116,6 +116,7 @@ const Admin = () => {
   };
 
   const handleEdit = (record) => {
+    window.scrollTo(0, 0);
     form.setFieldsValue({
       ...record,
       profilePic: record.profilePic
