@@ -461,6 +461,7 @@ const SBQ = () => {
         <Button
           type="link"
           icon={<DeleteOutlined />}
+          className="action-button delete-button"
           danger
           onClick={() => deleteRow(record.key)}
         />

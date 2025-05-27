@@ -298,6 +298,8 @@ const Leads = () => {
           cancelText="No"
         >
           <Button
+            type="link"
+            className="action-button delete-button"
             danger
             icon={<DeleteOutlined />}
           />

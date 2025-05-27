@@ -124,17 +124,22 @@ const Quotations = () => {
         <div style={{ display: "flex", justifyContent: "center", gap: "8px" }}>
           <Button
             icon={<EditOutlined />}
-            size="small"
-            type="primary"
+            type="link"
             onClick={() => handleUpdate(record)}
+            className="action-button delete-button"
           />
           <Popconfirm
             title="Are you sure you want to delete this quotation?"
             onConfirm={() => handleDelete(record._id)}
             okText="Yes"
             cancelText="No"
+            className="action-button delete-button"
           >
-            <Button danger icon={<DeleteOutlined />} size="small" />
+            <Button 
+            type="link"
+            danger 
+            icon={<DeleteOutlined />} size="small"
+            className="action-button delete-button" />
           </Popconfirm>
         </div>
       ),
