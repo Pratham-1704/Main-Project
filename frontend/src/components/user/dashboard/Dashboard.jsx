@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Card, Row, Col, Badge, Statistic, Avatar, Tooltip, Table } from "antd";
-import { BarChart, Bar, XAxis, YAxis, Tooltip as ReTooltip, CartesianGrid, ResponsiveContainer } from "recharts";
-import { Link } from "react-router-dom";
-import { ShopOutlined, AppstoreOutlined, ShoppingOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { PieChart, Pie, Cell, Legend } from "recharts";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Card, Row, Col, Badge, Statistic, Avatar, Tooltip, Table, Alert, Button, message } from "antd";
+import { BarChart, Bar, XAxis, YAxis, Tooltip as ReTooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+import { Link } from "react-router-dom";
+import { ShopOutlined, AppstoreOutlined, ShoppingOutlined, DownloadOutlined } from "@ant-design/icons";
+
+import weekOfYear from "dayjs/plugin/weekOfYear";
+dayjs.extend(weekOfYear);
 // import logo from "../../../assets/logo.png"; // Place your logo in src/assets/logo.png
 
 function Dashboard() {
@@ -18,6 +21,8 @@ function Dashboard() {
   const [products, setProducts] = useState([]);
   const [recentDOOrders, setRecentDOOrders] = useState([]);
   const [customers, setCustomers] = useState([]); // New state for customers
+  const [orders, setOrders] = useState([]); // <-- Add this line
+  const [allQuotations, setAllQuotations] = useState([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -28,6 +33,8 @@ function Dashboard() {
     fetchParityRecords();
     fetchRecentDOOrders();
     fetchCustomers(); // Fetch customers on mount
+    fetchOrders(); // <-- Add this line
+    fetchAllQuotations();
   }, []);
 
   // Fetch Brands
@@ -107,6 +114,26 @@ function Dashboard() {
     } catch (err) {}
   };
 
+  // Fetch Orders
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/order"); // Adjust endpoint if needed
+      setOrders(res.data.data || []);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
+
+  const fetchAllQuotations = async () => {
+    try {
+      const res = await axios.get("http://localhost:8081/quotation");
+      setAllQuotations(res.data.data || []);
+      console.log("All Quotations:", res.data.data);  
+    } catch (err) {
+      // Optionally show error
+    }
+  };
+
   // Process Lead Data
   const processLeadData = (leads) => {
     const stats = {};
@@ -136,6 +163,104 @@ function Dashboard() {
   })).filter(item => item.value > 0);
 
   const PIE_COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28EFF", "#FF6699", "#33CC99"];
+
+  // Example: Low stock products (threshold: 5)
+  const lowStockProducts = products?.filter(p => p.stock <= 5);
+
+  // Example: Overdue orders (assuming 'dueDate' and 'status' fields)
+  const overdueOrders = orders?.filter(
+    o => new Date(o.dueDate) < new Date() && o.status !== 'Completed'
+  );
+
+  const revenueStats = React.useMemo(() => {
+    const weekly = {};
+    const monthly = {};
+    let total = 0;
+
+    (allQuotations || []).forEach(q => {
+      if (String(q.do_prepared).toLowerCase() === "yes") {
+
+        const amount = Number(q.total) || 0; // <-- use 'total' not 'totalamount'
+        total += amount;
+        // Group by week
+        const week = dayjs(q.quotationdate).week();
+        const weekLabel = `${dayjs(q.quotationdate).year()}-W${String(week).padStart(2, '0')}`;
+        weekly[weekLabel] = (weekly[weekLabel] || 0) + amount;
+        // Group by month
+        const month = dayjs(q.quotationdate).format('YYYY-MM');
+        monthly[month] = (monthly[month] || 0) + amount;
+      }
+    });
+
+    return {
+      total,
+      weekly: Object.entries(weekly).map(([week, value]) => ({ week, value })),
+      monthly: Object.entries(monthly).map(([month, value]) => ({ month, value })),
+    };
+  }, [allQuotations]);
+
+  // For monthly revenue
+  const lastMonth = [...revenueStats.monthly].sort((a, b) => a.month.localeCompare(b.month)).slice(-1)[0]?.value || 0;
+
+  // For weekly revenue
+  const lastWeek = [...revenueStats.weekly].sort((a, b) => a.week.localeCompare(b.week)).slice(-1)[0]?.value || 0;
+
+  // Export handler for table data
+  const exportToCSV = (data, filename) => {
+    if (!data || data.length === 0) {
+      message.warning('No data to export!');
+      return;
+    }
+
+    // Exclude unwanted fields
+    const excludeFields = ['_id', '__v'];
+
+    // Map IDs to names for orders
+    let exportData = data;
+    if (filename === 'orders.csv') {
+      exportData = data.map(order => {
+        // Replace customerid with customer name
+        const customer = customers.find(c => c._id === order.customerid);
+        return {
+          ...order,
+          customer: customer ? customer.name : order.customerid,
+          // Add more mappings here if needed (e.g., product, category)
+        };
+      });
+      // Optionally remove the original customerid field
+      excludeFields.push('customerid');
+    }
+
+    const headers = Object.keys(exportData[0]).filter(
+      key => !excludeFields.includes(key)
+    );
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+    for (const row of exportData) {
+      const values = headers.map(header => `"${row[header] ?? ''}"`);
+      csvRows.push(values.join(','));
+    }
+    const csvData = csvRows.join('\n');
+    const blob = new Blob([csvData], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', filename);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    message.success('Exported successfully!');
+  };
+
+  const currentMonth = dayjs().format('YYYY-MM');
+const currentWeek = `${dayjs().year()}-W${String(dayjs().week()).padStart(2, '0')}`;
+
+const thisMonthRevenue =
+  revenueStats.monthly.find(m => m.month === currentMonth)?.value || 0;
+
+const thisWeekRevenue =
+  revenueStats.weekly.find(w => w.week === currentWeek)?.value || 0;
 
   return (
     <>
@@ -199,6 +324,25 @@ function Dashboard() {
             </Card>
           </Col>
         </Row>
+
+        <div style={{ display: "flex", gap: 24, marginBottom: 24 }}>
+          <div style={{ background: "#f6ffed", padding: 16, borderRadius: 8, minWidth: 180 }}>
+            <h4>Total Revenue</h4>
+            <div style={{ fontSize: 24, fontWeight: "bold" }}>₹{revenueStats.total.toLocaleString()}</div>
+          </div>
+          <div style={{ background: "#e6f7ff", padding: 16, borderRadius: 8, minWidth: 180 }}>
+            <h4>This Month</h4>
+            <div style={{ fontSize: 20 }}>
+              ₹{thisMonthRevenue.toLocaleString()}
+            </div>
+          </div>
+          <div style={{ background: "#fffbe6", padding: 16, borderRadius: 8, minWidth: 180 }}>
+            <h4>This Week</h4>
+            <div style={{ fontSize: 20 }}>
+              ₹{thisWeekRevenue.toLocaleString()}
+            </div>
+          </div>
+        </div>
 
         <section className="section dashboard">
           <div className="row">
@@ -322,6 +466,56 @@ function Dashboard() {
             <Badge count={parityData.length} style={{ backgroundColor: "#faad14" }}>
               <p>Parity Issues Found</p>
             </Badge>
+          </div>
+
+          {/* Notifications/Alerts Section */}
+          <div style={{ marginBottom: 24 }}>
+            {lowStockProducts?.length > 0 && (
+              <Alert
+                message={`Low Stock Alert: ${lowStockProducts.length} product(s)`}
+                description={
+                  <ul>
+                    {lowStockProducts.map(p => (
+                      <li key={p.id}>{p.name} (Stock: {p.stock})</li>
+                    ))}
+                  </ul>
+                }
+                type="warning"
+                showIcon
+                style={{ marginBottom: 12 }}
+              />
+            )}
+            {overdueOrders?.length > 0 && (
+              <Alert
+                message={`Overdue Orders: ${overdueOrders.length}`}
+                description={
+                  <ul>
+                    {overdueOrders.map(o => (
+                      <li key={o.id}>{o.orderNumber} (Due: {o.dueDate})</li>
+                    ))}
+                  </ul>
+                }
+                type="error"
+                showIcon
+              />
+            )}
+          </div>
+
+          {/* Export Data Section */}
+          <div style={{ marginBottom: 24 }}>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={() => exportToCSV(products, 'products.csv')}
+              style={{ marginRight: 8 }}
+            >
+              Export Products
+            </Button>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={() => exportToCSV(orders, 'orders.csv')}
+            >
+              Export Orders
+            </Button>
           </div>
         </section>
       </main>
