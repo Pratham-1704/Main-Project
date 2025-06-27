@@ -105,7 +105,7 @@ const Admin = () => {
       const errorMsg =
         error.response?.data?.message ||
         error.message ||
-        "Something went wrong. Please try again!";
+        "Please fill the values correctly!";
       messageApi.error(errorMsg);
     }
   };
