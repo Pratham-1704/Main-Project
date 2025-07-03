@@ -39,11 +39,11 @@ function Header() {
                 // href="#"
                 data-bs-toggle="dropdown"
               >
-                <img
+                {/* <img
                   src="assets/img/profile-img.jpg"
                   alt="Profile"
                   className="rounded-circle"
-                />
+                /> */}
                 <span className="d-none d-md-block dropdown-toggle ps-2">
                   {name}
                   {/* ({role}) */}

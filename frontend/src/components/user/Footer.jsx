@@ -3,16 +3,16 @@ import React from 'react'
 function Footer() {
   return (
     <>
-    <footer id="footer" className="footer">
+      <footer id="footer" className="footer">
         <div className="copyright">
-          &copy; Copyright{" "}
+          &copy; {new Date().getFullYear()}{" "}
           <strong>
-            <span>NiceAdmin</span>
+            <span>iGAP Technologies</span>
           </strong>
-          . All Rights Reserved
+          . All Rights Reserved.
         </div>
         <div className="credits">
-          Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+          Designed by <a href="https://igaptechnologies.com" target="_blank" rel="noopener noreferrer">iGAP Technologies Team</a>
         </div>
       </footer>
 

@@ -502,7 +502,7 @@ const thisWeekRevenue =
           </div>
 
           {/* Export Data Section */}
-          <div style={{ marginBottom: 24 }}>
+          {/* <div style={{ marginBottom: 24 }}>
             <Button
               icon={<DownloadOutlined />}
               onClick={() => exportToCSV(products, 'products.csv')}
@@ -516,7 +516,7 @@ const thisWeekRevenue =
             >
               Export Orders
             </Button>
-          </div>
+          </div> */}
         </section>
       </main>
     </>

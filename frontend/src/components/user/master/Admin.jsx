@@ -150,22 +150,22 @@ const Admin = () => {
   };
 
   const columns = [
-    {
-      title: "Profile Pic",
-      dataIndex: "profilePic",
-      key: "profilePic",
-      render: (pic) =>
-        pic ? (
-          <img
-            src={`http://localhost:8081${pic}`}
-            alt="Profile"
-            style={{ width: 40, height: 40, borderRadius: "50%" }}
-            onError={e => { e.target.onerror = null; e.target.src = "/default-profile.png"; }}
-          />
-        ) : (
-          "—"
-        ),
-    },
+    // {
+    //   title: "Profile Pic",
+    //   dataIndex: "profilePic",
+    //   key: "profilePic",
+    //   render: (pic) =>
+    //     pic ? (
+    //       <img
+    //         src={`http://localhost:8081${pic}`}
+    //         alt="Profile"
+    //         style={{ width: 40, height: 40, borderRadius: "50%" }}
+    //         onError={e => { e.target.onerror = null; e.target.src = "/default-profile.png"; }}
+    //       />
+    //     ) : (
+    //       "—"
+    //     ),
+    // },
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Username", dataIndex: "username", key: "username" },
     { title: "Mobile No", dataIndex: "mobileno", key: "mobileno" },
@@ -268,7 +268,7 @@ const Admin = () => {
                 </div>
 
                 <div className="col-lg-6 p-1">
-                  <Form.Item
+                  {/* <Form.Item
                     name="profilePic"
                     label="Profile Picture"
                     valuePropName="fileList"
@@ -284,7 +284,7 @@ const Admin = () => {
                     >
                       <Button icon={<UploadOutlined />}>Select Image</Button>
                     </Upload>
-                  </Form.Item>
+                  </Form.Item> */}
                 </div>
 
                 <div className="col-lg-12 p-1">
