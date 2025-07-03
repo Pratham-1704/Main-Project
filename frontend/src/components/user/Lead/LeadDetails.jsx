@@ -69,20 +69,26 @@ const LeadDetails = () => {
     products.find((p) => p._id === id)?.name || "Unknown Product";
 
   const tableData =
-    lead?.items?.map((item, index) => ({
-      key: index,
-      no: index + 1,
-      category: getCategoryName(item.categoryid),
-      product: getProductName(item.productid),
-      estimationin: item.estimationin,
-      brand: item.brand,
-      quantity: item.quantity,
-      unit: item.unit,
-      narration: item.narration,
-    })) || [];
+    lead?.items?.map((item, index) => {
+      const product = products.find((p) => p._id === item.productid);
+      const productWeight = Number(product?.weight) || 0; // Adjust 'weight' if your field name is different
+      const req = Number(item.quantity || item.req || 0); // Use the correct field for requested quantity
+      return {
+        key: index,
+        no: index + 1,
+        category: getCategoryName(item.categoryid),
+        product: getProductName(item.productid),
+        estimationin: item.estimationin,
+        brand: item.brand,
+        req: req,
+        unit: item.unit,
+        weight: (req * productWeight).toFixed(2), // This is the calculated weight
+        narration: item.narration,
+      };
+    }) || [];
 
   const totalWeight = tableData.reduce(
-    (acc, item) => acc + parseFloat(item.quantity || 0),
+    (acc, item) => acc + parseFloat(item.weight || 0),
     0
   );
 
@@ -91,9 +97,9 @@ const LeadDetails = () => {
     { title: "Category", dataIndex: "category" },
     { title: "Product", dataIndex: "product" },
     { title: "Brand", dataIndex: "brand" },
-    { title: "Req", dataIndex: "quantity" },
+    { title: "Req", dataIndex: "req" },
     { title: "Unit", dataIndex: "unit" },
-    { title: "Weight", dataIndex: "quantity" },
+    { title: "Weight", dataIndex: "weight" }, // Now shows req * product weight
     { title: "Narration", dataIndex: "narration" },
   ];
 
