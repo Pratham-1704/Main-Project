@@ -106,7 +106,7 @@ const Brand = () => {
     } catch (error) {
       console.error("Error submitting form:", error);
       const errorMsg =
-        error.response?.data?.message || "An unexpected error occurred.";
+        error.response?.data?.message || "Please fill the values correctly!";
       messageApi.error(errorMsg);
     }
   };

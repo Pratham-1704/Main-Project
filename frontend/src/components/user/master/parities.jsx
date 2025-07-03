@@ -101,7 +101,7 @@ const Parities = () => {
         messageApi.error(error.response.data.message);
       } else {
         const errorMsg =
-          error.response?.data?.message || "An error occurred while saving the parity!";
+          error.response?.data?.message || "Please fill the values correctly!";
         messageApi.error(errorMsg);
       }
     }
