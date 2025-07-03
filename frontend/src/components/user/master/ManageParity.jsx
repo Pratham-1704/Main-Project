@@ -16,6 +16,9 @@ function ManageParity() {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
+
+  const [messageApi, contextHolder] = message.useMessage();
+
   const location = useLocation();
   const navigate = useNavigate();
   const { name, baseRate, parityId } = location.state || {};
@@ -160,7 +163,7 @@ function ManageParity() {
       const response = await axios.post("http://localhost:8081/brandproduct/update", { updates });
 
       if (response.data.status === "success") {
-        message.success("Brand products updated successfully!");
+        messageApi.success("Brand products updated successfully!");
         // navigate("/parities");
       } else {
         message.error("Failed to update brand products");
@@ -200,114 +203,117 @@ function ManageParity() {
   ];
 
   return (
-    <main id="main" className="main">
-      <div className="pagetitle">
-        <h1>Manage Parity</h1>
-      </div>
-      <section className="section">
-        <div className="row">
-          <div className="col-lg-12">
-            <div className="card p-3 custom-table">
-              <Form
-                form={form}
-                layout="vertical"
-                onFinish={handleSubmit}
-                initialValues={{
-                  name: name || "",
-                  baseRate: baseRate || "",
-                }}
-              >
-                <div className="row">
-                  <div className="col-lg-6 mb-3">
-                    <Form.Item
-                      label="Parity Name"
-                      name="name"
-                      rules={[{ required: true, message: "Please enter the parity name" }]}
-                    >
-                      <Input placeholder="Enter parity name" disabled />
-                    </Form.Item>
-                  </div>
-                  <div className="col-lg-6 mb-3">
-                    <Form.Item
-                      label="Base Rate"
-                      name="baseRate"
-                      rules={[{ required: true, message: "Please enter the base rate" }]}
-                    >
-                      <Input placeholder="Enter base rate" type="number" disabled />
-                    </Form.Item>
-                  </div>
-                  <div className="col-lg-6 mb-3">
-                    <Form.Item
-                      label="Brand"
-                      name="brand"
-                      rules={[{ message: "Please select a brand" }]}
-                    >
-                      <Select
-                        placeholder="Select a brand"
-                        onChange={handleBrandChange}
-                        value={selectedBrand}
-                        loading={loading}
+    <>
+      {contextHolder}
+      <main id="main" className="main">
+        <div className="pagetitle">
+          <h1>Manage Parity</h1>
+        </div>
+        <section className="section">
+          <div className="row">
+            <div className="col-lg-12">
+              <div className="card p-3 custom-table">
+                <Form
+                  form={form}
+                  layout="vertical"
+                  onFinish={handleSubmit}
+                  initialValues={{
+                    name: name || "",
+                    baseRate: baseRate || "",
+                  }}
+                >
+                  <div className="row">
+                    <div className="col-lg-6 mb-3">
+                      <Form.Item
+                        label="Parity Name"
+                        name="name"
+                        rules={[{ required: true, message: "Please enter the parity name" }]}
                       >
-                        {brands.map((brand) => (
-                          <Option key={brand._id} value={brand._id}>
-                            {brand.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Form.Item>
-                  </div>
-                  {/* <div className="col-lg-6 mb-3">
-                    <Form.Item
-                      label="Category"
-                      name="category"
-                      rules={[{ required: true, message: "Please select a category" }]}
-                    >
-                      <Select
-                        placeholder="Select a category"
-                        onChange={handleCategoryChange}
-                        value={selectedCategory}
-                        loading={loading}
+                        <Input placeholder="Enter parity name" disabled />
+                      </Form.Item>
+                    </div>
+                    <div className="col-lg-6 mb-3">
+                      <Form.Item
+                        label="Base Rate"
+                        name="baseRate"
+                        rules={[{ required: true, message: "Please enter the base rate" }]}
                       >
-                        {categories.map((category) => (
-                          <Option key={category._id} value={category._id}>
-                            {category.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Form.Item>
-                  </div> */}
-                </div>
+                        <Input placeholder="Enter base rate" type="number" disabled />
+                      </Form.Item>
+                    </div>
+                    <div className="col-lg-6 mb-3">
+                      <Form.Item
+                        label="Brand"
+                        name="brand"
+                        rules={[{ message: "Please select a brand" }]}
+                      >
+                        <Select
+                          placeholder="Select a brand"
+                          onChange={handleBrandChange}
+                          value={selectedBrand}
+                          loading={loading}
+                        >
+                          {brands.map((brand) => (
+                            <Option key={brand._id} value={brand._id}>
+                              {brand.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </div>
+                    {/* <div className="col-lg-6 mb-3">
+                      <Form.Item
+                        label="Category"
+                        name="category"
+                        rules={[{ required: true, message: "Please select a category" }]}
+                      >
+                        <Select
+                          placeholder="Select a category"
+                          onChange={handleCategoryChange}
+                          value={selectedCategory}
+                          loading={loading}
+                        >
+                          {categories.map((category) => (
+                            <Option key={category._id} value={category._id}>
+                              {category.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </div> */}
+                  </div>
 
-                <div className="col-lg-12 mb-3">
-                  <Table
-                    columns={columns}
-                    dataSource={tableData}
-                    loading={loading}
-                    rowKey="key"
-                    pagination ={{
-                      pageSize: 10
-                    }}
-                  />
-                </div>
+                  <div className="col-lg-12 mb-3">
+                    <Table
+                      columns={columns}
+                      dataSource={tableData}
+                      loading={loading}
+                      rowKey="key"
+                      pagination ={{
+                        pageSize: 10
+                      }}
+                    />
+                  </div>
 
-                <div className="col-lg-12 mb-3 text-center">
-                  <Button type="primary" htmlType="submit" loading={loading}>
-                    Save
-                  </Button>
-                  <Button
-                    type="default"
-                    onClick={() => navigate(-1)}
-                    style={{ marginLeft: "10px" }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </Form>
+                  <div className="col-lg-12 mb-3 text-center">
+                    <Button type="primary" htmlType="submit" loading={loading}>
+                      Save
+                    </Button>
+                    <Button
+                      type="default"
+                      onClick={() => navigate(-1)}
+                      style={{ marginLeft: "10px" }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </Form>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
-    </main>
+        </section>
+      </main>
+    </>
   );
 }
 
