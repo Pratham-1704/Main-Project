@@ -81,7 +81,8 @@ const LeadDetails = () => {
         estimationin: item.estimationin,
         brand: item.brand,
         req: req,
-        unit: item.unit,
+        // unit: item.unit,
+         unit: item.estimationin,
         weight: (req * productWeight).toFixed(2), // This is the calculated weight
         narration: item.narration,
       };
@@ -96,7 +97,7 @@ const LeadDetails = () => {
     { title: "No", dataIndex: "no" },
     { title: "Category", dataIndex: "category" },
     { title: "Product", dataIndex: "product" },
-    { title: "Brand", dataIndex: "brand" },
+    // { title: "Brand", dataIndex: "brand" },
     { title: "Req", dataIndex: "req" },
     { title: "Unit", dataIndex: "unit" },
     { title: "Weight", dataIndex: "weight" }, // Now shows req * product weight

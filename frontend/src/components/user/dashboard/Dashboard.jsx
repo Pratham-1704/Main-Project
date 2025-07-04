@@ -138,10 +138,10 @@ function Dashboard() {
   const processLeadData = (leads) => {
     const stats = {};
     leads.forEach((lead) => {
-      const date = dayjs(lead.leaddate).format("YYYY-MM-DD");
-      stats[date] = (stats[date] || 0) + 1;
+      const month = dayjs(lead.leaddate).format("YYYY-MM");
+      stats[month] = (stats[month] || 0) + 1;
     });
-    setLeadStats(Object.entries(stats).map(([date, count]) => ({ date, count })));
+    setLeadStats(Object.entries(stats).map(([month, count]) => ({ month, count })));
   };
 
   // Process Parity Data
@@ -445,7 +445,7 @@ const thisWeekRevenue =
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={leadStats}>
             <CartesianGrid strokeDasharray="3 5" />
-            <XAxis dataKey="date" />
+            <XAxis dataKey="month" /> {/* Changed from "date" to "month" */}
             <YAxis allowDecimals={false} />
             <ReTooltip />
             <Bar dataKey="count" fill="#2E86C1" />

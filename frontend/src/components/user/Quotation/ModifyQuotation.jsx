@@ -225,22 +225,30 @@ const ModifyQuotation = () => {
         />
       ),
     },
+    // {
+    //   title: "Unit",
+    //   dataIndex: "estimationin",
+    //   key: "estimationin",
+    //   render: (_, record) => (
+    //     <Select
+    //       value={record.estimationin}
+    //       style={{ width: "100%" }}
+    //       onChange={(value) => updateRow(record.key, "estimationin", value)}
+    //       options={[
+    //         { value: "Kg", label: "Kg" },
+    //         { value: "Meter", label: "Meter" },
+    //         { value: "Feet", label: "Feet" },
+    //         { value: "No's", label: "No's" },
+    //       ]}
+    //     />
+    //   ),
+    // },
     {
       title: "Unit",
       dataIndex: "estimationin",
       key: "estimationin",
       render: (_, record) => (
-        <Select
-          value={record.estimationin}
-          style={{ width: "100%" }}
-          onChange={(value) => updateRow(record.key, "estimationin", value)}
-          options={[
-            { value: "Kg", label: "Kg" },
-            { value: "Meter", label: "Meter" },
-            { value: "Feet", label: "Feet" },
-            { value: "No's", label: "No's" },
-          ]}
-        />
+        <Input value={record.estimationin} readOnly style={{ backgroundColor: "#f5f5f5" }} />
       ),
     },
     {

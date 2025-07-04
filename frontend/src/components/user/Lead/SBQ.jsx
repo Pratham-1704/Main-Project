@@ -31,9 +31,9 @@ const SBQ = () => {
       const res = await axios.get("http://localhost:8081/brand");
       const options = Array.isArray(res.data.data)
         ? res.data.data.map((brand) => ({
-            value: brand._id,
-            label: brand.name,
-          }))
+          value: brand._id,
+          label: brand.name,
+        }))
         : [];
       setBrandOptions(options);
     } catch (err) {
@@ -308,7 +308,7 @@ const SBQ = () => {
     }
   };
 
-  const handleUpdate = async () => {};
+  const handleUpdate = async () => { };
 
   const formFields = (
     <Form form={form} layout="vertical">
@@ -422,23 +422,31 @@ const SBQ = () => {
         <Input value={record.weight} readOnly style={{ backgroundColor: "#f5f5f5" }} />
       ),
     },
+    // {
+    //   title: "Unit",
+    //   dataIndex: "estimationin",
+    //   key: "estimationin",
+    //   render: (_, record) => (
+    //     <Select
+    //       placeholder="Select Unit"
+    //       value={record.estimationin}
+    //       onChange={(value) => updateRow(record.key, "estimationin", value)}
+    //       style={{ width: "100%" }}
+    //       options={[
+    //         { value: "Kg", label: "Kg" },
+    //         { value: "Meter", label: "Meter" },
+    //         { value: "Feet", label: "Feet" },
+    //         { value: "No's", label: "No's" },
+    //       ]}
+    //     />
+    //   ),
+    // },
     {
       title: "Unit",
       dataIndex: "estimationin",
       key: "estimationin",
       render: (_, record) => (
-        <Select
-          placeholder="Select Unit"
-          value={record.estimationin}
-          onChange={(value) => updateRow(record.key, "estimationin", value)}
-          style={{ width: "100%" }}
-          options={[
-            { value: "Kg", label: "Kg" },
-            { value: "Meter", label: "Meter" },
-            { value: "Feet", label: "Feet" },
-            { value: "No's", label: "No's" },
-          ]}
-        />
+        <Input value={record.estimationin} readOnly style={{ backgroundColor: "#f5f5f5" }} />
       ),
     },
     {
