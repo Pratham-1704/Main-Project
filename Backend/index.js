@@ -85,7 +85,7 @@ app.use("/quotationbrandprice", require("./Routes/quotationBrandPriceRoutes"));
 app.use("/orderdetail", require("./Routes/orderDetailRoutes"));
 app.use("/lead", require("./Routes/leadRoutes"));
 app.use("/leaddetail", require("./Routes/leadDetailsRoutes"));
-app.use("/parity", require("./Routes/ParityRoute"));
+app.use("/parity", require("./Routes/parityRoute"));
 app.use("/brandproduct", require("./Routes/brandProductRoutes"));
 
 app.listen(process.env.PORT, () => {
